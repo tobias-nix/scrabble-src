@@ -1,0 +1,10 @@
+.DS_Store
+Thumbs.db
+.idea
+.vscode
+target
+out
+dependency-reduced-pom.xml
+*.iml
+database
+*Backup
