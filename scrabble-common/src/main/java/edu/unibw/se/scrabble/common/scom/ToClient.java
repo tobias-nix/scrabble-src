@@ -1,4 +1,7 @@
 package edu.unibw.se.scrabble.common.scom;
 
-public interface ToClient {
+import java.rmi.Remote;
+
+public interface ToClient extends Remote {
+
 }
