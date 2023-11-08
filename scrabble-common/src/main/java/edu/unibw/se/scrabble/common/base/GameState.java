@@ -6,5 +6,6 @@ public enum GameState {
     PLACE,
     VOTE,
     SWAP,
-    PASS
+    PASS,
+    GAME_OVER
 }
