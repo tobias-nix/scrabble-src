@@ -2,6 +2,9 @@ package edu.unibw.se.scrabble.server.logic;
 
 import edu.unibw.se.scrabble.server.data.ScrabbleData;
 
+/**
+ * Interface for component ServerLogic which is used to implement the game logic of scrabble.
+ */
 public interface ServerLogic {
 
     /** Returns an interface for connecting to the Game Server.

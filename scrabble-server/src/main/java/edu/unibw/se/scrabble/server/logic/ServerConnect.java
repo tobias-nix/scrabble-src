@@ -1,11 +1,33 @@
 package edu.unibw.se.scrabble.server.logic;
 
 import edu.unibw.se.scrabble.common.base.ActionState;
+import edu.unibw.se.scrabble.common.base.Statistics;
 import edu.unibw.se.scrabble.common.base.TileWithPosition;
 import edu.unibw.se.scrabble.common.scom.ToServer;
 
+/**
+ * Interface ServerConnect which provides methods to play the game scrabble or to navigate in the main menu.
+ */
 public interface ServerConnect {
+    /**
+     * Add ServerConnectCallback Interface to ServerConnect so Server can send data back to clients.
+     *
+     * @param serverConnectCallback the interface {@link ServerConnectCallback}
+     */
     void setServerConnectCallback(ServerConnectCallback serverConnectCallback);
+
+    /**
+     * Gets statistics of a given username from the database.
+     *
+     * @param username the user's username
+     * @return record {@link ReturnStatistics} consisting of {@link ReturnStatisticsState}return state and {@link Statistics} Object
+     */
+    ReturnStatistics getUserStatistics(String username);
+    record ReturnStatistics(ReturnStatisticsState state, Statistics userStatistics) {}
+    enum ReturnStatisticsState {
+        DATABASE_FAILURE,
+        SUCCESSFUL
+    }
 
     ReturnCreateSession createSession(String username);
     record ReturnCreateSession(ReturnCreateSessionState state, int gameID) {}

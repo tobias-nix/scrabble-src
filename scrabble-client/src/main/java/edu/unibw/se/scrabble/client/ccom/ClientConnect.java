@@ -1,12 +1,38 @@
 package edu.unibw.se.scrabble.client.ccom;
 
 import edu.unibw.se.scrabble.common.base.ActionState;
+import edu.unibw.se.scrabble.common.base.Statistics;
 import edu.unibw.se.scrabble.common.base.TileWithPosition;
 
 public interface ClientConnect {
     void setClientConnectCallback(ClientConnectCallback clientConnectCallback);
 
-    // Fürs Hauptmenü und für Game_Over und zurück zum Hauptmenü: getUserStatistics()
+    ReturnLogin loginUser(String username, String password, ClientConnectCallback clientConnectCallback);
+    enum ReturnLogin {
+        NETWORK_FAILURE,
+        DATABASE_FAILURE,
+        USERNAME_NOT_IN_DATABASE,
+        WRONG_PASSWORD,
+        SUCCESSFUL
+    }
+
+    ReturnRegister registerUser(String username, String password, ClientConnectCallback clientConnectCallback);
+    enum ReturnRegister {
+        NETWORK_FAILURE,
+        DATABASE_FAILURE,
+        USERNAME_ALREADY_EXISTS,
+        SUCCESSFUL
+    }
+
+    // TODO: Frage: Soll LoginReturn die Statistiken gleich mit zurück geben oder ist es sinnvoller eine Methode
+    //  getUserStatistics() zu schreiben, die beim Anzeigen des Hauptmenüs aufgerufen wird?
+    ReturnStatistics getUserStatistics();
+    record ReturnStatistics(ReturnStatisticsState state, Statistics userStatistics) {}
+    enum ReturnStatisticsState {
+        NETWORK_FAILURE,
+        DATABASE_FAILURE,
+        SUCCESSFUL
+    }
 
     ReturnCreateSession createSession();
     record ReturnCreateSession(ReturnCreateSessionState state, int gameID) {}
