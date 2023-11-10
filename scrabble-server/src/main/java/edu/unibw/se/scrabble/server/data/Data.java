@@ -1,7 +1,12 @@
 package edu.unibw.se.scrabble.server.data;
 
+/**
+ * Interface for component Data which is used for user authentication and game data management.
+ */
 public interface Data {
-    /** Returns an interface for user management and user authentication.
+
+    /**
+     * Returns an interface for user management and user authentication.
      * Never returns {@code null}.
      *
      * @return the interface AuthData ({@link AuthData})
@@ -9,7 +14,8 @@ public interface Data {
     AuthData getAuthData();
 
 
-    /** Returns an interface for scrabble data management.
+    /**
+     * Returns an interface for scrabble data management.
      * Never returns {@code null}.
      *
      * @return the interface ChatData ({@link ScrabbleData})
