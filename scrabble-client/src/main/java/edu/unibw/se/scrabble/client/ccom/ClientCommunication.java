@@ -4,7 +4,9 @@ import edu.unibw.se.scrabble.common.scom.NetworkConnect;
 
 public interface ClientCommunication {
 
-    /** Returns an interface for connecting to a client.
+    /**
+     * Returns an interface for connecting to a client.
+     * <p>
      * Never returns {@code null}.
      *
      * @return the interface ClientConnect ({@link ClientConnect})

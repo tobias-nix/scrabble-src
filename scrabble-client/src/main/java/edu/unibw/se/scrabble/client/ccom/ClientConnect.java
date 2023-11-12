@@ -56,9 +56,6 @@ public interface ClientConnect {
         SUCCESSFUL
     }
 
-    // TODO: Frage: Soll LoginReturn die Statistiken gleich mit zurück geben oder ist es sinnvoller eine Methode
-    //  getUserStatistics() zu schreiben, die beim Anzeigen des Hauptmenüs aufgerufen wird?
-
     /**
      * Returns statistics of the user.
      * <p>

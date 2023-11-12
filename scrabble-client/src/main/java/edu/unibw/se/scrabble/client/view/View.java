@@ -9,6 +9,7 @@ public interface View {
 
     /**
      * Add ClientCommunication interface to View so View can make requests to ClientCommunication to update the overlay.
+     *
      * @param communication
      */
     void setClientConnect(ClientCommunication communication);
