@@ -10,10 +10,9 @@ public interface NetworkConnect extends Remote {
         WRONG_PASSWORD,
         SUCCESSFUL
     }
-    // TODO Frage: Wie stelle ich sicher, dass ich nur bei SUCCESSFUL ein nicht-null toServer Handle mit übergebe?
-    //  Bzw. ist das überhaupt wichtig oder zu beachten?
-    //  Muss ich wirklich beide Klassen erstellen, oder geht das in einer? Trotz unterschiedlicher States.
-    //  Soll man das State-Enum in die Klasse ziehen?
+    // TODO null false in AuthData
+    //  swaptile anlegen
+    //  place tile umbenennen
     class ReturnLoginNetwork {
         public static ReturnLoginNetwork DATABASE_FAILURE =
                 new ReturnLoginNetwork(ReturnLoginNetworkState.DATABASE_FAILURE);

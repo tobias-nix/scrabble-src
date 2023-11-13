@@ -7,6 +7,8 @@ import edu.unibw.se.scrabble.common.scom.ToServer;
 
 /**
  * Interface ServerConnect which provides methods to play the game scrabble or to navigate in the main menu.
+ *
+ * @author Kompalka
  */
 public interface ServerConnect {
     /**
@@ -80,7 +82,7 @@ public interface ServerConnect {
      * <p>
      * Never returns {@code null}.
      *
-     * @param actionState includes SWAP, PASS and PLACE
+     * @param actionState {@link ActionState} includes SWAP, PASS and PLACE
      * @param username the user's username
      * @return {@link ReturnSelectAction} enum type,  depending on error type or success.
      */
