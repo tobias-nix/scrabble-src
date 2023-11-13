@@ -7,19 +7,22 @@ import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnCreateSession;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnJoinSession;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnStartGame;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnSelectAction;
-import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnPlaceTiles;
+import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnPlaceTile;
+import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnSwapTile;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnEndTurn;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
  *
+ *
+ * @author Seegerer
  */
 public interface ToServer extends Remote {
     /**
      * Returns all statistics from the database for a given username.
      *
-     * @return {@link ReturnStatistics} object containing player statistics
+     * @return {@link ReturnStatistics} record containing player statistics
      * @throws RemoteException throws exception if RMI connection fails
      */
     ReturnStatistics getUserStatistics() throws RemoteException;
@@ -68,15 +71,25 @@ public interface ToServer extends Remote {
     ReturnSelectAction selectAction(ActionState actionState) throws RemoteException;
 
     /**
-     * Player placed a tile in action mode place and sends this information to server.
+     * Player placed a tile in action state PLACE and sends this information to server.
      * <p>
      * Never returns {@code null}.
      *
      * @param tileWithPosition {@link TileWithPosition} containing tile location and tile letter
-     * @return {@link ReturnPlaceTiles} enum depending on success or error message.
+     * @return {@link ReturnPlaceTile} enum depending on success or error message.
      * @throws RemoteException throws exception if RMI connection fails
      */
-    ReturnPlaceTiles placeTiles(TileWithPosition tileWithPosition) throws RemoteException;
+    ReturnPlaceTile placeTile(TileWithPosition tileWithPosition) throws RemoteException;
+
+    /**
+     * The client puts a tile on swap bench while the game is in action state SWAP.
+     * <p>
+     * Never returns {@code null}
+     *
+     * @param letter the letter of the tile a player wants to swap
+     * @return {@link ReturnSwapTile} enum type, depending on error type or success.
+     */
+    ReturnSwapTile swapTile(char letter);
 
     /**
      * Player wants to end his turn.

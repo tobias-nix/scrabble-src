@@ -4,6 +4,8 @@ import edu.unibw.se.scrabble.server.data.ScrabbleData;
 
 /**
  * Interface for component ServerLogic which is used to implement the game logic of scrabble.
+ *
+ * @author Kompalka
  */
 public interface ServerLogic {
 

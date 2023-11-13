@@ -4,6 +4,8 @@ import edu.unibw.se.scrabble.common.base.Statistics;
 
 /**
  * Interface for game data management. It is possible to get and save the user's statistic.
+ *
+ * @author Bößendörfer
  */
 public interface ScrabbleData {
 

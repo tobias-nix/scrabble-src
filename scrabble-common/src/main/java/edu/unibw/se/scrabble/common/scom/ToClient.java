@@ -7,6 +7,8 @@ import java.rmi.RemoteException;
 
 /**
  * ToClient Interface as a way for the server to communicate back to the client
+ *
+ * @author Seegerer
  */
 public interface ToClient extends Remote {
     /**

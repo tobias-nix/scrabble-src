@@ -4,7 +4,9 @@ import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnLoginUser;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnRegisterUser;
 
 /**
- * Interface to provide methods for user login and register requests
+ * Interface to provide methods for user login and register requests.
+ *
+ * @author Nerb
  */
 public interface Credentials {
     /*

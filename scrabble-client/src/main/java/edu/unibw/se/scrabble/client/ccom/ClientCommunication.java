@@ -4,6 +4,8 @@ import edu.unibw.se.scrabble.common.scom.NetworkConnect;
 
 /**
  *
+ *
+ * @author Seegerer
  */
 public interface ClientCommunication {
 

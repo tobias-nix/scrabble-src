@@ -8,7 +8,8 @@ import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnCreateSession;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnJoinSession;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnStartGame;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnSelectAction;
-import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnPlaceTiles;
+import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnPlaceTile;
+import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnSwapTile;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnEndTurn;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnStatisticsState;
 
@@ -40,7 +41,7 @@ public interface ServerConnect {
      * Never returns {@code null}.
      *
      * @param username the user's username
-     * @return {@link ReturnCreateSessionState} enum type, depending on error type or success.
+     * @return {@link ReturnCreateSession} record, containing state-enum and gameID
      */
     ReturnCreateSession createSession(String username);
 
@@ -83,9 +84,20 @@ public interface ServerConnect {
      *
      * @param tileWithPosition a tile with the exact position on the board (row and column)
      * @param username the user's username
-     * @return {@link ReturnPlaceTiles} enum type, depending on error type or success.
+     * @return {@link ReturnPlaceTile} enum type, depending on error type or success.
      */
-    ReturnPlaceTiles placeTiles(TileWithPosition tileWithPosition, String username);
+    ReturnPlaceTile placeTile(TileWithPosition tileWithPosition, String username);
+
+    /**
+     * The client puts a tile on swap bench while the game is in action state SWAP.
+     * <p>
+     * Never returns {@code null}
+     *
+     * @param letter the letter of the tile a player wants to swap
+     * @param username the user's username
+     * @return {@link ReturnSwapTile} enum type, depending on error type or success.
+     */
+    ReturnSwapTile swapTile(char letter, String username);
 
     /**
      * Ends the turn of a player.

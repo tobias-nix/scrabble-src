@@ -9,11 +9,14 @@ import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnCreateSession;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnJoinSession;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnStartGame;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnSelectAction;
-import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnPlaceTiles;
+import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnPlaceTile;
+import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnSwapTile;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnEndTurn;
 
 /**
  * Interface to provide methods for client to server communication
+ *
+ * @author Nix
  */
 
 public interface ClientConnect {
@@ -33,7 +36,7 @@ public interface ClientConnect {
      * @param username              the user's username
      * @param password              the user's password
      * @param clientConnectCallback the information to be sent to the client back
-     * @return {@link ReturnLogin} enum type, depending on error type or success.
+     * @return {@link ReturnLoginUser} enum type, depending on error type or success.
      */
     ReturnLoginUser loginUser(String username, String password, ClientConnectCallback clientConnectCallback);
 
@@ -45,7 +48,7 @@ public interface ClientConnect {
      * @param username              the user's username
      * @param password              the user's password
      * @param clientConnectCallback the information to be sent to the client back
-     * @return {@link ReturnRegister} enum type, depending on error type or success.
+     * @return {@link ReturnRegisterUser} enum type, depending on error type or success.
      */
     ReturnRegisterUser registerUser(String username, String password, ClientConnectCallback clientConnectCallback);
 
@@ -54,7 +57,7 @@ public interface ClientConnect {
      * <p>
      * Never returns {@code null}.
      *
-     * @return the interface {@link ReturnStatisticsState} and the class {@link Statistics}
+     * @return {@link ReturnStatistics} record containing player statistics
      */
     ReturnStatistics getUserStatistics();
 
@@ -63,7 +66,7 @@ public interface ClientConnect {
      * <p>
      * Never returns {@code null}.
      *
-     * @return the interface {@link ReturnCreateSessionState} and the integer gameId
+     * @return the interface {@link ReturnCreateSession} and the integer gameId
      */
     ReturnCreateSession createSession();
 
@@ -103,9 +106,19 @@ public interface ClientConnect {
      * Never returns {@code null}
      *
      * @param tileWithPosition the tile with the position information
-     * @return {@link ReturnPlaceTiles} enum type, depending on error type or success.
+     * @return {@link ReturnPlaceTile} enum type, depending on error type or success.
      */
-    ReturnPlaceTiles placeTiles(TileWithPosition tileWithPosition);
+    ReturnPlaceTile placeTile(TileWithPosition tileWithPosition);
+
+    /**
+     * The client puts a tile on swap bench.
+     * <p>
+     * Never returns {@code null}
+     *
+     * @param letter the letter of the tile a player wants to swap
+     * @return {@link ReturnSwapTile} enum type, depending on error type or success.
+     */
+    ReturnSwapTile swapTile(char letter);
 
     /**
      * A client completes his turn.

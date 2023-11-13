@@ -5,7 +5,9 @@ import edu.unibw.se.scrabble.server.auth.Credentials;
 import edu.unibw.se.scrabble.server.logic.ServerConnect;
 
 /**
- * Interface for component Server Communication which is used to establish RMI connection between Client and Server
+ * Interface for component Server Communication which is used to establish RMI connection between Client and Server.
+ *
+ * @author Seegerer
  */
 public interface ServerCommunication {
 

@@ -4,7 +4,9 @@ import edu.unibw.se.scrabble.common.base.GameData;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnPlayerVote;
 
 /**
- * ...
+ *
+ *
+ * @author Seegerer
  */
 public interface ServerConnectCallback {
     /**

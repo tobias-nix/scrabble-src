@@ -5,6 +5,8 @@ import edu.unibw.se.scrabble.server.data.AuthData;
 /**
  * Interface for component Authentication which is used to authenticate user input against database values, for example
  * user login.
+ *
+ * @author Nerb
  */
 public interface Authentication {
 

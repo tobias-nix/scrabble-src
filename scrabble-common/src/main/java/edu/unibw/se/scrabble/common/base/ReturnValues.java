@@ -36,6 +36,7 @@ public class ReturnValues {
     }
 
     public enum ReturnStartGame {
+        NETWORK_FAILURE,
         PLAYER_ALONE_IN_SESSION,
         SUCCESSFUL
     }
@@ -46,10 +47,17 @@ public class ReturnValues {
         SUCCESSFUL
     }
 
-    public enum ReturnPlaceTiles {
+    public enum ReturnPlaceTile {
+        NETWORK_FAILURE,
         TILE_NOT_ON_RACK,
         SQUARE_OCCUPIED,
         POSITION_NOT_ALLOWED,
+        SUCCESSFUL
+    }
+
+    public enum ReturnSwapTile {
+        NETWORK_FAILURE,
+        TILE_NOT_ON_RACK,
         SUCCESSFUL
     }
 
@@ -59,6 +67,7 @@ public class ReturnValues {
     }
 
     public enum ReturnPlayerVote {
+        NETWORK_FAILURE,
         REJECTED,
         CONFIRMED
     }

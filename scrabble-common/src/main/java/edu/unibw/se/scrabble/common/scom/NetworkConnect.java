@@ -6,12 +6,10 @@ import java.rmi.Remote;
 
 /**
  * NetworkConnect Interface for requesting authentication for user data from the server
+ *
+ * @author Seegerer
  */
 public interface NetworkConnect extends Remote {
-    // TODO null false in AuthData
-    //  swaptile anlegen
-    //  place tile umbenennen
-    //  return place tile und swap tile umbenennen
 
     /**
      * Authenticates the users login credentials by checking with userdata in the database.
