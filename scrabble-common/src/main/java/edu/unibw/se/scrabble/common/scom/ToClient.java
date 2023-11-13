@@ -32,6 +32,8 @@ public interface ToClient extends Remote {
     /**
      * After a player placed tiles this method sends the formed words to the other players which must take the decision
      * if they accept those words or vote for a review.
+     * <p>
+     * Never returns {@code null}.
      *
      * @param placedWords a list of all placed words the user must validate
      * @return {@link ReturnPlayerVote} enum depending on success or error message

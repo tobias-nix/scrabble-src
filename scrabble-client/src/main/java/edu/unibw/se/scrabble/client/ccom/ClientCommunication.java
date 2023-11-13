@@ -3,7 +3,7 @@ package edu.unibw.se.scrabble.client.ccom;
 import edu.unibw.se.scrabble.common.scom.NetworkConnect;
 
 /**
- *
+ * Interface for connecting clients to a server
  *
  * @author Seegerer
  */

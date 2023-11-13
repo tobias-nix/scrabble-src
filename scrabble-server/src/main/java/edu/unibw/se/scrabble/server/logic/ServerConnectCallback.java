@@ -4,7 +4,7 @@ import edu.unibw.se.scrabble.common.base.GameData;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnPlayerVote;
 
 /**
- *
+ * Interface to give the server to opportunity to send game data back to the clients
  *
  * @author Seegerer
  */
@@ -29,7 +29,8 @@ public interface ServerConnectCallback {
     void sendGameData(String username, char[] rackTiles, char[] swapTiles, GameData gameData);
 
     /**
-     * Checks if the places words are correct.
+     * After a player placed tiles this method sends the formed words to the other players which must take the decision
+     * if they accept those words or vote for a review.
      * <p>
      * Never returns {@code null}.
      *
