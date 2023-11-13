@@ -24,7 +24,7 @@ public interface ClientConnect {
     /**
      * Add ClientConnectCallback interface to ClientConnect so that clientCommunication can send data to the Client
      *
-     * @param clientConnectCallback the information to be sent to the client back
+     * @param clientConnectCallback {@link ClientConnectCallback} the information to be sent to the client back
      */
     void setClientConnectCallback(ClientConnectCallback clientConnectCallback);
 
@@ -35,7 +35,7 @@ public interface ClientConnect {
      *
      * @param username              the user's username
      * @param password              the user's password
-     * @param clientConnectCallback the information to be sent to the client back
+     * @param clientConnectCallback {@link ClientConnectCallback} the information to be sent to the client back
      * @return {@link ReturnLoginUser} enum type, depending on error type or success.
      */
     ReturnLoginUser loginUser(String username, String password, ClientConnectCallback clientConnectCallback);
@@ -47,7 +47,7 @@ public interface ClientConnect {
      *
      * @param username              the user's username
      * @param password              the user's password
-     * @param clientConnectCallback the information to be sent to the client back
+     * @param clientConnectCallback {@link ClientConnectCallback} the information to be sent to the client back
      * @return {@link ReturnRegisterUser} enum type, depending on error type or success.
      */
     ReturnRegisterUser registerUser(String username, String password, ClientConnectCallback clientConnectCallback);
@@ -95,7 +95,7 @@ public interface ClientConnect {
      * <p>
      * Never returns {@code null}.
      *
-     * @param actionState the selected action of the client
+     * @param actionState enum type, the selected action of the client
      * @return {@link ReturnSelectAction} enum type, depending on error type or success.
      */
     ReturnSelectAction selectAction(ActionState actionState);
@@ -105,7 +105,7 @@ public interface ClientConnect {
      * <p>
      * Never returns {@code null}
      *
-     * @param tileWithPosition the tile with the position information
+     * @param tileWithPosition record, the tile with the position information
      * @return {@link ReturnPlaceTile} enum type, depending on error type or success.
      */
     ReturnPlaceTile placeTile(TileWithPosition tileWithPosition);
