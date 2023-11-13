@@ -2,6 +2,9 @@ package edu.unibw.se.scrabble.client.ccom;
 
 import edu.unibw.se.scrabble.common.scom.NetworkConnect;
 
+/**
+ *
+ */
 public interface ClientCommunication {
 
     /**
