@@ -13,6 +13,7 @@ public interface NetworkConnect extends Remote {
     // TODO null false in AuthData
     //  swaptile anlegen
     //  place tile umbenennen
+    //  return place tile und swap tile umbenennen
     class ReturnLoginNetwork {
         public static ReturnLoginNetwork DATABASE_FAILURE =
                 new ReturnLoginNetwork(ReturnLoginNetworkState.DATABASE_FAILURE);
