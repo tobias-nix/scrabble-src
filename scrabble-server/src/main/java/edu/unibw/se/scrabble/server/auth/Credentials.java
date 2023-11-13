@@ -1,5 +1,8 @@
 package edu.unibw.se.scrabble.server.auth;
 
+import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnLoginUser;
+import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnRegisterUser;
+
 /**
  * Interface to provide methods for user login and register requests
  */
@@ -18,12 +21,6 @@ public interface Credentials {
      * @return {@link ReturnLoginUser} enum type, depending on error type or success.
      */
     ReturnLoginUser loginUser(String username, String password);
-    enum ReturnLoginUser {
-        DATABASE_FAILURE,
-        USERNAME_NOT_IN_DATABASE,
-        WRONG_PASSWORD,
-        SUCCESSFUL
-    }
 
     /*
     Muss überprüfen, ob username schon in Datenbank existiert, falls nein, dann neuen user anlegen.
@@ -38,9 +35,4 @@ public interface Credentials {
      * @return {@link ReturnRegisterUser} enum type, depending on error type or success.
      */
     ReturnRegisterUser registerUser(String username, String password);
-    enum ReturnRegisterUser {
-        DATABASE_FAILURE,
-        USERNAME_ALREADY_EXISTS,
-        SUCCESSFUL
-    }
 }

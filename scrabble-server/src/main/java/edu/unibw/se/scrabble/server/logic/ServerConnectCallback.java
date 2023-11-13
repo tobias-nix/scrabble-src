@@ -1,6 +1,7 @@
 package edu.unibw.se.scrabble.server.logic;
 
 import edu.unibw.se.scrabble.common.base.GameData;
+import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnPlayerVote;
 
 /**
  * ...
@@ -35,8 +36,4 @@ public interface ServerConnectCallback {
      * @return {@link ReturnPlayerVote} enum type, depending on error type or success.
      */
     ReturnPlayerVote vote(String username, String[] placedWords);
-    enum ReturnPlayerVote {
-        REJECTED,
-        CONFIRMED
-    }
 }
