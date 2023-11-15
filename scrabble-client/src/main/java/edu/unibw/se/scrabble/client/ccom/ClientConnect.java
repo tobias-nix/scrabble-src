@@ -38,7 +38,7 @@ public interface ClientConnect {
      * @param clientConnectCallback {@link ClientConnectCallback} the information to be sent to the client back
      * @return {@link ReturnLoginUser} enum type, depending on error type or success.
      */
-    ReturnLoginUser loginUser(String username, String password, ClientConnectCallback clientConnectCallback);
+    ReturnLoginUser loginUser(String username, String password);
 
     /**
      * Creates new user dataset by sending it to the server.
@@ -50,7 +50,7 @@ public interface ClientConnect {
      * @param clientConnectCallback {@link ClientConnectCallback} the information to be sent to the client back
      * @return {@link ReturnRegisterUser} enum type, depending on error type or success.
      */
-    ReturnRegisterUser registerUser(String username, String password, ClientConnectCallback clientConnectCallback);
+    ReturnRegisterUser registerUser(String username, String password);
 
     /**
      * Returns statistics of the user.
