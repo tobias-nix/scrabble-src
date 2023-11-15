@@ -35,7 +35,6 @@ public interface ClientConnect {
      *
      * @param username              the user's username
      * @param password              the user's password
-     * @param clientConnectCallback {@link ClientConnectCallback} the information to be sent to the client back
      * @return {@link ReturnLoginUser} enum type, depending on error type or success.
      */
     ReturnLoginUser loginUser(String username, String password);
@@ -47,7 +46,6 @@ public interface ClientConnect {
      *
      * @param username              the user's username
      * @param password              the user's password
-     * @param clientConnectCallback {@link ClientConnectCallback} the information to be sent to the client back
      * @return {@link ReturnRegisterUser} enum type, depending on error type or success.
      */
     ReturnRegisterUser registerUser(String username, String password);

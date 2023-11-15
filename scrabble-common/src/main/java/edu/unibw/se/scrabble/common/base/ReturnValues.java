@@ -1,6 +1,9 @@
 package edu.unibw.se.scrabble.common.base;
 
 public class ReturnValues {
+    private ReturnValues(){
+
+    }
     public enum ReturnLoginUser {
         NETWORK_FAILURE,
         DATABASE_FAILURE,
