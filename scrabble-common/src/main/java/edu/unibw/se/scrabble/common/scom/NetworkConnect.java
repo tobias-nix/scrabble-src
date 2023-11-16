@@ -2,6 +2,7 @@ package edu.unibw.se.scrabble.common.scom;
 
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnRegisterUser;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnLoginUser;
+
 import java.rmi.Remote;
 
 /**

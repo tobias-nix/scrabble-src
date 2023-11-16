@@ -2,6 +2,7 @@ package edu.unibw.se.scrabble.common.scom;
 
 import edu.unibw.se.scrabble.common.base.GameData;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnPlayerVote;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -24,7 +25,7 @@ public interface ToClient extends Remote {
      *
      * @param rackTiles contains the tiles the player has on his rack
      * @param swapTiles contains the tiles the player has on the swap bench
-     * @param gameData contains all current information about tiles on the board or for example the current bag size
+     * @param gameData  contains all current information about tiles on the board or for example the current bag size
      * @throws RemoteException throws exception if RMI connection fails
      */
     void sendGameState(char[] rackTiles, char[] swapTiles, GameData gameData) throws RemoteException;

@@ -1,9 +1,7 @@
 package edu.unibw.se.scrabble.common.base;
 
 public enum ActionState {
-    PASS,
-    SWAP,
-    PLACE
+    PASS, SWAP, PLACE
 }
 
 // Option 1: Spieler entscheidet sich für Action und die anderen Optionen werden ausgegraut und können nicht mehr

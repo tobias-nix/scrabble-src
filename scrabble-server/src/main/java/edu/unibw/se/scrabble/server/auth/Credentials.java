@@ -12,11 +12,11 @@ public interface Credentials {
     /*
     Muss überprüfen, ob username existiert. Falls ja, dann ob passwort zum username passt.
      */
+
     /**
      * Authenticates the users login credentials by checking with userdata in the database.
      * <p>
      * Never returns {@code null}.
-     *
      *
      * @param username the user's username
      * @param password the user's password
@@ -27,6 +27,7 @@ public interface Credentials {
     /*
     Muss überprüfen, ob username schon in Datenbank existiert, falls nein, dann neuen user anlegen.
      */
+
     /**
      * Creates new user dataset in database if username is not already taken.
      * <p>

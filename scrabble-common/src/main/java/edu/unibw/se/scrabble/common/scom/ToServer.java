@@ -10,12 +10,11 @@ import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnSelectAction;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnPlaceTile;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnSwapTile;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnEndTurn;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
- *
- *
  * @author Seegerer
  */
 public interface ToServer extends Remote {

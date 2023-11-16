@@ -16,21 +16,22 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class ClientCommunicationTest {
     public abstract ClientCommunication getClientCommunication();
+
     public abstract NetworkConnect getNetworkConnect();
 
- /*
- gameId= 12345
- user = karl , paul(host)
- password = password1, password2
- statistics = 0,0,0,0
-  */
+    /*
+    gameId= 12345
+    user = karl , paul(host)
+    password = password1, password2
+    statistics = 0,0,0,0
+     */
     @Test
-    void testJoinSession(){
+    void testJoinSession() {
         //getClientCommunication().setNetworkConnect(getNetworkConnect());
         NetworkConnectTest nct = new NetworkConnectTest();
         getClientCommunication().setNetworkConnect(nct);
 
-        ClientConnect cc=getClientCommunication().getClientConnect();
+        ClientConnect cc = getClientCommunication().getClientConnect();
         ClientConnectCallbackTest ccct = new ClientConnectCallbackTest();
         cc.setClientConnectCallback(ccct);
 
@@ -42,6 +43,7 @@ public abstract class ClientCommunicationTest {
         assertTrue(nct.toServer.joinedSessionCalled);
         assertTrue(ccct.userInSessionCalled);
     }
+
     class NetworkConnectTest implements NetworkConnect {
         public ToServerTest toServer = null;
 
@@ -72,7 +74,9 @@ public abstract class ClientCommunicationTest {
         public ReturnValues.ReturnCreateSession createSession() throws RemoteException {
             return null;
         }
-public boolean joinedSessionCalled = false;
+
+        public boolean joinedSessionCalled = false;
+
         @Override
         public ReturnValues.ReturnJoinSession joinSession(int gameID) throws RemoteException {
             joinedSessionCalled = true;
@@ -125,8 +129,10 @@ public boolean joinedSessionCalled = false;
             return null;
         }
     }
+
     class ClientConnectCallbackTest implements ClientConnectCallback {
-public boolean userInSessionCalled = false;
+        public boolean userInSessionCalled = false;
+
         @Override
         public void usersInSession(String[] usernames) {
             userInSessionCalled = true;
