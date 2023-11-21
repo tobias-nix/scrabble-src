@@ -1,5 +1,6 @@
 package edu.unibw.se.scrabble.server.auth;
 
+import edu.unibw.se.scrabble.common.base.ReturnValues;
 import edu.unibw.se.scrabble.server.data.AuthData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,10 +18,10 @@ public abstract class AuthenticationTest {
 
     private Credentials credentials;
 
-    private AuthData authDataTest = null;
+    private AuthDataTest authDataTest = null;
 
     //Abstrakte Methode, die für die Erzeugung der konkreten AuthData verantwortlich ist (Factory Method).
-    protected abstract AuthData getAuthData();
+    protected abstract AuthDataTest getAuthData();
 
     @BeforeEach
     void init() {
@@ -49,10 +50,36 @@ public abstract class AuthenticationTest {
     }
 
     //TODO: Tests schreiben
+    @Test
+    void registerUserWithNullName() {
+        assertEquals(ReturnValues.ReturnRegisterUser.USERNAME_ALREADY_EXISTS,       //TODO: Falscher Rückgabetyp
+                credentials.registerUser(null, "1234"));
+        assertFalse(authDataTest.createUserIsCalled);
+    }
+
+    @Test
+    void registerUserSuccessfull(){
+        assertEquals(ReturnValues.ReturnRegisterUser.SUCCESSFUL,
+                credentials.registerUser("paul", "1234"));      //TODO: Testdaten
+        assertTrue(authDataTest.createUserIsCalled);
+        assertEquals("paul", authDataTest.createUserUsername);
+        assertEquals("1234", authDataTest.getCreateUserPassword);
+    }
+
+    @Test
+    void loginUserSuccessfull(){
+        assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL,
+                credentials.loginUser("paul", "1234"));         //TODO: Testdaten
+        assertTrue(authDataTest.usernameExistsIsCalled);
+        assertEquals("paul", authDataTest.usernameExistsUsername);
+        assertTrue(authDataTest.getPasswordIsCalled);
+        assertEquals("1234", authDataTest.getPasswordUsername);
+    }
+
 
     static class AuthDataTest implements AuthData {
 
-        private AuthData authData;
+        final AuthData authData;
 
         //Konstruktor ermöglicht Übergabe von realer Komponente (authData != null)
         AuthDataTest(AuthData authData) {
