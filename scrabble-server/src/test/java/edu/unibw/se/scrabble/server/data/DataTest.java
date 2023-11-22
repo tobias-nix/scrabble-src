@@ -1,5 +1,6 @@
 package edu.unibw.se.scrabble.server.data;
 
+import edu.unibw.se.scrabble.common.base.Statistics;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,56 +36,81 @@ public abstract class DataTest {
             assertNotNull(scrabbleData);
         }
 
-       /* @Test
-        //order
-        void userStatisticsTest() {
-            String username = "paul";
-            Statistics testStatistics = new Statistics(3,1,100,150);
-            assertTrue(scrabbleData.saveUserStatistics(username, testStatistics));
-            Statistics playersStatistics = scrabbleData.getUserStatistics(username);
-            assertNotNull(playersStatistics);
-            assertEquals(playersStatistics, testStatistics);
-            assertEquals(testStatistics.gamesPlayed(), playersStatistics.gamesPlayed());
-            assertEquals(testStatistics.gamesWon(), playersStatistics.gamesWon());
-            assertEquals(testStatistics.highestScore(), playersStatistics.highestScore());
-            assertEquals(testStatistics.totalScore(), playersStatistics.totalScore());
-        }*/
-
         @Test
-        void getPasswordWithValidUsername(){
+        void getPasswordWithValidUsername() {
             String returnPassword = authData.getPassword("paul");
             assertEquals(returnPassword, "paulpaul1!");
         }
 
         @Test
-        void getPasswordWithInvalidUsername(){
+        void getPasswordWithInvalidUsername() {
             String returnPassword = authData.getPassword("herbert");
             assertNull(returnPassword);
         }
 
         @Test
-        void getPasswordWithNullUsername(){
+        void getPasswordWithNullUsername() {
             String returnPassword = authData.getPassword(null);
             assertNull(returnPassword);
         }
 
         @Test
-        void usernameExistsWithNull(){
+        void usernameExistsWithNull() {
             boolean returnUsername = authData.usernameExists(null);
             assertFalse(returnUsername);
         }
 
         @Test
-        void usernameExistsWithValidUsername(){
+        void usernameExistsWithValidUsername() {
             boolean returnUsername = authData.usernameExists("paul");
             assertTrue(returnUsername);
         }
 
         @Test
-        void usernameExistsWithInvalidUsername(){
+        void usernameExistsWithInvalidUsername() {
             boolean returnUsername = authData.usernameExists("herbert");
             assertFalse(returnUsername);
         }
+
+        @Test
+        void createUserWithValidInput() {
+            boolean returnCreateUser = authData.createUser("franz", "password123!");
+            assertTrue(returnCreateUser);
+        }
+
+        @Test
+        void createUserWithInvalidUsername() {
+            boolean returnCreateUser = authData.createUser("lea", "password123!");
+            assertFalse(returnCreateUser);
+        }
+
+        @Test
+        void createUserWithNull() {
+            boolean returnCreateUser = authData.createUser(null, null);
+            assertFalse(returnCreateUser);
+        }
+
+        @Test
+        void getUserStatisticsValid() {
+            Statistics returnStatistics = scrabbleData.getUserStatistics("anna");
+            Statistics testStatistics = new Statistics(44, 4, 444, 4444);
+            assertEquals(returnStatistics, testStatistics);
+        }
+
+        @Test
+        void saveUserStatisticsValid() {
+            boolean returnSaveUserStatistics = scrabbleData.saveUserStatistics("berta",
+                    new Statistics(99, 9, 999, 9999));
+            assertTrue(returnSaveUserStatistics);
+        }
+
+        @Test
+        void saveUserStatisticsInvalid() {
+            boolean returnSaveUserStatistics = scrabbleData.saveUserStatistics("klaus",
+                    new Statistics(99, 9, 999, 9999));
+            assertFalse(returnSaveUserStatistics);
+        }
+
     }
 
 }

@@ -9,7 +9,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 
 public class DataHashMap implements Data, ScrabbleData, AuthData {
@@ -72,7 +71,13 @@ public class DataHashMap implements Data, ScrabbleData, AuthData {
 
     @Override
     public boolean createUser(String username, String password) {
-        return false;
+        if (username == null || (username.length() < 4) || (username.length() > 8) || password == null || (password.length() < 8) || (password.length() > 20)) {
+            return false;
+        }
+        usernameToUserData.put(username, new UserData(password, new Statistics(0, 0, 0, 0)));
+        //System.out.println(usernameToUserData);
+        return true;
+
     }
 
     @Override
@@ -87,11 +92,21 @@ public class DataHashMap implements Data, ScrabbleData, AuthData {
 
     @Override
     public Statistics getUserStatistics(String username) {
-        return null;
+        if (username == null) {
+            return null;
+        }
+        //System.out.println(usernameToUserData.get(username).statistics());
+        return usernameToUserData.get(username).statistics();
     }
 
     @Override
     public boolean saveUserStatistics(String username, Statistics statistics) {
-        return false;
+        if (username == null || !(usernameToUserData.containsKey(username)) || statistics == null) {
+            return false;
+        }
+        UserData userDataUpdate = new UserData(usernameToUserData.get(username).password, statistics);
+        usernameToUserData.put(username, userDataUpdate);
+        //System.out.println(usernameToUserData.put(username,userDataUpdate));
+        return true;
     }
 }

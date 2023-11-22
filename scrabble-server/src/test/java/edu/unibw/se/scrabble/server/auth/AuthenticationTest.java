@@ -49,32 +49,104 @@ public abstract class AuthenticationTest {
         assertNotNull(credentials);
     }
 
-    //TODO: Tests schreiben
-    /*
     @Test
-    void registerUserWithNullName() {
-        assertEquals(ReturnValues.ReturnRegisterUser.USERNAME_ALREADY_EXISTS,       //TODO: Falscher Rückgabetyp
-                credentials.registerUser(null, "1234"));
-        assertFalse(authDataTest.createUserIsCalled);
-    }
-    */
-    @Test
-    void registerUserSuccessfull(){
-        assertEquals(ReturnValues.ReturnRegisterUser.SUCCESSFUL,
-                credentials.registerUser("paul", "1234"));      //TODO: Testdaten
+    void registerUserSuccessful() {
+        String usernameTestdata = "julia";
+        String passwordTestdata = "password1234!";
+        assertEquals(ReturnValues.ReturnRegisterUser.SUCCESSFUL, credentials.registerUser(usernameTestdata, passwordTestdata));
         assertTrue(authDataTest.createUserIsCalled);
-        assertEquals("paul", authDataTest.createUserUsername);
-        assertEquals("1234", authDataTest.getCreateUserPassword);
+        assertEquals(authDataTest.createUserUsername, usernameTestdata);
+        assertEquals(authDataTest.createUserPassword, passwordTestdata);
+        assertTrue(authDataTest.usernameExists(usernameTestdata));
+        assertTrue(authDataTest.usernameExistsIsCalled);
+        assertEquals(authDataTest.usernameExistsUsername, usernameTestdata);
+        assertEquals(authDataTest.getPassword(usernameTestdata), passwordTestdata);
+        assertTrue(authDataTest.getPasswordIsCalled);
+        assertEquals(authDataTest.getPasswordUsername, usernameTestdata);
     }
 
     @Test
-    void loginUserSuccessfull(){
-        assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL,
-                credentials.loginUser("paul", "1234"));         //TODO: Testdaten
+    void registerUserInvalidInput() {
+        assertEquals(ReturnValues.ReturnRegisterUser.DATA_FORMAT_FAILURE, credentials.registerUser(null, null));
+        assertFalse(authDataTest.createUserIsCalled);
+        assertFalse(authDataTest.getPasswordIsCalled);
+        assertFalse(authDataTest.usernameExistsIsCalled);
+    }
+
+    @Test
+    void registerUserInvalidUsernameShort() {
+        assertEquals(ReturnValues.ReturnRegisterUser.DATA_FORMAT_FAILURE, credentials.registerUser("lea", "password1234!"));
+        assertFalse(authDataTest.createUserIsCalled);
+        assertFalse(authDataTest.getPasswordIsCalled);
+        assertFalse(authDataTest.usernameExistsIsCalled);
+    }
+
+    @Test
+    void registerUserInvalidUsernameLong() {
+        assertEquals(ReturnValues.ReturnRegisterUser.DATA_FORMAT_FAILURE, credentials.registerUser("AnnaCharlotteBoessendoerfer", "password1234!"));
+        assertFalse(authDataTest.createUserIsCalled);
+        assertFalse(authDataTest.getPasswordIsCalled);
+        assertFalse(authDataTest.usernameExistsIsCalled);
+    }
+
+    @Test
+    void registerUserInvalidCharInUsername() {
+        assertEquals(ReturnValues.ReturnRegisterUser.DATA_FORMAT_FAILURE, credentials.registerUser("bo$$", "password1234!"));
+        assertFalse(authDataTest.createUserIsCalled);
+        assertFalse(authDataTest.getPasswordIsCalled);
+        assertFalse(authDataTest.usernameExistsIsCalled);
+    }
+
+    @Test
+    void registerUserAlreadyExists() {
+        assertEquals(ReturnValues.ReturnRegisterUser.USERNAME_ALREADY_EXISTS, credentials.registerUser("paul", "password1234!"));
+        assertFalse(authDataTest.createUserIsCalled);
+        assertFalse(authDataTest.getPasswordIsCalled);
         assertTrue(authDataTest.usernameExistsIsCalled);
-        assertEquals("paul", authDataTest.usernameExistsUsername);
+        assertEquals(authDataTest.usernameExistsUsername, "paul");
+    }
+
+    @Test
+    void loginUserSuccessful() {
+        String usernameTestdata = "paul";
+        String passwordTestdata = "paulpaul1!";
+        assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL,
+                credentials.loginUser(usernameTestdata, passwordTestdata));
+        assertTrue(authDataTest.usernameExistsIsCalled);
+        assertEquals(authDataTest.usernameExistsUsername, usernameTestdata);
         assertTrue(authDataTest.getPasswordIsCalled);
-        assertEquals("1234", authDataTest.getPasswordUsername);
+        assertEquals(authDataTest.getPasswordUsername, usernameTestdata);
+        assertFalse(authDataTest.createUserIsCalled);
+    }
+
+    @Test
+    void loginUserInvalidInput() {
+        assertEquals(ReturnValues.ReturnLoginUser.DATA_FORMAT_FAILURE,
+                credentials.loginUser(null, null));
+        assertFalse(authDataTest.usernameExistsIsCalled);
+        assertFalse(authDataTest.getPasswordIsCalled);
+        assertFalse(authDataTest.createUserIsCalled);
+    }
+
+    @Test
+    void loginUserNotExists() {
+        assertEquals(ReturnValues.ReturnLoginUser.USERNAME_NOT_IN_DATABASE,
+                credentials.loginUser("paula", "password1234!"));
+        assertTrue(authDataTest.usernameExistsIsCalled);
+        assertEquals(authDataTest.usernameExistsUsername, "paula");
+        assertFalse(authDataTest.createUserIsCalled);
+        assertFalse(authDataTest.getPasswordIsCalled);
+    }
+
+    @Test
+    void loginUserWrongPassword() {
+        assertEquals(ReturnValues.ReturnLoginUser.WRONG_PASSWORD,
+                credentials.loginUser("berta", "password1234!"));
+        assertTrue(authDataTest.usernameExistsIsCalled);
+        assertEquals(authDataTest.usernameExistsUsername, "berta");
+        assertTrue(authDataTest.getPasswordIsCalled);
+        assertEquals(authDataTest.getPasswordUsername, "berta");
+        assertFalse(authDataTest.createUserIsCalled);
     }
 
 
@@ -121,18 +193,18 @@ public abstract class AuthenticationTest {
         //Variablen tracken, ob die Methoden aufgerufen wurde und welchen Parametern übergeben wurden
         boolean createUserIsCalled = false;
         String createUserUsername = null;
-        String getCreateUserPassword = null;
+        String createUserPassword = null;
 
         @Override
         public boolean createUser(String username, String password) {
             createUserIsCalled = true;
             createUserUsername = username;
-            getCreateUserPassword = password;
+            createUserPassword = password;
 
             if (authData != null) {       //reale Komponente
                 return authData.createUser(username, password);
             } else {                     //Dummy
-                if (Objects.equals(username,"paul" ) && Objects.equals(password, "1234")) {  //TODO
+                if (Objects.equals(username, "paul") && Objects.equals(password, "1234")) {  //TODO
                     return true;
                 }
                 throw new UnsupportedOperationException();
