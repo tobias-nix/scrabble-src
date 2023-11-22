@@ -30,6 +30,7 @@
                     <useModulePath>false</useModulePath>
                     <argLine>
                         --add-opens scrabble.server/edu.unibw.se.scrabble.server.data=ALL-UNNAMED
+                        --add-opens scrabble.server/edu.unibw.se.scrabble.server.auth=ALL-UNNAMED
                     </argLine>
                     <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
