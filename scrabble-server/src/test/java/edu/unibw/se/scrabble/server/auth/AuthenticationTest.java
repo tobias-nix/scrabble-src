@@ -21,7 +21,7 @@ public abstract class AuthenticationTest {
     private AuthDataTest authDataTest = null;
 
     //Abstrakte Methode, die für die Erzeugung der konkreten AuthData verantwortlich ist (Factory Method).
-    protected abstract AuthDataTest getAuthData();
+    protected abstract AuthData getAuthData();
 
     @BeforeEach
     void init() {
