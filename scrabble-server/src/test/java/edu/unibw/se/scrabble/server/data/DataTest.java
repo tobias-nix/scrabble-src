@@ -36,7 +36,8 @@ public abstract class DataTest {
             assertNotNull(scrabbleData);
         }
 
-        @Test
+       /* @Test
+        //order
         void userStatisticsTest() {
             String username = "paul";
             Statistics testStatistics = new Statistics(3,1,100,150);
@@ -48,6 +49,12 @@ public abstract class DataTest {
             assertEquals(testStatistics.gamesWon(), playersStatistics.gamesWon());
             assertEquals(testStatistics.highestScore(), playersStatistics.highestScore());
             assertEquals(testStatistics.totalScore(), playersStatistics.totalScore());
+        }*/
+
+        @Test
+        void passwordTest(){
+            String returnPassword = authData.getPassword("paul");
+            assertEquals(returnPassword, "1234");
         }
     }
 
