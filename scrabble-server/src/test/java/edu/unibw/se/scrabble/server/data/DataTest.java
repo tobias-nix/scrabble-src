@@ -1,6 +1,5 @@
 package edu.unibw.se.scrabble.server.data;
 
-import edu.unibw.se.scrabble.common.base.Statistics;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -52,9 +51,39 @@ public abstract class DataTest {
         }*/
 
         @Test
-        void passwordTest(){
+        void getPasswordWithValidUsername(){
             String returnPassword = authData.getPassword("paul");
-            assertEquals(returnPassword, "1234");
+            assertEquals(returnPassword, "paulpaul1!");
+        }
+
+        @Test
+        void getPasswordWithInvalidUsername(){
+            String returnPassword = authData.getPassword("herbert");
+            assertNull(returnPassword);
+        }
+
+        @Test
+        void getPasswordWithNullUsername(){
+            String returnPassword = authData.getPassword(null);
+            assertNull(returnPassword);
+        }
+
+        @Test
+        void usernameExistsWithNull(){
+            boolean returnUsername = authData.usernameExists(null);
+            assertFalse(returnUsername);
+        }
+
+        @Test
+        void usernameExistsWithValidUsername(){
+            boolean returnUsername = authData.usernameExists("paul");
+            assertTrue(returnUsername);
+        }
+
+        @Test
+        void usernameExistsWithInvalidUsername(){
+            boolean returnUsername = authData.usernameExists("herbert");
+            assertFalse(returnUsername);
         }
     }
 
