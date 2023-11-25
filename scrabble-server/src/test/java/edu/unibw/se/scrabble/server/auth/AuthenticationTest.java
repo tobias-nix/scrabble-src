@@ -4,22 +4,20 @@ import edu.unibw.se.scrabble.common.base.ReturnValues;
 import edu.unibw.se.scrabble.server.data.AuthData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Objects;
+import org.junit.jupiter.api.TestInstance;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public abstract class AuthenticationTest {
 
     private Authentication authentication;
-
     //Abstrakte Methode, die für die Erzeugung der konkreten Authentication verantwortlich ist (Factory Method).
     protected abstract Authentication getAuthentication();
 
     private Credentials credentials;
 
     private AuthDataTest authDataTest = null;
-
     //Abstrakte Methode, die für die Erzeugung der konkreten AuthData verantwortlich ist (Factory Method).
     protected abstract AuthData getAuthData();
 
@@ -34,16 +32,11 @@ public abstract class AuthenticationTest {
         //Anschließen der AuthDataTest bzw. AuthData an die Authentication
         authentication.setAuthData(authDataTest);
 
-        if (getAuthData() != null) {
-            getAuthData().createUser("paul", "1234");
-        }
-
         //Anschließen der Credentials mit getCredentials()
         credentials = authentication.getCredentials();
     }
 
-    //Prüft, ob die Initialisierung von Authentication und Credentials erfolgreich war
-    @Test
+    @Test   //Prüft, ob die Initialisierung von Authentication und Credentials erfolgreich war
     void initValid() {
         assertNotNull(authentication);
         assertNotNull(credentials);
@@ -53,7 +46,8 @@ public abstract class AuthenticationTest {
     void registerUserSuccessful() {
         String usernameTestdata = "julia";
         String passwordTestdata = "password1234!";
-        assertEquals(ReturnValues.ReturnRegisterUser.SUCCESSFUL, credentials.registerUser(usernameTestdata, passwordTestdata));
+        assertEquals(ReturnValues.ReturnRegisterUser.SUCCESSFUL,
+                credentials.registerUser(usernameTestdata, passwordTestdata));
         assertTrue(authDataTest.createUserIsCalled);
         assertEquals(authDataTest.createUserUsername, usernameTestdata);
         assertEquals(authDataTest.createUserPassword, passwordTestdata);
@@ -67,7 +61,8 @@ public abstract class AuthenticationTest {
 
     @Test
     void registerUserInvalidInput() {
-        assertEquals(ReturnValues.ReturnRegisterUser.DATA_FORMAT_FAILURE, credentials.registerUser(null, null));
+        assertEquals(ReturnValues.ReturnRegisterUser.DATA_FORMAT_FAILURE,
+                credentials.registerUser(null, null));
         assertFalse(authDataTest.createUserIsCalled);
         assertFalse(authDataTest.getPasswordIsCalled);
         assertFalse(authDataTest.usernameExistsIsCalled);
@@ -75,7 +70,8 @@ public abstract class AuthenticationTest {
 
     @Test
     void registerUserInvalidUsernameShort() {
-        assertEquals(ReturnValues.ReturnRegisterUser.DATA_FORMAT_FAILURE, credentials.registerUser("lea", "password1234!"));
+        assertEquals(ReturnValues.ReturnRegisterUser.DATA_FORMAT_FAILURE,
+                credentials.registerUser("lea", "password1234!"));
         assertFalse(authDataTest.createUserIsCalled);
         assertFalse(authDataTest.getPasswordIsCalled);
         assertFalse(authDataTest.usernameExistsIsCalled);
@@ -83,15 +79,17 @@ public abstract class AuthenticationTest {
 
     @Test
     void registerUserInvalidUsernameLong() {
-        assertEquals(ReturnValues.ReturnRegisterUser.DATA_FORMAT_FAILURE, credentials.registerUser("AnnaCharlotteBoessendoerfer", "password1234!"));
+        assertEquals(ReturnValues.ReturnRegisterUser.DATA_FORMAT_FAILURE,
+                credentials.registerUser("AnnaCharlotteBoessendoerfer", "password1234!"));
         assertFalse(authDataTest.createUserIsCalled);
         assertFalse(authDataTest.getPasswordIsCalled);
         assertFalse(authDataTest.usernameExistsIsCalled);
     }
 
     @Test
-    void registerUserInvalidCharInUsername() {
-        assertEquals(ReturnValues.ReturnRegisterUser.DATA_FORMAT_FAILURE, credentials.registerUser("bo$$", "password1234!"));
+    void registerUserInvalidUsername() {
+        assertEquals(ReturnValues.ReturnRegisterUser.DATA_FORMAT_FAILURE,
+                credentials.registerUser("Bo$$", "password1234!"));
         assertFalse(authDataTest.createUserIsCalled);
         assertFalse(authDataTest.getPasswordIsCalled);
         assertFalse(authDataTest.usernameExistsIsCalled);
@@ -99,7 +97,8 @@ public abstract class AuthenticationTest {
 
     @Test
     void registerUserAlreadyExists() {
-        assertEquals(ReturnValues.ReturnRegisterUser.USERNAME_ALREADY_EXISTS, credentials.registerUser("paul", "password1234!"));
+        assertEquals(ReturnValues.ReturnRegisterUser.USERNAME_ALREADY_EXISTS,
+                credentials.registerUser("paul", "password1234!"));
         assertFalse(authDataTest.createUserIsCalled);
         assertFalse(authDataTest.getPasswordIsCalled);
         assertTrue(authDataTest.usernameExistsIsCalled);
@@ -182,7 +181,6 @@ public abstract class AuthenticationTest {
         public String getPassword(String username) {
             getPasswordIsCalled = true;
             getPasswordUsername = username;
-
             if (authData != null) {       //reale Komponente
                 return authData.getPassword(username);
             } else {
@@ -204,9 +202,6 @@ public abstract class AuthenticationTest {
             if (authData != null) {       //reale Komponente
                 return authData.createUser(username, password);
             } else {                     //Dummy
-                if (Objects.equals(username, "paul") && Objects.equals(password, "1234")) {  //TODO
-                    return true;
-                }
                 throw new UnsupportedOperationException();
             }
         }

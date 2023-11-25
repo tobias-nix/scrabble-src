@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class DataHashMap implements Data, ScrabbleData, AuthData {
+
     private record UserData(String password, Statistics statistics) {
     }
 
@@ -19,7 +20,6 @@ public class DataHashMap implements Data, ScrabbleData, AuthData {
 
     public DataHashMap() {
         this.fill();
-
     }
 
     public void fill() {
@@ -40,14 +40,12 @@ public class DataHashMap implements Data, ScrabbleData, AuthData {
             }
             //System.out.println("hashmap complete: " + usernameToUserData);
             //System.out.println("user paul:" + usernameToUserData.get("paul"));
-
         } catch (FileNotFoundException e) {
             System.out.println("File not found");
         } catch (IOException e) {
             System.out.println("IO Exception");
         }
     }
-
 
     @Override
     public boolean usernameExists(String username) {
@@ -59,25 +57,22 @@ public class DataHashMap implements Data, ScrabbleData, AuthData {
 
     @Override
     public String getPassword(String username) {
-        if (username == null) {
+        if (username == null || !(usernameToUserData.containsKey(username))) {
             return null;
         }
-        UserData returnValue = usernameToUserData.get(username);
-        if (returnValue == null) {
-            return null;
-        }
-        return returnValue.password;
+        return usernameToUserData.get(username).password;
     }
 
     @Override
     public boolean createUser(String username, String password) {
-        if (username == null || (username.length() < 4) || (username.length() > 8) || password == null || (password.length() < 8) || (password.length() > 20)) {
+        if (username == null || (username.length() < 4) || (username.length() > 8) || password == null ||
+                (password.length() < 8) || (password.length() > 20)) {
             return false;
         }
-        usernameToUserData.put(username, new UserData(password, new Statistics(0, 0, 0, 0)));
+        usernameToUserData.put(username, new UserData(password,
+                new Statistics(0, 0, 0, 0)));
         //System.out.println(usernameToUserData);
         return true;
-
     }
 
     @Override
@@ -92,7 +87,7 @@ public class DataHashMap implements Data, ScrabbleData, AuthData {
 
     @Override
     public Statistics getUserStatistics(String username) {
-        if (username == null) {
+        if (username == null || !(usernameToUserData.containsKey(username))) {
             return null;
         }
         //System.out.println(usernameToUserData.get(username).statistics());

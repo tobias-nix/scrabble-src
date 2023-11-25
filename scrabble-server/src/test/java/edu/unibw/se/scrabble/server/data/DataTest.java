@@ -98,6 +98,11 @@ public abstract class DataTest {
         }
 
         @Test
+        void getUserStatisticsInvalidUsername() {
+            assertNull(scrabbleData.getUserStatistics("julia"));
+        }
+
+        @Test
         void saveUserStatisticsValid() {
             boolean returnSaveUserStatistics = scrabbleData.saveUserStatistics("berta",
                     new Statistics(99, 9, 999, 9999));
@@ -110,6 +115,13 @@ public abstract class DataTest {
                     new Statistics(99, 9, 999, 9999));
             assertFalse(returnSaveUserStatistics);
         }
+
+        @Test
+        void saveUserStatisticsInvalidStatistics(){
+            assertFalse(scrabbleData.saveUserStatistics("paul", null));
+        }
+
+
 
     }
 

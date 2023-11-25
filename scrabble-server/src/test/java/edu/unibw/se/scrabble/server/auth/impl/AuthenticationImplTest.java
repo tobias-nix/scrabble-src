@@ -10,6 +10,7 @@ public class AuthenticationImplTest extends AuthenticationTest {
 
     private static Authentication authentication = new AuthenticationImpl();
     private static Data data = new DataHashMap();
+
     @Override
     protected Authentication getAuthentication() {
         return authentication;
