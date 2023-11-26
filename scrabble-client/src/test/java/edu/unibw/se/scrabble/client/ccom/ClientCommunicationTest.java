@@ -184,10 +184,12 @@ public abstract class ClientCommunicationTest {
     }
 
     static class ToServerTest implements ToServer {
+        public boolean getUserStatisticsCalled = false;
 
         @Override
-        public ReturnValues.ReturnStatistics getUserStatistics() throws RemoteException {
-            return null;
+        public ReturnValues.ReturnStatisticsState getUserStatistics() throws RemoteException {
+            //getUserStatisticsCalled = true;
+            return null;//ReturnValues.ReturnStatistics.S;
         }
 
         @Override
