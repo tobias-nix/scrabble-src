@@ -119,7 +119,7 @@ public abstract class ClientCommunicationTest {
         ReturnValues.ReturnJoinSession rjs = cc.joinSession(gameId);
         assertEquals(ReturnValues.ReturnJoinSession.SUCCESSFUL, rjs);
         assertTrue(nct.toServer.joinedSessionCalled);
-        assertTrue(nct.toServer.toClient.);
+        assertTrue(nct.toServer.toClient.callback.userInSessionCalled);
     }
 
     @Test
@@ -248,8 +248,8 @@ public abstract class ClientCommunicationTest {
     }
 
     static class ToClientTest implements ToClient {
-        public final ClientConnectCallback callback;
-        public ToClientTest(ClientConnectCallback callback) throws RemoteException {
+        public final ClientConnectCallbackTest callback;
+        public ToClientTest(ClientConnectCallbackTest callback) throws RemoteException {
             this.callback = callback;
         }
 
@@ -269,12 +269,13 @@ public abstract class ClientCommunicationTest {
         }
     }
 
-    static class ClientConnectCallbackTest implements ClientConnectCallback {
-        protected boolean userInSessionCalled = false;
+    public static class ClientConnectCallbackTest implements ClientConnectCallback {
+        public boolean userInSessionCalled = false;
 
         @Override
         public void usersInSession(String[] usernames) {
-            userInSessionCalled = true;
+
+            this.userInSessionCalled = true;
         }
 
         @Override
