@@ -46,11 +46,11 @@ public abstract class ClientCommunicationTest {
     statistics = 0,0,0,0
      */
 
-    private NetworkConnectTest nct = null;
-    private ClientConnectCallbackTest ccct = null;
-    private ClientConnect cc = null;
-    private ClientCommunication ccomm = null;
-    private ToClientTest tc = null; //TODO
+    private static NetworkConnectTest nct = null;
+    private static ClientConnectCallbackTest ccct = null;
+    private static ClientConnect cc = null;
+    private static ClientCommunication ccomm = null;
+
     int gameId = 12345;
     String username = "karl";
     String password = "password1!";
