@@ -75,6 +75,8 @@ public abstract class ClientCommunicationTest {
         cc = getClientCommunication().getClientConnect();
         ccct = new ClientConnectCallbackTest();
         cc.setClientConnectCallback(ccct);
+
+        //tct = new ToClientTest();
     }
 
     @Test
@@ -117,7 +119,7 @@ public abstract class ClientCommunicationTest {
         ReturnValues.ReturnJoinSession rjs = cc.joinSession(gameId);
         assertEquals(ReturnValues.ReturnJoinSession.SUCCESSFUL, rjs);
         assertTrue(nct.toServer.joinedSessionCalled);
-        assertTrue(ccct.userInSessionCalled);
+        assertTrue(nct.toServer.toClient.);
     }
 
     @Test
@@ -172,6 +174,11 @@ public abstract class ClientCommunicationTest {
         public ReturnLoginNetwork loginUser(String username, String password, ToClient toClient) {
             if (Objects.equals(username, this.username) && Objects.equals(password, this.password)) {
                 toServer = new ToServerTest();
+                try {
+                    toServer.setToClient(new ToClientTest(new ClientConnectCallbackTest()));
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
                 return new ReturnLoginNetwork(ReturnValues.ReturnLoginUser.SUCCESSFUL, toServer);
             }
             return ReturnLoginNetwork.NETWORK_FAILURE;
@@ -184,7 +191,12 @@ public abstract class ClientCommunicationTest {
     }
 
     static class ToServerTest implements ToServer {
+        public ToClientTest toClient = null;
         public boolean getUserStatisticsCalled = false;
+
+        public void setToClient(ToClientTest tct) {
+            this.toClient = tct;
+        }
 
         @Override
         public ReturnValues.ReturnStatisticsState getUserStatistics() throws RemoteException {
@@ -203,6 +215,7 @@ public abstract class ClientCommunicationTest {
         public ReturnValues.ReturnJoinSession joinSession(int gameID) throws RemoteException {
             joinedSessionCalled = true;
             if (gameID == 12345) {
+                this.toClient.usersInSession(null);
                 return ReturnValues.ReturnJoinSession.SUCCESSFUL;
             }
             return ReturnValues.ReturnJoinSession.NETWORK_FAILURE;
@@ -235,10 +248,14 @@ public abstract class ClientCommunicationTest {
     }
 
     static class ToClientTest implements ToClient {
+        public final ClientConnectCallback callback;
+        public ToClientTest(ClientConnectCallback callback) throws RemoteException {
+            this.callback = callback;
+        }
 
         @Override
         public void usersInSession(String[] usernames) throws RemoteException {
-
+            callback.usersInSession(usernames);
         }
 
         @Override
@@ -253,7 +270,7 @@ public abstract class ClientCommunicationTest {
     }
 
     static class ClientConnectCallbackTest implements ClientConnectCallback {
-        public boolean userInSessionCalled = false;
+        protected boolean userInSessionCalled = false;
 
         @Override
         public void usersInSession(String[] usernames) {

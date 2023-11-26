@@ -7,8 +7,15 @@ import edu.unibw.se.scrabble.common.base.ActionState;
 import edu.unibw.se.scrabble.common.base.ReturnValues;
 import edu.unibw.se.scrabble.common.base.TileWithPosition;
 import edu.unibw.se.scrabble.common.scom.NetworkConnect;
+import edu.unibw.se.scrabble.common.scom.ToClient;
+import edu.unibw.se.scrabble.common.scom.ToServer;
+
+import java.rmi.RemoteException;
 
 public class ExampleClientCommunikation implements ClientCommunication,ClientConnect {
+    private NetworkConnect networkConnect = null;
+    private ToServer toServer = null;
+    private ClientConnectCallback cbc = null;
     @Override
     public ClientConnect getClientConnect() {
         return this;
@@ -16,17 +23,25 @@ public class ExampleClientCommunikation implements ClientCommunication,ClientCon
 
     @Override
     public void setNetworkConnect(NetworkConnect networkConnect) {
-
+        this.networkConnect = networkConnect;
     }
 
     @Override
     public void setClientConnectCallback(ClientConnectCallback clientConnectCallback) {
+        this.cbc = clientConnectCallback;
 
     }
 
     @Override
     public ReturnValues.ReturnLoginUser loginUser(String username, String password) {
-        return ReturnValues.ReturnLoginUser.SUCCESSFUL;
+        NetworkConnect.ReturnLoginNetwork ret = null;
+        try {
+            ret = networkConnect.loginUser(username, password, new ExampleToClient(this.cbc));
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+        this.toServer = ret.toServer;
+        return ret.state;
     }
 
     @Override
@@ -46,7 +61,12 @@ public class ExampleClientCommunikation implements ClientCommunication,ClientCon
 
     @Override
     public ReturnValues.ReturnJoinSession joinSession(int gameID) {
-        return ReturnValues.ReturnJoinSession.SUCCESSFUL;
+        try {
+            return toServer.joinSession(gameID);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+        // return ReturnValues.ReturnJoinSession.SUCCESSFUL;
     }
 
     @Override
