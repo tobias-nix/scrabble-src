@@ -1,12 +1,10 @@
 package edu.unibw.se.scrabble.client.ccom;
 
-import edu.unibw.se.scrabble.common.base.ActionState;
-import edu.unibw.se.scrabble.common.base.GameData;
-import edu.unibw.se.scrabble.common.base.ReturnValues;
-import edu.unibw.se.scrabble.common.base.TileWithPosition;
+import edu.unibw.se.scrabble.common.base.*;
 import edu.unibw.se.scrabble.common.scom.NetworkConnect;
 import edu.unibw.se.scrabble.common.scom.ToClient;
 import edu.unibw.se.scrabble.common.scom.ToServer;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.rmi.RemoteException;
@@ -14,43 +12,165 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public abstract class ClientCommunicationTest {
-    public abstract ClientCommunication getClientCommunication();
+/**
+ * Test-Class to test interface ClientConnect
+ * <p>
+ * Tests:
+ * 1. initCheck : Tests the correct initialization of ClientCommunication and ClientConnect
+ * 2. testLogin : Tests the login process
+ * 3. testRegister : Tests the register process
+ * 4. testGetUserStatistics : Tests retrieving user statistics
+ * 5. testCreateSession : Tests creating a new game session
+ * 6. testJoinSession : Tests joining a game session
+ * 7. testStartGame : Tests launching a game
+ * 8. testSelectActionPlace : Tests the selection of the “Place” action in the game
+ * 9. testSelectActionSwap : Tests the selection of the “Swap” action in the game
+ * 10. testSelectActionPass : Tests the selection of the “Pass” action in the game
+ * 11. testPlaceTile : Tests dropping a letter on the field
+ * 12. testSwapTile : Tests swapping a letter in the game
+ * 13. testEndTurn : Tests the end of a turn.
+ *
+ * @author Nix
+ */
 
-    public abstract NetworkConnect getNetworkConnect();
+public abstract class ClientCommunicationTest {
+
+    protected abstract ClientCommunication getClientCommunication();
+
+    protected abstract NetworkConnect getNetworkConnect(); //TODO
 
     /*
-    gameId= 12345
+    gameId = 12345
     user = karl , paul(host)
     password = password1, password2
     statistics = 0,0,0,0
      */
-    @Test
-    void testJoinSession() {
+
+    private NetworkConnectTest nct = null;
+    private ClientConnectCallbackTest ccct = null;
+    private ClientConnect cc = null;
+    private ClientCommunication ccomm = null;
+    private ToClientTest tc = null; //TODO
+    int gameId = 12345;
+    String username = "karl";
+    String password = "password1!";
+    Statistics statistics = new Statistics(11, 1, 111, 1111);
+    TileWithPosition tile = new TileWithPosition('N', 7, 8);
+    String[] usersInSession = {"karl", "paul", "berta", "anna"};
+    char[] rackTilesKarl = {'N','A', 'E', 'U', 'S', 'R', 'T'};
+
+    char letter = 'N';
+
+    @BeforeEach
+    public void init() {
+        //clientCommunication = getClientCommunication();
+        //clientConnect = clientCommunication.getClientConnect();
         //getClientCommunication().setNetworkConnect(getNetworkConnect());
-        NetworkConnectTest nct = new NetworkConnectTest();
+
+        nct = new NetworkConnectTest();
+        nct.username = this.username;
+        nct.password = this.password;
         getClientCommunication().setNetworkConnect(nct);
 
-        ClientConnect cc = getClientCommunication().getClientConnect();
-        ClientConnectCallbackTest ccct = new ClientConnectCallbackTest();
+        cc = getClientCommunication().getClientConnect();
+        ccct = new ClientConnectCallbackTest();
         cc.setClientConnectCallback(ccct);
+    }
 
-        ReturnValues.ReturnLoginUser rlu = cc.loginUser("karl", "password1");
+    @Test
+    void initCheck() {
+        assertNotNull(ccomm);
+        assertNotNull(cc);
+    }
+
+    @Test
+    void testLogin() {
+        ReturnValues.ReturnLoginUser rlu = cc.loginUser(username, password);
         assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, rlu);
-        int gameId = 12345;
+    }
+
+    @Test
+    void testRegister() {
+        ReturnValues.ReturnRegisterUser rru = cc.registerUser(username, password);
+        assertEquals(ReturnValues.ReturnRegisterUser.SUCCESSFUL, rru);
+    }
+
+    @Test
+    void testGetUserStatistics() {
+        ReturnValues.ReturnStatistics rss = cc.getUserStatistics();
+        assertEquals(ReturnValues.ReturnStatisticsState.SUCCESSFUL, rss.state());
+        assertEquals(statistics, rss.userStatistics());
+    }
+
+    @Test
+    void testCreateSession() {
+        ReturnValues.ReturnCreateSession rcs = cc.createSession();
+        assertEquals(ReturnValues.ReturnCreateSessionState.SUCCESSFUL, rcs.state());
+        assertEquals(gameId, rcs.gameID());
+    }
+
+    @Test
+    void testJoinSession() {
+        ReturnValues.ReturnLoginUser rlu = cc.loginUser(username, password);
+        assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, rlu);
+
         ReturnValues.ReturnJoinSession rjs = cc.joinSession(gameId);
         assertEquals(ReturnValues.ReturnJoinSession.SUCCESSFUL, rjs);
         assertTrue(nct.toServer.joinedSessionCalled);
         assertTrue(ccct.userInSessionCalled);
     }
 
-    class NetworkConnectTest implements NetworkConnect {
-        public ToServerTest toServer = null;
+    @Test
+    void testStartGame() {
+        ReturnValues.ReturnStartGame rsg = cc.startGame();
+        assertEquals(ReturnValues.ReturnStartGame.SUCCESSFUL, rsg);
+    }
 
+    @Test
+    void testSelectActionPlace() {
+        ReturnValues.ReturnSelectAction rsa = cc.selectAction(ActionState.PLACE);
+        assertEquals(ReturnValues.ReturnSelectAction.SUCCESSFUL, rsa);
+    }
+
+    @Test
+    void testSelectActionSwap() {
+        ReturnValues.ReturnSelectAction rsa = cc.selectAction(ActionState.SWAP);
+        assertEquals(ReturnValues.ReturnSelectAction.SUCCESSFUL, rsa);
+    }
+
+    @Test
+    void testSelectActionPass() {
+        ReturnValues.ReturnSelectAction rsa = cc.selectAction(ActionState.PASS);
+        assertEquals(ReturnValues.ReturnSelectAction.SUCCESSFUL, rsa);
+    }
+
+
+    @Test
+    void testPlaceTile() {
+        ReturnValues.ReturnPlaceTile rpt = cc.placeTile(tile);
+        assertEquals(ReturnValues.ReturnPlaceTile.SUCCESSFUL, rpt);
+    }
+
+    @Test
+    void testSwapTile() {
+        ReturnValues.ReturnSwapTile rst = cc.swapTile(letter);
+        assertEquals(ReturnValues.ReturnSwapTile.SUCCESSFUL, rst);
+    }
+
+    @Test
+    void testEndTurn() {
+        ReturnValues.ReturnEndTurn ret = cc.endTurn();
+        assertEquals(ReturnValues.ReturnEndTurn.SUCCESSFUL, ret);
+    }
+
+    static class NetworkConnectTest implements NetworkConnect {
+        public ToServerTest toServer = null;
+        public String username;
+        public String password;
 
         @Override
         public ReturnLoginNetwork loginUser(String username, String password, ToClient toClient) {
-            if (Objects.equals(username, "karl") && Objects.equals(password, "password1")) {
+            if (Objects.equals(username, this.username) && Objects.equals(password, this.password)) {
                 toServer = new ToServerTest();
                 return new ReturnLoginNetwork(ReturnValues.ReturnLoginUser.SUCCESSFUL, toServer);
             }
@@ -63,7 +183,7 @@ public abstract class ClientCommunicationTest {
         }
     }
 
-    class ToServerTest implements ToServer {
+    static class ToServerTest implements ToServer {
 
         @Override
         public ReturnValues.ReturnStatistics getUserStatistics() throws RemoteException {
@@ -112,7 +232,7 @@ public abstract class ClientCommunicationTest {
         }
     }
 
-    class ToClientTest implements ToClient {
+    static class ToClientTest implements ToClient {
 
         @Override
         public void usersInSession(String[] usernames) throws RemoteException {
@@ -130,7 +250,7 @@ public abstract class ClientCommunicationTest {
         }
     }
 
-    class ClientConnectCallbackTest implements ClientConnectCallback {
+    static class ClientConnectCallbackTest implements ClientConnectCallback {
         public boolean userInSessionCalled = false;
 
         @Override
