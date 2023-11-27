@@ -10,6 +10,11 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Test-Class to test interface ServerConnect
+ * @author Kompalka
+ */
+
 @DisplayName("Server Communication Test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class ServerLogicTest {
