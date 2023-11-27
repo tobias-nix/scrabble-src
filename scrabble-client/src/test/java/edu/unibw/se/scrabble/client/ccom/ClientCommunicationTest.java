@@ -175,7 +175,7 @@ public abstract class ClientCommunicationTest {
             if (Objects.equals(username, this.username) && Objects.equals(password, this.password)) {
                 toServer = new ToServerTest();
                 try {
-                    toServer.setToClient(new ToClientTest(new ClientConnectCallbackTest()));
+                    toServer.setToClient(new ToClientTest(new ClientConnectCallbackTest())); //toClient -> real
                 } catch (RemoteException e) {
                     throw new RuntimeException(e);
                 }
