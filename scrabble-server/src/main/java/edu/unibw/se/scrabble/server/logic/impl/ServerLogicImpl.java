@@ -14,7 +14,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
 
     int numberOfSessionsActive = 0;
 
-    // TODO: setServerState braucht ganz viele Parameter, nicht nur session numbers. Das sollte man eh als Liste anlegen
+    // TODO: schnelle hässliche lösung für tests, hier sollte eigentlich die csv eingelesen werden
     @Override
     public void setServerState(int numberOfSessionsActive) {
         this.numberOfSessionsActive = numberOfSessionsActive;
@@ -88,5 +88,10 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
     @Override
     public ReturnValues.ReturnEndTurn endTurn(String username) {
         return null;
+    }
+
+    @Override
+    public void informAboutUserLogin(String username) {
+        // TODO: wenn user in session, dann sendgamestate, sonst getUserStatistics
     }
 }

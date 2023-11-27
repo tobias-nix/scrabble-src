@@ -4,6 +4,7 @@ import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnRegisterUser;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnLoginUser;
 
 import java.rmi.Remote;
+import java.rmi.RemoteException;
 
 /**
  * NetworkConnect Interface for requesting authentication for user data from the server
@@ -22,8 +23,14 @@ public interface NetworkConnect extends Remote {
      * @param toClient {@link ToClient} object so server is able to communicate back to client
      * @return {@link ReturnLoginNetwork} object consisting of {@link ReturnLoginUser} state and {@link ToServer} object
      */
-    ReturnLoginNetwork loginUser(String username, String password, ToClient toClient);
+    ReturnLoginNetwork loginUser(String username, String password, ToClient toClient) throws RemoteException;
     class ReturnLoginNetwork {
+        public static ReturnLoginNetwork INVALID_USERNAME =
+                new ReturnLoginNetwork(ReturnLoginUser.INVALID_USERNAME);
+        public static ReturnLoginNetwork INVALID_PASSWORD =
+                new ReturnLoginNetwork(ReturnLoginUser.INVALID_PASSWORD);
+        public static ReturnLoginNetwork FAILURE =
+                new ReturnLoginNetwork(ReturnLoginUser.FAILURE);
         public static ReturnLoginNetwork NETWORK_FAILURE =
                 new ReturnLoginNetwork(ReturnLoginUser.NETWORK_FAILURE);
         public static ReturnLoginNetwork DATABASE_FAILURE =

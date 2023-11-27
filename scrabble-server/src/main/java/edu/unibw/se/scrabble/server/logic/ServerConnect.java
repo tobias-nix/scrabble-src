@@ -108,4 +108,6 @@ public interface ServerConnect {
      * @return {@link ReturnEndTurn} enum type successful
      */
     ReturnEndTurn endTurn(String username);
+
+    void informAboutUserLogin(String username);
 }
