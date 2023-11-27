@@ -10,6 +10,11 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Test-Class to test interface ServerConnect
+ * @author Kompalka
+ */
+
 @DisplayName("Server Communication Test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class ServerLogicTest {
@@ -18,6 +23,7 @@ public abstract class ServerLogicTest {
     private static ServerLogic serverLogic;
     private static ServerConnect serverConnect;
     private static ServerConnectCallbackTest serverConnectCallbackTest;
+    public static String getUserStatisticsUsername = "";
 
     public abstract ServerLogic getServerLogic();
 
@@ -39,6 +45,7 @@ public abstract class ServerLogicTest {
         ReturnValues.ReturnStatistics returnStatistics =
                 serverConnect.getUserStatistics("karl");
         assertEquals(returnStatistics.state(), ReturnValues.ReturnStatisticsState.SUCCESSFUL);
+        assertEquals(getUserStatisticsUsername, "karl");
         assertEquals(returnStatistics.userStatistics(),
                 new Statistics(1, 2, 3, 4));
         assertTrue(scrabbleDataTest.getUserStatisticsCalled);
@@ -135,6 +142,7 @@ public abstract class ServerLogicTest {
         @Override
         public Statistics getUserStatistics(String username) {
             getUserStatisticsCalled = true;
+            getUserStatisticsUsername = username;
             if (Objects.equals(username, "karl")) {
                 return new Statistics(1, 2, 3, 4);
             }
