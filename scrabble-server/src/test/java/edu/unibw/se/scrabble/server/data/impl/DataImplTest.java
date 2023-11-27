@@ -3,6 +3,10 @@ package edu.unibw.se.scrabble.server.data.impl;
 import edu.unibw.se.scrabble.server.data.Data;
 import edu.unibw.se.scrabble.server.data.DataTest;
 
+/**
+ @author Bößendörfer
+ */
+
 public class DataImplTest extends DataTest {
 
     private static Data data = new DataHashMap();

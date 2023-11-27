@@ -11,6 +11,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 
+/**
+ @author Bößendörfer
+ */
+
 public class DataHashMap implements Data, ScrabbleData, AuthData {
 
     private record UserData(String password, Statistics statistics) {

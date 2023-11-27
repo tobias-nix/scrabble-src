@@ -5,6 +5,10 @@ import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ @author Bößendörfer
+ */
+
 @DisplayName("Data Test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class DataTest {
@@ -120,9 +124,5 @@ public abstract class DataTest {
         void saveUserStatisticsInvalidStatistics(){
             assertFalse(scrabbleData.saveUserStatistics("paul", null));
         }
-
-
-
     }
-
 }
