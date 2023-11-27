@@ -18,6 +18,9 @@ import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author Seegerer
+ */
 @DisplayName("Server Communication Test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class ServerCommunicationTest {

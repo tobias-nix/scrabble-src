@@ -8,6 +8,9 @@ import edu.unibw.se.scrabble.common.scom.ToClient;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
+/**
+ * @author Seegerer
+ */
 public class ToClientImpl extends UnicastRemoteObject implements ToClient {
     private final ClientConnectCallback callback;
 

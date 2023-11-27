@@ -10,6 +10,9 @@ import edu.unibw.se.scrabble.server.logic.ServerConnect;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
+/**
+ * @author Seegerer
+ */
 public class ToServerImpl extends UnicastRemoteObject implements ToServer {
     private final String username;
     final ToClient toClient;

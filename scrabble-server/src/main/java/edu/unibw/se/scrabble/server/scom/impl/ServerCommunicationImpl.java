@@ -10,6 +10,9 @@ import edu.unibw.se.scrabble.server.scom.ServerCommunication;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 
+/**
+ * @author Seegerer
+ */
 public class ServerCommunicationImpl implements ServerCommunication, NetworkConnect {
 
     private Credentials credentials;
