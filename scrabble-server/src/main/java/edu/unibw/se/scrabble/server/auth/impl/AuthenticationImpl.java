@@ -9,6 +9,9 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class AuthenticationImpl implements Authentication, AuthData, Credentials {
+    private static final Pattern USERNAME_PATTERN = Pattern.compile("[a-zA-Z0-9]{4,15}");
+    private static final Pattern PASSWORD_PATTERN = Pattern.compile(
+            "^(?=.*?[A-Za-z])(?=.*?[0-9])(?=.*?[?!$%&/()*]).{8,20}$");
 
     private AuthData authData = null;
 
@@ -25,34 +28,41 @@ public class AuthenticationImpl implements Authentication, AuthData, Credentials
     @Override
     public ReturnValues.ReturnLoginUser loginUser(String username, String password) {
         if (username == null || password == null) {
-            return ReturnValues.ReturnLoginUser.DATA_FORMAT_FAILURE;
+            return ReturnValues.ReturnLoginUser.FAILURE;
         }
-        if (!authData.usernameExists(username)) {
+        if (!USERNAME_PATTERN.matcher(username).matches()) {
+            return ReturnValues.ReturnLoginUser.INVALID_USERNAME;
+        }
+        if (!PASSWORD_PATTERN.matcher(password).matches()) {
+            return ReturnValues.ReturnLoginUser.INVALID_PASSWORD;
+        }
+        if (!usernameExists(username)) {
             return ReturnValues.ReturnLoginUser.USERNAME_NOT_IN_DATABASE;
         }
-        if (!Objects.equals(authData.getPassword(username),password)) {
+        if (!Objects.equals(authData.getPassword(username), password)) {
             return ReturnValues.ReturnLoginUser.WRONG_PASSWORD;
         }
         return ReturnValues.ReturnLoginUser.SUCCESSFUL;
     }
 
-    private static final Pattern NAME_PATTERN = Pattern.compile("[A-Za-z0-9_]{4,15}");
-    //Password-Format muss vermutlich schon vorher geprüft werden
-    private static final Pattern PASSWORD_PATTERN = Pattern.compile("[A-Za-z?!$%&/()*0-9]{8,20}");
-
     @Override
     public ReturnValues.ReturnRegisterUser registerUser(String username, String password) {
-        if (username == null || !NAME_PATTERN.matcher(username).matches() ||
-                password == null || !PASSWORD_PATTERN.matcher(password).matches()) {
-            return ReturnValues.ReturnRegisterUser.DATA_FORMAT_FAILURE;
+        if (username == null || password == null) {
+            return ReturnValues.ReturnRegisterUser.FAILURE;
         }
-        if (authData.usernameExists(username)) {
+        if (!USERNAME_PATTERN.matcher(username).matches()) {
+            return ReturnValues.ReturnRegisterUser.INVALID_USERNAME;
+        }
+        if (!PASSWORD_PATTERN.matcher(password).matches()) {
+            return ReturnValues.ReturnRegisterUser.INVALID_PASSWORD;
+        }
+        if (usernameExists(username)) {
             return ReturnValues.ReturnRegisterUser.USERNAME_ALREADY_EXISTS;
         }
-        if (authData.createUser(username, password)) {
+        if (createUser(username, password)) {
             return ReturnValues.ReturnRegisterUser.SUCCESSFUL;
         }
-        return ReturnValues.ReturnRegisterUser.FAILURE;
+        return ReturnValues.ReturnRegisterUser.DATABASE_FAILURE;
     }
 
     @Override

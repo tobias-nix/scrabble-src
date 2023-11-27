@@ -26,7 +26,7 @@ public abstract class ClientCommunicationTest {
     statistics = 0,0,0,0
      */
     @Test
-    void testJoinSession() {
+    public void testJoinSession() {
         //getClientCommunication().setNetworkConnect(getNetworkConnect());
         NetworkConnectTest nct = new NetworkConnectTest();
         getClientCommunication().setNetworkConnect(nct);

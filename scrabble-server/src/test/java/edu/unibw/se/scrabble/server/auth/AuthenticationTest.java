@@ -28,7 +28,7 @@ public abstract class AuthenticationTest {
         Erzeugt ein Objekt der Klasse AuthDataTest (siehe unten)
         Übergabeparameter ist getAuthData() kann null, Dummy oder reale Komponente sein.
          */
-        authDataTest = new AuthDataTest(getAuthData());
+        authDataTest = new AuthDataTest(null);
         //Anschließen der AuthDataTest bzw. AuthData an die Authentication
         authentication.setAuthData(authDataTest);
 
@@ -61,7 +61,7 @@ public abstract class AuthenticationTest {
 
     @Test
     void registerUserInvalidInput() {
-        assertEquals(ReturnValues.ReturnRegisterUser.DATA_FORMAT_FAILURE,
+        assertEquals(ReturnValues.ReturnRegisterUser.FAILURE,
                 credentials.registerUser(null, null));
         assertFalse(authDataTest.createUserIsCalled);
         assertFalse(authDataTest.getPasswordIsCalled);
@@ -70,7 +70,7 @@ public abstract class AuthenticationTest {
 
     @Test
     void registerUserInvalidUsernameShort() {
-        assertEquals(ReturnValues.ReturnRegisterUser.DATA_FORMAT_FAILURE,
+        assertEquals(ReturnValues.ReturnRegisterUser.INVALID_USERNAME,
                 credentials.registerUser("lea", "password1234!"));
         assertFalse(authDataTest.createUserIsCalled);
         assertFalse(authDataTest.getPasswordIsCalled);
@@ -79,7 +79,7 @@ public abstract class AuthenticationTest {
 
     @Test
     void registerUserInvalidUsernameLong() {
-        assertEquals(ReturnValues.ReturnRegisterUser.DATA_FORMAT_FAILURE,
+        assertEquals(ReturnValues.ReturnRegisterUser.INVALID_USERNAME,
                 credentials.registerUser("AnnaCharlotteBoessendoerfer", "password1234!"));
         assertFalse(authDataTest.createUserIsCalled);
         assertFalse(authDataTest.getPasswordIsCalled);
@@ -88,7 +88,7 @@ public abstract class AuthenticationTest {
 
     @Test
     void registerUserInvalidUsername() {
-        assertEquals(ReturnValues.ReturnRegisterUser.DATA_FORMAT_FAILURE,
+        assertEquals(ReturnValues.ReturnRegisterUser.INVALID_USERNAME,
                 credentials.registerUser("Bo$$", "password1234!"));
         assertFalse(authDataTest.createUserIsCalled);
         assertFalse(authDataTest.getPasswordIsCalled);
@@ -120,7 +120,7 @@ public abstract class AuthenticationTest {
 
     @Test
     void loginUserInvalidInput() {
-        assertEquals(ReturnValues.ReturnLoginUser.DATA_FORMAT_FAILURE,
+        assertEquals(ReturnValues.ReturnLoginUser.FAILURE,
                 credentials.loginUser(null, null));
         assertFalse(authDataTest.usernameExistsIsCalled);
         assertFalse(authDataTest.getPasswordIsCalled);
