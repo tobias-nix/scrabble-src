@@ -8,6 +8,10 @@ import org.junit.jupiter.api.TestInstance;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ @author Nerb
+ */
+
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public abstract class AuthenticationTest {
 
