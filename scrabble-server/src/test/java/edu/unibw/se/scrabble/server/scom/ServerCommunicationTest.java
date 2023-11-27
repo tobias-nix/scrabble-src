@@ -8,9 +8,6 @@ import edu.unibw.se.scrabble.server.auth.Credentials;
 import edu.unibw.se.scrabble.server.logic.ServerConnect;
 import edu.unibw.se.scrabble.server.logic.ServerConnectCallback;
 import org.junit.jupiter.api.*;
-
-import javax.naming.OperationNotSupportedException;
-import java.util.Date;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -26,7 +23,7 @@ public abstract class ServerCommunicationTest {
 
     public abstract ServerCommunication getServerCommunication();
 
-    @BeforeAll
+    @BeforeEach
     void init() {
         serverCommunication = getServerCommunication();
 

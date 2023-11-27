@@ -32,6 +32,7 @@
                         --add-opens scrabble.server/edu.unibw.se.scrabble.server.data=ALL-UNNAMED
                         --add-opens scrabble.server/edu.unibw.se.scrabble.server.auth=ALL-UNNAMED
                         --add-opens scrabble.server/edu.unibw.se.scrabble.server.scom=ALL-UNNAMED
+                        --add-opens scrabble.server/edu.unibw.se.scrabble.server.logic=ALL-UNNAMED
                     </argLine>
                     <testFailureIgnore>false</testFailureIgnore>
                 </configuration>

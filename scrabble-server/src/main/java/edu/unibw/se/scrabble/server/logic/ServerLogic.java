@@ -22,4 +22,6 @@ public interface ServerLogic {
      * @param scrabbleData ScrabbleData interface
      */
     void setScrabbleData(ScrabbleData scrabbleData);
+
+    void setServerState(int numberOfSessionsActive);
 }
