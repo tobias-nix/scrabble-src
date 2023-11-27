@@ -88,7 +88,7 @@ public interface ToServer extends Remote {
      * @param letter the letter of the tile a player wants to swap
      * @return {@link ReturnSwapTile} enum type, depending on error type or success.
      */
-    ReturnSwapTile swapTile(char letter);
+    ReturnSwapTile swapTile(char letter) throws RemoteException;
 
     /**
      * Player wants to end his turn.
