@@ -18,6 +18,7 @@ public abstract class ServerLogicTest {
     private static ServerLogic serverLogic;
     private static ServerConnect serverConnect;
     private static ServerConnectCallbackTest serverConnectCallbackTest;
+    public static String getUserStatisticsUsername = "";
 
     public abstract ServerLogic getServerLogic();
 
@@ -39,6 +40,7 @@ public abstract class ServerLogicTest {
         ReturnValues.ReturnStatistics returnStatistics =
                 serverConnect.getUserStatistics("karl");
         assertEquals(returnStatistics.state(), ReturnValues.ReturnStatisticsState.SUCCESSFUL);
+        assertEquals(getUserStatisticsUsername, "karl");
         assertEquals(returnStatistics.userStatistics(),
                 new Statistics(1, 2, 3, 4));
         assertTrue(scrabbleDataTest.getUserStatisticsCalled);
@@ -135,6 +137,7 @@ public abstract class ServerLogicTest {
         @Override
         public Statistics getUserStatistics(String username) {
             getUserStatisticsCalled = true;
+            getUserStatisticsUsername = username;
             if (Objects.equals(username, "karl")) {
                 return new Statistics(1, 2, 3, 4);
             }
