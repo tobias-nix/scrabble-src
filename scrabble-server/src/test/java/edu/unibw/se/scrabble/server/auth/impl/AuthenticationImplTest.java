@@ -8,8 +8,8 @@ import edu.unibw.se.scrabble.server.data.impl.DataHashMap;
 
 public class AuthenticationImplTest extends AuthenticationTest {
 
-    private static Authentication authentication = new AuthenticationImpl();
-    private static Data data = new DataHashMap();
+    private static final Authentication authentication = new AuthenticationImpl();
+    private static final Data data = new DataHashMap();
 
     @Override
     protected Authentication getAuthentication() {
