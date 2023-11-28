@@ -60,8 +60,8 @@ public class ExampleClientCommunikation implements ClientCommunication,ClientCon
         }
         //getUserStatistics();
         // TODO: als erstes wird loginUser aufgerufen, woher weiß der Server an welchen er die getUserStatistics senden muss?
-        this.toServer = rs.
-        return rs;
+
+        return null;
     }
 
     @Override

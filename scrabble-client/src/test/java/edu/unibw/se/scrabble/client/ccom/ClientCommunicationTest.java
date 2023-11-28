@@ -210,8 +210,6 @@ public abstract class ClientCommunicationTest {
 
         @Override
         public ReturnValues.ReturnStatisticsState getUserStatistics() throws RemoteException {
-            toClient = new ToClientTest(callback);
-            toClient.se
             //getUserStatisticsCalled = true;
             return null;//ReturnValues.ReturnStatistics.S;
         }
