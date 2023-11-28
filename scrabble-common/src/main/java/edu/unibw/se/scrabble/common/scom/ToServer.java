@@ -1,6 +1,7 @@
 package edu.unibw.se.scrabble.common.scom;
 
 import edu.unibw.se.scrabble.common.base.ActionState;
+import edu.unibw.se.scrabble.common.base.ReturnValues;
 import edu.unibw.se.scrabble.common.base.TileWithPosition;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnStatistics;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnCreateSession;
@@ -24,7 +25,7 @@ public interface ToServer extends Remote {
      * @return {@link ReturnStatistics} record containing player statistics
      * @throws RemoteException throws exception if RMI connection fails
      */
-    ReturnStatistics getUserStatistics() throws RemoteException;
+    ReturnValues.ReturnStatisticsState getUserStatistics() throws RemoteException;
 
     /**
      * User creates a new session if there are less than 10 active sessions ongoing.
