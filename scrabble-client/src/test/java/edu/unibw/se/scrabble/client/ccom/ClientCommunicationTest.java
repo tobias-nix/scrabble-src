@@ -83,6 +83,8 @@ public abstract class ClientCommunicationTest {
     void initCheck() {
         assertNotNull(ccomm);
         assertNotNull(cc);
+        assertNotNull(nct);
+
     }
 
     @Test
@@ -99,6 +101,9 @@ public abstract class ClientCommunicationTest {
 
     @Test
     void testGetUserStatistics() {
+        ReturnValues.ReturnLoginUser rlu = cc.loginUser(username, password);
+        assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, rlu);
+
         ReturnValues.ReturnStatistics rss = cc.getUserStatistics();
         assertEquals(ReturnValues.ReturnStatisticsState.SUCCESSFUL, rss.state());
         assertEquals(statistics, rss.userStatistics());
@@ -106,6 +111,9 @@ public abstract class ClientCommunicationTest {
 
     @Test
     void testCreateSession() {
+        ReturnValues.ReturnLoginUser rlu = cc.loginUser(username, password);
+        assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, rlu);
+
         ReturnValues.ReturnCreateSession rcs = cc.createSession();
         assertEquals(ReturnValues.ReturnCreateSessionState.SUCCESSFUL, rcs.state());
         assertEquals(gameId, rcs.gameID());
@@ -186,7 +194,7 @@ public abstract class ClientCommunicationTest {
 
         @Override
         public ReturnValues.ReturnRegisterUser registerUser(String username, String password) {
-            return null;
+            return ReturnValues.ReturnRegisterUser.SUCCESSFUL;
         }
     }
 
@@ -194,12 +202,16 @@ public abstract class ClientCommunicationTest {
         public ToClientTest toClient = null;
         public boolean getUserStatisticsCalled = false;
 
+        public ClientConnectCallbackTest callback = null;
+
         public void setToClient(ToClientTest tct) {
             this.toClient = tct;
         }
 
         @Override
         public ReturnValues.ReturnStatisticsState getUserStatistics() throws RemoteException {
+            toClient = new ToClientTest(callback);
+            toClient.se
             //getUserStatisticsCalled = true;
             return null;//ReturnValues.ReturnStatistics.S;
         }

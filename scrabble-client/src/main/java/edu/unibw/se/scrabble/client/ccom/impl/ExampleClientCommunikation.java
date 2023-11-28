@@ -46,12 +46,22 @@ public class ExampleClientCommunikation implements ClientCommunication,ClientCon
 
     @Override
     public ReturnValues.ReturnRegisterUser registerUser(String username, String password) {
-        return null;
+        ReturnValues.ReturnRegisterUser rru = networkConnect.registerUser(username, password);
+        return rru;
     }
 
     @Override
     public ReturnValues.ReturnStatistics getUserStatistics() {
-        return null;
+        ReturnValues.ReturnStatisticsState rs = null;
+        try {
+            rs = toServer.getUserStatistics();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+        //getUserStatistics();
+        // TODO: als erstes wird loginUser aufgerufen, woher weiß der Server an welchen er die getUserStatistics senden muss?
+        this.toServer = rs.
+        return rs;
     }
 
     @Override
