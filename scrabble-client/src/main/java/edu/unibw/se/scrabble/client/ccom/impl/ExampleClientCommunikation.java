@@ -67,11 +67,23 @@ public class ExampleClientCommunikation implements ClientCommunication,ClientCon
 
     @Override
     public ReturnValues.ReturnCreateSession createSession() {
-        return null;
+        if (toServer == null) {
+            return new ReturnValues.ReturnCreateSession(ReturnValues.ReturnCreateSessionState.NETWORK_FAILURE, 0);
+        }
+        ReturnValues.ReturnCreateSession rcs = null;
+        try {
+            rcs = toServer.createSession();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+        return rcs;
     }
 
     @Override
     public ReturnValues.ReturnJoinSession joinSession(int gameID) {
+        if (toServer == null) {
+            return ReturnValues.ReturnJoinSession.NETWORK_FAILURE;
+        }
         try {
             return toServer.joinSession(gameID);
         } catch (RemoteException e) {
@@ -82,7 +94,14 @@ public class ExampleClientCommunikation implements ClientCommunication,ClientCon
 
     @Override
     public ReturnValues.ReturnStartGame startGame() {
-        return null;
+        if (toServer == null) {
+            return ReturnValues.ReturnStartGame.NETWORK_FAILURE;
+        }
+        try {
+            return toServer.startGame();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

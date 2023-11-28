@@ -5,7 +5,6 @@ import edu.unibw.se.scrabble.common.scom.NetworkConnect;
 import edu.unibw.se.scrabble.common.scom.ToClient;
 import edu.unibw.se.scrabble.common.scom.ToServer;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -53,13 +52,14 @@ public abstract class ClientCommunicationTest {
     private static ClientConnect cc = null;
     private static ClientCommunication ccomm = null;
 
+
     int gameId = 12345;
     String username = "karl";
     String password = "password1!";
     Statistics statistics = new Statistics(11, 1, 111, 1111);
     TileWithPosition tile = new TileWithPosition('N', 7, 8);
-    String[] usersInSession = {"karl", "paul", "berta", "anna"};
-    char[] rackTilesKarl = {'N','A', 'E', 'U', 'S', 'R', 'T'};
+    String[] usersInSession = {"karl", "paul", "berta", "anna"}; //TODO: Callback Check joinSession: usersInSession
+    char[] rackTilesKarl = {'N','A', 'E', 'U', 'S', 'R', 'T'}; //TODO: sendGameData
 
     char letter = 'N';
 
@@ -78,7 +78,8 @@ public abstract class ClientCommunicationTest {
         ccct = new ClientConnectCallbackTest();
         cc.setClientConnectCallback(ccct);
 
-        //tct = new ToClientTest();
+        ccomm = getClientCommunication();
+
     }
 
     @Test
@@ -86,6 +87,7 @@ public abstract class ClientCommunicationTest {
         assertNotNull(ccomm);
         assertNotNull(cc);
         assertNotNull(nct);
+        assertNotNull(ccct);
 
     }
 
@@ -109,6 +111,7 @@ public abstract class ClientCommunicationTest {
         ReturnValues.ReturnStatistics rss = cc.getUserStatistics();
         assertEquals(ReturnValues.ReturnStatisticsState.SUCCESSFUL, rss.state());
         assertEquals(statistics, rss.userStatistics());
+        assertTrue(nct.toServer.getUserStatisticsCalled);
     }
 
     @Nested
@@ -123,6 +126,7 @@ public abstract class ClientCommunicationTest {
             ReturnValues.ReturnCreateSession rcs = cc.createSession();
             assertEquals(ReturnValues.ReturnCreateSessionState.SUCCESSFUL, rcs.state());
             assertEquals(gameId, rcs.gameID());
+            assertTrue(nct.toServer.creatSessionCalled);
         }
 
         @Test
@@ -133,69 +137,65 @@ public abstract class ClientCommunicationTest {
             assertTrue(nct.toServer.toClient.callback.userInSessionCalled);
         }
     }
-    @Test
-    void testCreateSession() {
-        ReturnValues.ReturnLoginUser rlu = cc.loginUser(username, password);
-        assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, rlu);
 
-        ReturnValues.ReturnCreateSession rcs = cc.createSession();
-        assertEquals(ReturnValues.ReturnCreateSessionState.SUCCESSFUL, rcs.state());
-        assertEquals(gameId, rcs.gameID());
+    @Nested
+    class GameTests{
+        @BeforeEach
+        public void loginAndJoinSession() {
+            ReturnValues.ReturnLoginUser rlu = cc.loginUser(username, password);
+            assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, rlu);
+
+            ReturnValues.ReturnJoinSession rjs = cc.joinSession(gameId);
+            assertEquals(ReturnValues.ReturnJoinSession.SUCCESSFUL, rjs);
+            assertTrue(nct.toServer.joinedSessionCalled);
+            assertTrue(nct.toServer.toClient.callback.userInSessionCalled);
+        }
+        @Test
+        void testStartGame() {
+            ReturnValues.ReturnStartGame rsg = cc.startGame();
+            assertEquals(ReturnValues.ReturnStartGame.SUCCESSFUL, rsg);
+            //TODO: Callback sendGameData
+        }
+
+        @Test
+        void testSelectActionPlace() {
+            ReturnValues.ReturnSelectAction rsa = cc.selectAction(ActionState.PLACE);
+            assertEquals(ReturnValues.ReturnSelectAction.SUCCESSFUL, rsa);
+        }
+
+        @Test
+        void testSelectActionSwap() {
+            ReturnValues.ReturnSelectAction rsa = cc.selectAction(ActionState.SWAP);
+            assertEquals(ReturnValues.ReturnSelectAction.SUCCESSFUL, rsa);
+        }
+
+        @Test
+        void testSelectActionPass() {
+            ReturnValues.ReturnSelectAction rsa = cc.selectAction(ActionState.PASS);
+            assertEquals(ReturnValues.ReturnSelectAction.SUCCESSFUL, rsa);
+        }
+
+
+        @Test
+        void testPlaceTile() {
+            ReturnValues.ReturnPlaceTile rpt = cc.placeTile(tile);
+            assertEquals(ReturnValues.ReturnPlaceTile.SUCCESSFUL, rpt);
+        }
+
+        @Test
+        void testSwapTile() {
+            ReturnValues.ReturnSwapTile rst = cc.swapTile(letter);
+            assertEquals(ReturnValues.ReturnSwapTile.SUCCESSFUL, rst);
+        }
+
+        @Test
+        void testEndTurn() {
+            ReturnValues.ReturnEndTurn ret = cc.endTurn();
+            assertEquals(ReturnValues.ReturnEndTurn.SUCCESSFUL, ret);
+        }
+
     }
 
-    @Test
-    void testJoinSession() {
-        ReturnValues.ReturnLoginUser rlu = cc.loginUser(username, password);
-        assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, rlu);
-
-        ReturnValues.ReturnJoinSession rjs = cc.joinSession(gameId);
-        assertEquals(ReturnValues.ReturnJoinSession.SUCCESSFUL, rjs);
-        assertTrue(nct.toServer.joinedSessionCalled);
-        assertTrue(nct.toServer.toClient.callback.userInSessionCalled);
-    }
-
-    @Test
-    void testStartGame() {
-        ReturnValues.ReturnStartGame rsg = cc.startGame();
-        assertEquals(ReturnValues.ReturnStartGame.SUCCESSFUL, rsg);
-    }
-
-    @Test
-    void testSelectActionPlace() {
-        ReturnValues.ReturnSelectAction rsa = cc.selectAction(ActionState.PLACE);
-        assertEquals(ReturnValues.ReturnSelectAction.SUCCESSFUL, rsa);
-    }
-
-    @Test
-    void testSelectActionSwap() {
-        ReturnValues.ReturnSelectAction rsa = cc.selectAction(ActionState.SWAP);
-        assertEquals(ReturnValues.ReturnSelectAction.SUCCESSFUL, rsa);
-    }
-
-    @Test
-    void testSelectActionPass() {
-        ReturnValues.ReturnSelectAction rsa = cc.selectAction(ActionState.PASS);
-        assertEquals(ReturnValues.ReturnSelectAction.SUCCESSFUL, rsa);
-    }
-
-
-    @Test
-    void testPlaceTile() {
-        ReturnValues.ReturnPlaceTile rpt = cc.placeTile(tile);
-        assertEquals(ReturnValues.ReturnPlaceTile.SUCCESSFUL, rpt);
-    }
-
-    @Test
-    void testSwapTile() {
-        ReturnValues.ReturnSwapTile rst = cc.swapTile(letter);
-        assertEquals(ReturnValues.ReturnSwapTile.SUCCESSFUL, rst);
-    }
-
-    @Test
-    void testEndTurn() {
-        ReturnValues.ReturnEndTurn ret = cc.endTurn();
-        assertEquals(ReturnValues.ReturnEndTurn.SUCCESSFUL, ret);
-    }
 
     static class NetworkConnectTest implements NetworkConnect {
         public ToServerTest toServer = null;
@@ -225,6 +225,8 @@ public abstract class ClientCommunicationTest {
     static class ToServerTest implements ToServer {
         public ToClientTest toClient = null;
         public boolean getUserStatisticsCalled = false;
+        public boolean creatSessionCalled = false;
+        public boolean startGameCalled = false;
 
         public ClientConnectCallbackTest callback = null;
 
@@ -240,7 +242,8 @@ public abstract class ClientCommunicationTest {
 
         @Override
         public ReturnValues.ReturnCreateSession createSession() throws RemoteException {
-            return null;
+            creatSessionCalled = true;
+            return new ReturnValues.ReturnCreateSession(ReturnValues.ReturnCreateSessionState.SUCCESSFUL, 12345);
         }
 
         public boolean joinedSessionCalled = false;
@@ -257,7 +260,8 @@ public abstract class ClientCommunicationTest {
 
         @Override
         public ReturnValues.ReturnStartGame startGame() throws RemoteException {
-            return null;
+            startGameCalled = true;
+            return ReturnValues.ReturnStartGame.SUCCESSFUL;
         }
 
         @Override
