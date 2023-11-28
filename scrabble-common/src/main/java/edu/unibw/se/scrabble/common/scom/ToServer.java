@@ -25,7 +25,7 @@ public interface ToServer extends Remote {
      * @return {@link ReturnStatistics} record containing player statistics
      * @throws RemoteException throws exception if RMI connection fails
      */
-    ReturnValues.ReturnStatisticsState getUserStatistics() throws RemoteException;
+    ReturnValues.ReturnStatistics getUserStatistics() throws RemoteException;
 
     /**
      * User creates a new session if there are less than 10 active sessions ongoing.

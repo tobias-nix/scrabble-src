@@ -5,6 +5,8 @@ import edu.unibw.se.scrabble.common.scom.NetworkConnect;
 import edu.unibw.se.scrabble.common.scom.ToClient;
 import edu.unibw.se.scrabble.common.scom.ToServer;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.rmi.RemoteException;
@@ -109,6 +111,28 @@ public abstract class ClientCommunicationTest {
         assertEquals(statistics, rss.userStatistics());
     }
 
+    @Nested
+    class SessionTests{
+        @BeforeEach
+        public void login() {
+            ReturnValues.ReturnLoginUser rlu = cc.loginUser(username, password);
+            assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, rlu);
+        }
+        @Test
+        void testCreateSession() {
+            ReturnValues.ReturnCreateSession rcs = cc.createSession();
+            assertEquals(ReturnValues.ReturnCreateSessionState.SUCCESSFUL, rcs.state());
+            assertEquals(gameId, rcs.gameID());
+        }
+
+        @Test
+        void testJoinSession() {
+            ReturnValues.ReturnJoinSession rjs = cc.joinSession(gameId);
+            assertEquals(ReturnValues.ReturnJoinSession.SUCCESSFUL, rjs);
+            assertTrue(nct.toServer.joinedSessionCalled);
+            assertTrue(nct.toServer.toClient.callback.userInSessionCalled);
+        }
+    }
     @Test
     void testCreateSession() {
         ReturnValues.ReturnLoginUser rlu = cc.loginUser(username, password);
@@ -209,9 +233,9 @@ public abstract class ClientCommunicationTest {
         }
 
         @Override
-        public ReturnValues.ReturnStatisticsState getUserStatistics() throws RemoteException {
-            //getUserStatisticsCalled = true;
-            return null;//ReturnValues.ReturnStatistics.S;
+        public ReturnValues.ReturnStatistics getUserStatistics() throws RemoteException {
+            getUserStatisticsCalled = true; //ToServerImpl.get...
+            return new ReturnValues.ReturnStatistics(ReturnValues.ReturnStatisticsState.SUCCESSFUL, new Statistics(11,1,111,1111));
         }
 
         @Override

@@ -52,16 +52,17 @@ public class ExampleClientCommunikation implements ClientCommunication,ClientCon
 
     @Override
     public ReturnValues.ReturnStatistics getUserStatistics() {
-        ReturnValues.ReturnStatisticsState rs = null;
+        if (toServer == null) {
+            return new ReturnValues.ReturnStatistics(ReturnValues.ReturnStatisticsState.NETWORK_FAILURE, null);
+        }
+        ReturnValues.ReturnStatistics rs = null;
         try {
             rs = toServer.getUserStatistics();
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
         //getUserStatistics();
-        // TODO: als erstes wird loginUser aufgerufen, woher weiß der Server an welchen er die getUserStatistics senden muss?
-
-        return null;
+        return rs;
     }
 
     @Override

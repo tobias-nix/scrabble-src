@@ -19,7 +19,7 @@ public class ReturnValues {
     }
 
     public enum ReturnStatisticsState {
-        DATABASE_FAILURE, SUCCESSFUL
+        DATABASE_FAILURE, NETWORK_FAILURE, SUCCESSFUL
     }
 
     public record ReturnCreateSession(ReturnCreateSessionState state, int gameID) {
