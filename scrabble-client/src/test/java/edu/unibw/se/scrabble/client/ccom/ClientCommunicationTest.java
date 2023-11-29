@@ -42,8 +42,8 @@ public abstract class ClientCommunicationTest {
 
     /*
     gameId = 12345
-    user = karl , paul(host)
-    password = password1, password2
+    user = karl(host) , paul
+    password = password1!, password2!
     statistics = 0,0,0,0
      */
 
@@ -53,13 +53,16 @@ public abstract class ClientCommunicationTest {
     private static ClientCommunication ccomm = null;
 
 
-    int gameId = 12345;
-    String username = "karl";
-    String password = "password1!";
-    Statistics statistics = new Statistics(11, 1, 111, 1111);
-    TileWithPosition tile = new TileWithPosition('N', 7, 8);
-    String[] usersInSession = {"karl", "paul", "berta", "anna"}; //TODO: Callback Check joinSession: usersInSession
-    char[] rackTilesKarl = {'N','A', 'E', 'U', 'S', 'R', 'T'}; //TODO: sendGameData
+    static int gameId = 12345;
+    static String username = "karl";
+    static String password = "password1!";
+    static Statistics statistics = new Statistics(11, 1, 111, 1111);
+    static TileWithPosition tile = new TileWithPosition('N', 7, 8);
+    static String[] usernameS = {"karl", "paul", "berta", "anna"}; //TODO: Callback Check joinSession: usersInSession
+    static String currentPlayer = "karl";
+    static char[] rackTiles = {'N', 'A', 'E'}; //TODO: sendGameData
+    static char[] swapTiles = {'U', 'S', 'R', 'T'};
+    //static GameData gameData = new GameData(gameId, usernameS,currentPlayer,statistics,)
 
     char letter = 'N';
 
@@ -88,7 +91,6 @@ public abstract class ClientCommunicationTest {
         assertNotNull(cc);
         assertNotNull(nct);
         assertNotNull(ccct);
-
     }
 
     @Test
@@ -115,12 +117,13 @@ public abstract class ClientCommunicationTest {
     }
 
     @Nested
-    class SessionTests{
+    class SessionTests {
         @BeforeEach
         public void login() {
             ReturnValues.ReturnLoginUser rlu = cc.loginUser(username, password);
             assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, rlu);
         }
+
         @Test
         void testCreateSession() {
             ReturnValues.ReturnCreateSession rcs = cc.createSession();
@@ -134,12 +137,12 @@ public abstract class ClientCommunicationTest {
             ReturnValues.ReturnJoinSession rjs = cc.joinSession(gameId);
             assertEquals(ReturnValues.ReturnJoinSession.SUCCESSFUL, rjs);
             assertTrue(nct.toServer.joinedSessionCalled);
-            assertTrue(nct.toServer.toClient.callback.userInSessionCalled); //ccct.userInSessionCalled
+            assertTrue(ccct.userInSessionCalled); //ccct.userInSessionCalled
         }
     }
 
     @Nested
-    class GameTests{
+    class GameTests {
         @BeforeEach
         public void loginAndJoinSession() {
             ReturnValues.ReturnLoginUser rlu = cc.loginUser(username, password);
@@ -148,12 +151,14 @@ public abstract class ClientCommunicationTest {
             ReturnValues.ReturnJoinSession rjs = cc.joinSession(gameId);
             assertEquals(ReturnValues.ReturnJoinSession.SUCCESSFUL, rjs);
             assertTrue(nct.toServer.joinedSessionCalled);
-            assertTrue(nct.toServer.toClient.callback.userInSessionCalled);
+            assertTrue(ccct.userInSessionCalled);
         }
+
         @Test
         void testStartGame() {
             ReturnValues.ReturnStartGame rsg = cc.startGame();
             assertEquals(ReturnValues.ReturnStartGame.SUCCESSFUL, rsg);
+
             //TODO: Callback sendGameData
         }
 
@@ -199,18 +204,16 @@ public abstract class ClientCommunicationTest {
 
     static class NetworkConnectTest implements NetworkConnect {
         public ToServerTest toServer = null; //+toClient
+        public ToClient toClient = null;
         public String username;
         public String password;
 
         @Override
         public ReturnLoginNetwork loginUser(String username, String password, ToClient toClient) {
             if (Objects.equals(username, this.username) && Objects.equals(password, this.password)) {
+                toClient = this.toClient;
                 toServer = new ToServerTest();
-                try {
-                    toServer.setToClient(new ToClientTest(new ClientConnectCallbackTest())); //toClient -> real
-                } catch (RemoteException e) {
-                    throw new RuntimeException(e);
-                }
+                toServer.setToClient(toClient);
                 return new ReturnLoginNetwork(ReturnValues.ReturnLoginUser.SUCCESSFUL, toServer);
             }
             return ReturnLoginNetwork.NETWORK_FAILURE;
@@ -223,21 +226,21 @@ public abstract class ClientCommunicationTest {
     }
 
     static class ToServerTest implements ToServer {
-        public ToClientTest toClient = null; //ToClient
+        public ToClient toClient = null;
         public boolean getUserStatisticsCalled = false;
         public boolean creatSessionCalled = false;
         public boolean startGameCalled = false;
 
         public ClientConnectCallbackTest callback = null;
 
-        public void setToClient(ToClientTest tct) {
-            this.toClient = tct;
-        } //TODO: ToClient
+        public void setToClient(ToClient tc) {
+            this.toClient = tc;
+        }
 
         @Override
         public ReturnValues.ReturnStatistics getUserStatistics() throws RemoteException {
             getUserStatisticsCalled = true; //ToServerImpl.get...
-            return new ReturnValues.ReturnStatistics(ReturnValues.ReturnStatisticsState.SUCCESSFUL, new Statistics(11,1,111,1111));
+            return new ReturnValues.ReturnStatistics(ReturnValues.ReturnStatisticsState.SUCCESSFUL, new Statistics(11, 1, 111, 1111));
         }
 
         @Override
@@ -252,7 +255,7 @@ public abstract class ClientCommunicationTest {
         public ReturnValues.ReturnJoinSession joinSession(int gameID) throws RemoteException {
             joinedSessionCalled = true;
             if (gameID == 12345) {
-                this.toClient.usersInSession(null); //TODO: String
+                this.toClient.usersInSession(usernameS);
                 return ReturnValues.ReturnJoinSession.SUCCESSFUL;
             }
             return ReturnValues.ReturnJoinSession.NETWORK_FAILURE;
@@ -261,6 +264,7 @@ public abstract class ClientCommunicationTest {
         @Override
         public ReturnValues.ReturnStartGame startGame() throws RemoteException {
             startGameCalled = true;
+            this.toClient.sendGameState(rackTiles,swapTiles,gameState);
             return ReturnValues.ReturnStartGame.SUCCESSFUL;
         }
 
@@ -314,16 +318,16 @@ public abstract class ClientCommunicationTest {
 
     public static class ClientConnectCallbackTest implements ClientConnectCallback {
         public boolean userInSessionCalled = false;
+        public boolean sendGameStateCalled = false;
 
         @Override
         public void usersInSession(String[] usernames) {
-
             this.userInSessionCalled = true;
         }
 
         @Override
         public void sendGameState(char[] rackTiles, char[] swapTiles, GameData gameData) {
-
+            this.sendGameStateCalled = true;
         }
 
         @Override
