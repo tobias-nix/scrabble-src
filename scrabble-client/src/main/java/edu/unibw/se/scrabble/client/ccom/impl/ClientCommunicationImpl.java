@@ -30,16 +30,15 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
     @Override
     public void setClientConnectCallback(ClientConnectCallback clientConnectCallback) {
         this.cbc = clientConnectCallback;
-
     }
 
     @Override
     public ReturnValues.ReturnLoginUser loginUser(String username, String password) {
-        NetworkConnect.ReturnLoginNetwork ret = null;
+        NetworkConnect.ReturnLoginNetwork ret;
         try {
             ret = networkConnect.loginUser(username, password, new ToClientImpl(this.cbc));
         } catch (RemoteException e) {
-            throw new RuntimeException(e);
+            return ReturnValues.ReturnLoginUser.NETWORK_FAILURE;
         }
         this.toServer = ret.toServer;
         return ret.state;
@@ -47,7 +46,7 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
 
     @Override
     public ReturnValues.ReturnRegisterUser registerUser(String username, String password) {
-        ReturnValues.ReturnRegisterUser rru = null;
+        ReturnValues.ReturnRegisterUser rru;
         try {
             rru = networkConnect.registerUser(username, password);
         } catch (RemoteException e) {
@@ -61,26 +60,25 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
         if (toServer == null) {
             return new ReturnValues.ReturnStatistics(ReturnValues.ReturnStatisticsState.NETWORK_FAILURE, null);
         }
-        ReturnValues.ReturnStatistics rs = null;
+        ReturnValues.ReturnStatistics rs;
         try {
             rs = toServer.getUserStatistics();
         } catch (RemoteException e) {
-            throw new RuntimeException(e);
+            return new ReturnValues.ReturnStatistics(ReturnValues.ReturnStatisticsState.NETWORK_FAILURE, null);
         }
-        //getUserStatistics();
         return rs;
     }
 
     @Override
     public ReturnValues.ReturnCreateSession createSession() {
         if (toServer == null) {
-            return new ReturnValues.ReturnCreateSession(ReturnValues.ReturnCreateSessionState.NETWORK_FAILURE, 0);
+            return new ReturnValues.ReturnCreateSession(ReturnValues.ReturnCreateSessionState.NETWORK_FAILURE, -1);
         }
-        ReturnValues.ReturnCreateSession rcs = null;
+        ReturnValues.ReturnCreateSession rcs;
         try {
             rcs = toServer.createSession();
         } catch (RemoteException e) {
-            throw new RuntimeException(e);
+            return new ReturnValues.ReturnCreateSession(ReturnValues.ReturnCreateSessionState.NETWORK_FAILURE, -1);
         }
         return rcs;
     }
@@ -93,9 +91,8 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
         try {
             return toServer.joinSession(gameID);
         } catch (RemoteException e) {
-            throw new RuntimeException(e);
+            return ReturnValues.ReturnJoinSession.NETWORK_FAILURE;
         }
-        // return ReturnValues.ReturnJoinSession.SUCCESSFUL;
     }
 
     @Override
@@ -106,32 +103,62 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
         try {
             return toServer.startGame();
         } catch (RemoteException e) {
-            throw new RuntimeException(e);
+            return ReturnValues.ReturnStartGame.NETWORK_FAILURE;
         }
     }
 
     @Override
     public ReturnValues.ReturnSelectAction selectAction(ActionState actionState) {
-        return null;
+        if (toServer == null) {
+            return ReturnValues.ReturnSelectAction.NETWORK_FAILURE;
+        }
+        try {
+            return toServer.selectAction(actionState);
+        } catch (RemoteException e) {
+            return ReturnValues.ReturnSelectAction.NETWORK_FAILURE;
+        }
     }
 
     @Override
     public ReturnValues.ReturnPlaceTile placeTile(TileWithPosition tileWithPosition) {
-        return null;
-    }
+        if (toServer == null) {
+            return ReturnValues.ReturnPlaceTile.NETWORK_FAILURE;
+        }
+        try {
+            return toServer.placeTile(tileWithPosition);
+        } catch (RemoteException e) {
+            return ReturnValues.ReturnPlaceTile.NETWORK_FAILURE;
+        }    }
 
     @Override
     public ReturnValues.ReturnSwapTile swapTile(char letter) {
-        return null;
+        if (toServer == null) {
+            return ReturnValues.ReturnSwapTile.NETWORK_FAILURE;
+        }
+        try {
+            return toServer.swapTile(letter);
+        } catch (RemoteException e) {
+            return ReturnValues.ReturnSwapTile.NETWORK_FAILURE;
+        }
     }
 
     @Override
     public ReturnValues.ReturnEndTurn endTurn() {
-        return null;
+        if (toServer == null) {
+            return ReturnValues.ReturnEndTurn.NETWORK_FAILURE;
+        }
+        try {
+            return toServer.endTurn();
+        } catch (RemoteException e) {
+            return ReturnValues.ReturnEndTurn.NETWORK_FAILURE;
+        }
     }
 
     @Override
     public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote) {
+        if (toServer == null) {
+            return ReturnValues.ReturnSendPlayerVote.NETWORK_FAILURE;
+        }
         try {
             return this.toServer.sendPlayerVote(playerVote);
         } catch (RemoteException e) {
