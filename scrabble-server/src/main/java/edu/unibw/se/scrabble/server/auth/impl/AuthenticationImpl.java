@@ -8,7 +8,7 @@ import edu.unibw.se.scrabble.server.data.AuthData;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-public class AuthenticationImpl implements Authentication, AuthData, Credentials {
+public class AuthenticationImpl implements Authentication, Credentials {
     private static final Pattern USERNAME_PATTERN = Pattern.compile("[a-zA-Z0-9]{4,15}");
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(
             "^(?=.*?[A-Za-z])(?=.*?[0-9])(?=.*?[?!$%&/()*]).{8,20}$");
@@ -36,7 +36,7 @@ public class AuthenticationImpl implements Authentication, AuthData, Credentials
         if (!PASSWORD_PATTERN.matcher(password).matches()) {
             return ReturnValues.ReturnLoginUser.INVALID_PASSWORD;
         }
-        if (!usernameExists(username)) {
+        if (!authData.usernameExists(username)) {
             return ReturnValues.ReturnLoginUser.USERNAME_NOT_IN_DATABASE;
         }
         if (!Objects.equals(authData.getPassword(username), password)) {
@@ -56,27 +56,13 @@ public class AuthenticationImpl implements Authentication, AuthData, Credentials
         if (!PASSWORD_PATTERN.matcher(password).matches()) {
             return ReturnValues.ReturnRegisterUser.INVALID_PASSWORD;
         }
-        if (usernameExists(username)) {
+        if (authData.usernameExists(username)) {
             return ReturnValues.ReturnRegisterUser.USERNAME_ALREADY_EXISTS;
         }
-        if (createUser(username, password)) {
+        if (authData.createUser(username, password)) {
             return ReturnValues.ReturnRegisterUser.SUCCESSFUL;
         }
         return ReturnValues.ReturnRegisterUser.DATABASE_FAILURE;
-    }
 
-    @Override
-    public boolean usernameExists(String username) {
-        return false;
-    }
-
-    @Override
-    public String getPassword(String username) {
-        return null;
-    }
-
-    @Override
-    public boolean createUser(String username, String password) {
-        return false;
     }
 }
