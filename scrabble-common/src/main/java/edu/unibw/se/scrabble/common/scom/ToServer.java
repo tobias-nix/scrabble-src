@@ -1,6 +1,7 @@
 package edu.unibw.se.scrabble.common.scom;
 
 import edu.unibw.se.scrabble.common.base.ActionState;
+import edu.unibw.se.scrabble.common.base.PlayerVote;
 import edu.unibw.se.scrabble.common.base.ReturnValues;
 import edu.unibw.se.scrabble.common.base.TileWithPosition;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnStatistics;
@@ -100,4 +101,14 @@ public interface ToServer extends Remote {
      * @throws RemoteException throws exception if RMI connection fails
      */
     ReturnEndTurn endTurn() throws RemoteException;
+
+    /**
+     * A client sends his voting result.
+     * <p>
+     * Never returns {@code null}
+     *
+     * @param playerVote Player vote - rejected or confirmed
+     * @return {@link ReturnValues.ReturnSendPlayerVote} enum type, depending on error type or success.
+     */
+    ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote) throws RemoteException;
 }

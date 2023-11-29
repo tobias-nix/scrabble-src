@@ -2,7 +2,6 @@ package edu.unibw.se.scrabble.client.ccom.impl;
 
 import edu.unibw.se.scrabble.client.ccom.ClientConnectCallback;
 import edu.unibw.se.scrabble.common.base.GameData;
-import edu.unibw.se.scrabble.common.base.ReturnValues;
 import edu.unibw.se.scrabble.common.scom.ToClient;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -24,7 +23,6 @@ private final ClientConnectCallback callback;
     }
 
     @Override
-    public ReturnValues.ReturnPlayerVote vote(String[] placedWords) throws RemoteException {
-        return null;
+    public void vote(String[] placedWords) throws RemoteException {
     }
 }

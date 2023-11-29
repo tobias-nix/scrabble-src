@@ -53,7 +53,7 @@ public class ReturnValues {
         NETWORK_FAILURE, SUCCESSFUL
     }
 
-    public enum ReturnPlayerVote {
+    public enum ReturnSendPlayerVote {
         NETWORK_FAILURE, REJECTED, CONFIRMED
     }
 }

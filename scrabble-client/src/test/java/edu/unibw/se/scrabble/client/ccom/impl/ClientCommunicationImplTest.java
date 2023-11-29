@@ -6,7 +6,7 @@ import edu.unibw.se.scrabble.common.scom.NetworkConnect;
 
 public class ClientCommunicationImplTest extends ClientCommunicationTest {
 
-    private static final ExampleClientCommunikation rmiClientCommunication = new ExampleClientCommunikation();
+    private static final ClientCommunicationImpl rmiClientCommunication = new ClientCommunicationImpl();
     @Override
     protected ClientCommunication getClientCommunication() {
         return rmiClientCommunication;

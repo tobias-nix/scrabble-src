@@ -2,8 +2,6 @@ package edu.unibw.se.scrabble.server.logic;
 
 import edu.unibw.se.scrabble.common.base.*;
 import edu.unibw.se.scrabble.server.data.ScrabbleData;
-import edu.unibw.se.scrabble.server.logic.impl.ServerLogicImpl;
-import edu.unibw.se.scrabble.server.scom.ServerCommunicationTest;
 import org.junit.jupiter.api.*;
 
 import java.util.Objects;
@@ -167,15 +165,14 @@ public abstract class ServerLogicTest {
 
         public boolean sendGameDataCalled = false;
         @Override
-        public void sendGameData(String username, char[] rackTiles, char[] swapTiles, GameData gameData) {
+        public void sendGameState(String username, char[] rackTiles, char[] swapTiles, GameData gameData) {
             sendGameDataCalled = true;
         }
 
         public boolean voteCalled = false;
         @Override
-        public ReturnValues.ReturnPlayerVote vote(String username, String[] placedWords) {
+        public void vote(String username, String[] placedWords) {
             voteCalled = true;
-            return null;
         }
     }
 }

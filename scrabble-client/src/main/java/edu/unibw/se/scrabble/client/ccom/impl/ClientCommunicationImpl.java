@@ -4,15 +4,15 @@ import edu.unibw.se.scrabble.client.ccom.ClientCommunication;
 import edu.unibw.se.scrabble.client.ccom.ClientConnect;
 import edu.unibw.se.scrabble.client.ccom.ClientConnectCallback;
 import edu.unibw.se.scrabble.common.base.ActionState;
+import edu.unibw.se.scrabble.common.base.PlayerVote;
 import edu.unibw.se.scrabble.common.base.ReturnValues;
 import edu.unibw.se.scrabble.common.base.TileWithPosition;
 import edu.unibw.se.scrabble.common.scom.NetworkConnect;
-import edu.unibw.se.scrabble.common.scom.ToClient;
 import edu.unibw.se.scrabble.common.scom.ToServer;
 
 import java.rmi.RemoteException;
 
-public class ExampleClientCommunikation implements ClientCommunication,ClientConnect {
+public class ClientCommunicationImpl implements ClientCommunication,ClientConnect {
     private NetworkConnect networkConnect = null;
     private ToServer toServer = null;
     private ClientConnectCallback cbc = null;
@@ -122,5 +122,14 @@ public class ExampleClientCommunikation implements ClientCommunication,ClientCon
     @Override
     public ReturnValues.ReturnEndTurn endTurn() {
         return null;
+    }
+
+    @Override
+    public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote) {
+        try {
+            return this.toServer.sendPlayerVote(playerVote);
+        } catch (RemoteException e) {
+            return ReturnValues.ReturnSendPlayerVote.NETWORK_FAILURE;
+        }
     }
 }

@@ -1,7 +1,6 @@
 package edu.unibw.se.scrabble.server.logic;
 
 import edu.unibw.se.scrabble.common.base.GameData;
-import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnPlayerVote;
 
 /**
  * Interface to give the server to opportunity to send game data back to the clients
@@ -26,7 +25,7 @@ public interface ServerConnectCallback {
      */
     // if swapTiles is empty, send empty array instead of null-pointer
     // game state is different for every user -> rackTiles
-    void sendGameData(String username, char[] rackTiles, char[] swapTiles, GameData gameData);
+    void sendGameState(String username, char[] rackTiles, char[] swapTiles, GameData gameData);
 
     /**
      * After a player placed tiles this method sends the formed words to the other players which must take the decision
@@ -34,9 +33,8 @@ public interface ServerConnectCallback {
      * <p>
      * Never returns {@code null}.
      *
-     * @param username the user's username
+     * @param username    the user's username
      * @param placedWords the user's placed words
-     * @return {@link ReturnPlayerVote} enum type, depending on error type or success.
      */
-    ReturnPlayerVote vote(String username, String[] placedWords);
+    void vote(String username, String[] placedWords);
 }

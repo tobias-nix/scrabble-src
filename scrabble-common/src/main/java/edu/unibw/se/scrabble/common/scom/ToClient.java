@@ -1,7 +1,6 @@
 package edu.unibw.se.scrabble.common.scom;
 
 import edu.unibw.se.scrabble.common.base.GameData;
-import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnPlayerVote;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -37,8 +36,7 @@ public interface ToClient extends Remote {
      * Never returns {@code null}.
      *
      * @param placedWords a list of all placed words the user must validate
-     * @return {@link ReturnPlayerVote} enum depending on success or error message
      * @throws RemoteException throws exception if RMI connection fails
      */
-    ReturnPlayerVote vote(String[] placedWords) throws RemoteException;
+    void vote(String[] placedWords) throws RemoteException;
 }

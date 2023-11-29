@@ -283,6 +283,11 @@ public abstract class ClientCommunicationTest {
         public ReturnValues.ReturnEndTurn endTurn() throws RemoteException {
             return null;
         }
+
+        @Override
+        public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote) throws RemoteException {
+            return null;
+        }
     }
 
     static class ToClientTest implements ToClient { //TODO: delete
@@ -302,8 +307,8 @@ public abstract class ClientCommunicationTest {
         }
 
         @Override
-        public ReturnValues.ReturnPlayerVote vote(String[] placedWords) throws RemoteException {
-            return null;
+        public void vote(String[] placedWords) throws RemoteException {
+
         }
     }
 
@@ -322,8 +327,8 @@ public abstract class ClientCommunicationTest {
         }
 
         @Override
-        public ReturnValues.ReturnPlayerVote vote(String[] placedWords) {
-            return null;
+        public void vote(String[] placedWords) {
+
         }
     }
 }

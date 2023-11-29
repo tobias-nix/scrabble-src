@@ -1,8 +1,6 @@
 package edu.unibw.se.scrabble.server.logic;
 
-import edu.unibw.se.scrabble.common.base.ActionState;
-import edu.unibw.se.scrabble.common.base.Statistics;
-import edu.unibw.se.scrabble.common.base.TileWithPosition;
+import edu.unibw.se.scrabble.common.base.*;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnStatistics;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnCreateSession;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnJoinSession;
@@ -12,6 +10,7 @@ import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnPlaceTile;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnSwapTile;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnEndTurn;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnStatisticsState;
+import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnSendPlayerVote;
 
 /**
  * Interface ServerConnect which provides methods to play the game scrabble or to navigate in the main menu.
@@ -108,6 +107,16 @@ public interface ServerConnect {
      * @return {@link ReturnEndTurn} enum type successful
      */
     ReturnEndTurn endTurn(String username);
+
+    /**
+     * A client sends his voting result.
+     * <p>
+     * Never returns {@code null}
+     *
+     * @param playerVote Player vote - rejected or confirmed
+     * @return {@link ReturnValues.ReturnSendPlayerVote} enum type, depending on error type or success.
+     */
+    ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote);
 
     void informAboutUserLogin(String username);
 }

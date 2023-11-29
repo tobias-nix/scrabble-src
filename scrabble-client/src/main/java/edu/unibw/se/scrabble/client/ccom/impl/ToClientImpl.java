@@ -2,7 +2,6 @@ package edu.unibw.se.scrabble.client.ccom.impl;
 
 import edu.unibw.se.scrabble.client.ccom.ClientConnectCallback;
 import edu.unibw.se.scrabble.common.base.GameData;
-import edu.unibw.se.scrabble.common.base.ReturnValues;
 import edu.unibw.se.scrabble.common.scom.ToClient;
 
 import java.rmi.RemoteException;
@@ -18,7 +17,6 @@ public class ToClientImpl extends UnicastRemoteObject implements ToClient {
         this.callback = callback;
     }
 
-    // TODO: Habe nur ganz stumpf die callback methoden aufgerufen. Muss ich hier was prüfen?
     @Override
     public void usersInSession(String[] usernames) throws RemoteException {
         callback.usersInSession(usernames);
@@ -30,7 +28,7 @@ public class ToClientImpl extends UnicastRemoteObject implements ToClient {
     }
 
     @Override
-    public ReturnValues.ReturnPlayerVote vote(String[] placedWords) throws RemoteException {
-        return callback.vote(placedWords);
+    public void vote(String[] placedWords) throws RemoteException {
+        callback.vote(placedWords);
     }
 }
