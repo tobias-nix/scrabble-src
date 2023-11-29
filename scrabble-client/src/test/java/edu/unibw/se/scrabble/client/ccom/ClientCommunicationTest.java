@@ -9,6 +9,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -62,7 +65,12 @@ public abstract class ClientCommunicationTest {
     static String currentPlayer = "karl";
     static char[] rackTiles = {'N', 'A', 'E'}; //TODO: sendGameData
     static char[] swapTiles = {'U', 'S', 'R', 'T'};
-    //static GameData gameData = new GameData(gameId, usernameS,currentPlayer,statistics,)
+    static  List<Integer> score = Arrays.asList(0, 0, 0, 0);
+    static PlayerState playerState = PlayerState.NOT_VOTED;
+    static List<Integer> countRackTiles = Arrays.asList(7, 7, 7, 7);
+    static List<Integer> countSwapTiles = Arrays.asList(0, 0, 0, 0);
+    static List<TileWithPosition> tileWithPositions = tile;
+    static GameData gameData = new GameData(gameId, usernameS,currentPlayer,score,playerState,)
 
     char letter = 'N';
 
