@@ -1,6 +1,7 @@
 package edu.unibw.se.scrabble.server.logic.impl;
 
 import edu.unibw.se.scrabble.common.base.ActionState;
+import edu.unibw.se.scrabble.common.base.PlayerVote;
 import edu.unibw.se.scrabble.common.base.ReturnValues;
 import edu.unibw.se.scrabble.common.base.TileWithPosition;
 import edu.unibw.se.scrabble.server.data.ScrabbleData;
@@ -63,30 +64,35 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
 
     @Override
     public ReturnValues.ReturnStartGame startGame(String username) {
-        serverConnectCallback.sendGameData(null, null, null, null);
+        serverConnectCallback.sendGameState(null, null, null, null);
         return ReturnValues.ReturnStartGame.SUCCESSFUL;
     }
 
     @Override
     public ReturnValues.ReturnSelectAction selectAction(ActionState actionState, String username) {
-        serverConnectCallback.sendGameData(null, null, null, null);
+        serverConnectCallback.sendGameState(null, null, null, null);
         return ReturnValues.ReturnSelectAction.SUCCESSFUL;
     }
 
     @Override
     public ReturnValues.ReturnPlaceTile placeTile(TileWithPosition tileWithPosition, String username) {
-        serverConnectCallback.sendGameData(null, null, null, null);
+        serverConnectCallback.sendGameState(null, null, null, null);
         return ReturnValues.ReturnPlaceTile.SUCCESSFUL;
     }
 
     @Override
     public ReturnValues.ReturnSwapTile swapTile(char letter, String username) {
-        serverConnectCallback.sendGameData(null, null, null, null);
+        serverConnectCallback.sendGameState(null, null, null, null);
         return ReturnValues.ReturnSwapTile.SUCCESSFUL;
     }
 
     @Override
     public ReturnValues.ReturnEndTurn endTurn(String username) {
+        return null;
+    }
+
+    @Override
+    public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote) {
         return null;
     }
 

@@ -1,6 +1,7 @@
 package edu.unibw.se.scrabble.server.scom.impl;
 
 import edu.unibw.se.scrabble.common.base.ActionState;
+import edu.unibw.se.scrabble.common.base.PlayerVote;
 import edu.unibw.se.scrabble.common.base.ReturnValues;
 import edu.unibw.se.scrabble.common.base.TileWithPosition;
 import edu.unibw.se.scrabble.common.scom.ToClient;
@@ -27,8 +28,7 @@ public class ToServerImpl extends UnicastRemoteObject implements ToServer {
         this.serverConnect = serverConnect;
     }
 
-    // TODO: Muss ich hier überall auf serverConnect == null prüfen oder reicht es, wenn
-    //  ich das einmal im Konstruktor mache?
+    // TODO: Methoden auf package private setzen
     @Override
     public ReturnValues.ReturnStatistics getUserStatistics() throws RemoteException {
         return this.serverConnect.getUserStatistics(this.username);
@@ -67,5 +67,10 @@ public class ToServerImpl extends UnicastRemoteObject implements ToServer {
     @Override
     public ReturnValues.ReturnEndTurn endTurn() throws RemoteException {
         return this.serverConnect.endTurn(this.username);
+    }
+
+    @Override
+    public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote) {
+        return this.serverConnect.sendPlayerVote(playerVote);
     }
 }

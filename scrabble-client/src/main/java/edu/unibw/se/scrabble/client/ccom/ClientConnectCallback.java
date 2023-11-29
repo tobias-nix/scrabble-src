@@ -1,7 +1,6 @@
 package edu.unibw.se.scrabble.client.ccom;
 
 import edu.unibw.se.scrabble.common.base.GameData;
-import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnPlayerVote;
 
 /**
  * Interface to give the opportunity to send data back to the clients
@@ -32,7 +31,6 @@ public interface ClientConnectCallback {
      * Never returns {@code null}.
      *
      * @param placedWords array of all the words, a player as placed during his turn
-     * @return {@link ReturnPlayerVote} enum depending on if player votet to veto or to accept the placed words
      */
-    ReturnPlayerVote vote(String[] placedWords);
+    void vote(String[] placedWords);
 }

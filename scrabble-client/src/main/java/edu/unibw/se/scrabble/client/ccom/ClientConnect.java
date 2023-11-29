@@ -1,6 +1,7 @@
 package edu.unibw.se.scrabble.client.ccom;
 
 import edu.unibw.se.scrabble.common.base.ActionState;
+import edu.unibw.se.scrabble.common.base.PlayerVote;
 import edu.unibw.se.scrabble.common.base.TileWithPosition;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnLoginUser;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnRegisterUser;
@@ -12,6 +13,7 @@ import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnSelectAction;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnPlaceTile;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnSwapTile;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnEndTurn;
+import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnSendPlayerVote;
 
 /**
  * Interface to provide methods for client to server communication
@@ -126,4 +128,15 @@ public interface ClientConnect {
      * @return {@link ReturnEndTurn} enum type, depending on error type or success.
      */
     ReturnEndTurn endTurn();
+
+
+    /**
+     * A client sends his voting result.
+     * <p>
+     * Never returns {@code null}
+     *
+     * @param playerVote Player vote - rejected or confirmed
+     * @return {@link ReturnSendPlayerVote} enum type, depending on error type or success.
+     */
+    ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote);
 }

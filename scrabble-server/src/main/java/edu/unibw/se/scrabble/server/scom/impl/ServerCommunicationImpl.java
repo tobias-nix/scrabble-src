@@ -5,6 +5,7 @@ import edu.unibw.se.scrabble.common.scom.NetworkConnect;
 import edu.unibw.se.scrabble.common.scom.ToClient;
 import edu.unibw.se.scrabble.server.auth.Credentials;
 import edu.unibw.se.scrabble.server.logic.ServerConnect;
+import edu.unibw.se.scrabble.server.logic.ServerConnectCallback;
 import edu.unibw.se.scrabble.server.scom.ServerCommunication;
 
 import java.rmi.RemoteException;
@@ -17,7 +18,11 @@ public class ServerCommunicationImpl implements ServerCommunication, NetworkConn
 
     private Credentials credentials;
     private ServerConnect serverConnect;
+    private final ServerConnectCallback serverConnectCallback;
     private final HashMap<String, ToServerImpl> mapNameToSession = new HashMap<>();
+    public ServerCommunicationImpl () {
+        this.serverConnectCallback = new ServerConnectCallbackImpl(this);
+    }
 
     @Override
     public NetworkConnect getNetworkConnect() {
@@ -27,7 +32,7 @@ public class ServerCommunicationImpl implements ServerCommunication, NetworkConn
     @Override
     public void setServerConnect(ServerConnect serverConnect) {
         this.serverConnect = serverConnect;
-        //serverConnect.setServerConnectCallback(this); //implements ServerConnectCallback
+        this.serverConnect.setServerConnectCallback(this.serverConnectCallback);
     }
 
     synchronized void addSession(String username, ToServerImpl toServer) {
@@ -37,23 +42,9 @@ public class ServerCommunicationImpl implements ServerCommunication, NetworkConn
     synchronized void removeSession(String username) {
         mapNameToSession.remove(username);
     }
-
-    public void sendUsersInSessionToClient(String username, String[] usernames) {
-        if (username == null || usernames == null || !mapNameToSession.containsKey(username)) {
-            return;
-        }
-        ToServerImpl toServer = mapNameToSession.get(username);
-        (new Thread(() -> {
-            try {
-                toServer.toClient.usersInSession(usernames);
-            } catch (RemoteException e) {
-                this.removeSession(username);
-            }
-        })).start();
+    synchronized ToClient getToClientFromUsername(String username) {
+        return this.mapNameToSession.get(username).toClient;
     }
-    // TODO: Hier dann die anderen Methoden aus dem Callback?
-    //  Was ruft die ServerConnectCallback auf? Direkt toClient oder hier was in der ServerCommunication?
-    //  Woher kennt die ServerConnectCallback die ServerCommunication?
 
 
     @Override

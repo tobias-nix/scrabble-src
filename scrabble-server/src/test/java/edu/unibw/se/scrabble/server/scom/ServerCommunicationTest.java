@@ -1,9 +1,6 @@
 package edu.unibw.se.scrabble.server.scom;
 
-import edu.unibw.se.scrabble.common.base.ActionState;
-import edu.unibw.se.scrabble.common.base.GameData;
-import edu.unibw.se.scrabble.common.base.ReturnValues;
-import edu.unibw.se.scrabble.common.base.TileWithPosition;
+import edu.unibw.se.scrabble.common.base.*;
 import edu.unibw.se.scrabble.common.scom.NetworkConnect;
 import edu.unibw.se.scrabble.common.scom.ToClient;
 import edu.unibw.se.scrabble.server.auth.Credentials;
@@ -28,7 +25,6 @@ public abstract class ServerCommunicationTest {
     private static ServerConnectTest serverConnectTest;
     private static NetworkConnect networkConnect;
     private static ServerCommunication serverCommunication;
-    private static ServerConnectCallbackTest serverConnectCallbackTest;
 
     public abstract ServerCommunication getServerCommunication();
 
@@ -169,8 +165,7 @@ public abstract class ServerCommunicationTest {
             serverCommunication = getServerCommunication();
 
             serverConnectTest = new ServerConnectTest();
-            serverConnectCallbackTest = new ServerConnectCallbackTest();
-            serverConnectTest.setServerConnectCallback(serverConnectCallbackTest);
+            serverConnectTest.setServerConnectCallback((ServerConnectCallback) serverCommunication);
             serverCommunication.setServerConnect(serverConnectTest);
 
             credentialsTest = new CredentialsTest();
@@ -215,7 +210,7 @@ public abstract class ServerCommunicationTest {
             String usernameTest = "testSession";
             String passwordTest = "test123!";
             ToClientTest toClientTest = new ToClientTest();
-            ((ServerConnectCallbackTest) serverConnectTest.serverConnectCallback).setToClient(toClientTest);
+            //serverConnectTest.serverConnectCallback.setToClient(toClientTest);
             NetworkConnect.ReturnLoginNetwork returnLoginUser = null;
             try {
                 returnLoginUser = networkConnect.loginUser(usernameTest, passwordTest, toClientTest);
@@ -337,6 +332,11 @@ public abstract class ServerCommunicationTest {
             return null;
         }
 
+        @Override
+        public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote) {
+            return null;
+        }
+
         public boolean informAboutUserLoginCalled = false;
         public String informAboutUserLoginUsernameTransferred = null;
 
@@ -345,7 +345,7 @@ public abstract class ServerCommunicationTest {
             informAboutUserLoginCalled = true;
             informAboutUserLoginUsernameTransferred = username;
             if (Objects.equals("testSession", username)) {
-                this.serverConnectCallback.sendGameData(null, null, null, null);
+                this.serverConnectCallback.sendGameState(null, null, null, null);
             }
         }
     }
@@ -365,35 +365,7 @@ public abstract class ServerCommunicationTest {
         }
 
         @Override
-        public ReturnValues.ReturnPlayerVote vote(String[] placedWords) throws RemoteException {
-            return null;
-        }
-    }
-
-    static class ServerConnectCallbackTest implements ServerConnectCallback {
-        public ToClient toClient = null;
-
-        public void setToClient(ToClient toClient) {
-            this.toClient = toClient;
-        }
-
-        @Override
-        public void usersInSession(String[] usernames) {
-
-        }
-
-        @Override
-        public void sendGameData(String username, char[] rackTiles, char[] swapTiles, GameData gameData) {
-            try {
-                toClient.sendGameState(rackTiles, swapTiles, gameData);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public ReturnValues.ReturnPlayerVote vote(String username, String[] placedWords) {
-            return null;
+        public void vote(String[] placedWords) throws RemoteException {
         }
     }
 }
