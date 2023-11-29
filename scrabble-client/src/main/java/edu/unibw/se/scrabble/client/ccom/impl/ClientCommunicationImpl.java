@@ -12,10 +12,11 @@ import edu.unibw.se.scrabble.common.scom.ToServer;
 
 import java.rmi.RemoteException;
 
-public class ClientCommunicationImpl implements ClientCommunication,ClientConnect {
+public class ClientCommunicationImpl implements ClientCommunication, ClientConnect {
     private NetworkConnect networkConnect = null;
     private ToServer toServer = null;
     private ClientConnectCallback cbc = null;
+
     @Override
     public ClientConnect getClientConnect() {
         return this;
@@ -36,7 +37,7 @@ public class ClientCommunicationImpl implements ClientCommunication,ClientConnec
     public ReturnValues.ReturnLoginUser loginUser(String username, String password) {
         NetworkConnect.ReturnLoginNetwork ret = null;
         try {
-            ret = networkConnect.loginUser(username, password, new ExampleToClient(this.cbc));
+            ret = networkConnect.loginUser(username, password, new ToClientImpl(this.cbc));
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -46,7 +47,12 @@ public class ClientCommunicationImpl implements ClientCommunication,ClientConnec
 
     @Override
     public ReturnValues.ReturnRegisterUser registerUser(String username, String password) {
-        ReturnValues.ReturnRegisterUser rru = networkConnect.registerUser(username, password);
+        ReturnValues.ReturnRegisterUser rru = null;
+        try {
+            rru = networkConnect.registerUser(username, password);
+        } catch (RemoteException e) {
+            return ReturnValues.ReturnRegisterUser.NETWORK_FAILURE;
+        }
         return rru;
     }
 

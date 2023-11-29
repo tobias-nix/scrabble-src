@@ -5,6 +5,7 @@ import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnLoginUser;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.List;
 
 /**
  * NetworkConnect Interface for requesting authentication for user data from the server
@@ -67,5 +68,5 @@ public interface NetworkConnect extends Remote {
      * @param password the user's password
      * @return {@link ReturnRegisterUser} enum depending on success or error of action
      */
-    ReturnRegisterUser registerUser(String username, String password);
+    ReturnRegisterUser registerUser(String username, String password) throws RemoteException;
 }

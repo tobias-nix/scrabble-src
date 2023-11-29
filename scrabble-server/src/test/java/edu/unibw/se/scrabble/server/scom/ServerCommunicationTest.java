@@ -54,7 +54,12 @@ public abstract class ServerCommunicationTest {
         @Test
         public void registerUserValidInput() {
             ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("ralf", "ralfralf1!");
+                    null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("ralf", "ralfralf1!");
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.SUCCESSFUL, returnRegisterUser);
             assertTrue(credentialsTest.registerUserCalled);
             assertEquals("ralf", credentialsTest.registerTransferredUsername);
@@ -64,7 +69,12 @@ public abstract class ServerCommunicationTest {
         @Test
         public void registerUserNullAsUsername() {
             ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser(null, "ralfralf1!");
+                    null;
+            try {
+                returnRegisterUser = networkConnect.registerUser(null, "ralfralf1!");
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.FAILURE, returnRegisterUser);
             assertFalse(credentialsTest.registerUserCalled);
         }
@@ -72,7 +82,12 @@ public abstract class ServerCommunicationTest {
         @Test
         public void registerUserNullAsPassword() {
             ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("ralf", null);
+                    null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("ralf", null);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.FAILURE, returnRegisterUser);
             assertFalse(credentialsTest.registerUserCalled);
         }
@@ -80,7 +95,12 @@ public abstract class ServerCommunicationTest {
         @Test
         public void registerUserUsernameAlreadyExists() {
             ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("karl", "karlkarl1!");
+                    null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("karl", "karlkarl1!");
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.USERNAME_ALREADY_EXISTS, returnRegisterUser);
             assertTrue(credentialsTest.registerUserCalled);
             assertEquals("karl", credentialsTest.registerTransferredUsername);
@@ -90,7 +110,12 @@ public abstract class ServerCommunicationTest {
         @Test
         public void registerUserDatabaseFailure() {
             ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("inge", "ingeinge1!");
+                    null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("inge", "ingeinge1!");
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.DATABASE_FAILURE, returnRegisterUser);
             assertTrue(credentialsTest.registerUserCalled);
             assertEquals("inge", credentialsTest.registerTransferredUsername);
@@ -100,7 +125,12 @@ public abstract class ServerCommunicationTest {
         @Test
         public void registerUserInvalidUsernameTooShort() {
             ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("123", "ingeinge1!");
+                    null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("123", "ingeinge1!");
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.INVALID_USERNAME, returnRegisterUser);
             assertTrue(credentialsTest.registerUserCalled);
             assertEquals("123", credentialsTest.registerTransferredUsername);
@@ -110,7 +140,12 @@ public abstract class ServerCommunicationTest {
         @Test
         public void registerUserInvalidUsernameTooLong() {
             ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("1234567890123456", "ingeinge1!");
+                    null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("1234567890123456", "ingeinge1!");
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.INVALID_USERNAME, returnRegisterUser);
             assertTrue(credentialsTest.registerUserCalled);
             assertEquals("1234567890123456", credentialsTest.registerTransferredUsername);
@@ -120,7 +155,12 @@ public abstract class ServerCommunicationTest {
         @Test
         public void registerUserInvalidPasswordTooShort() {
             ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("ralf", "123");
+                    null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("ralf", "123");
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
             assertTrue(credentialsTest.registerUserCalled);
             assertEquals("ralf", credentialsTest.registerTransferredUsername);
@@ -130,7 +170,12 @@ public abstract class ServerCommunicationTest {
         @Test
         public void registerUserInvalidPasswordTooLong() {
             ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("ralf", "123456789012345678901");
+                    null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("ralf", "123456789012345678901");
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
             assertTrue(credentialsTest.registerUserCalled);
             assertEquals("ralf", credentialsTest.registerTransferredUsername);
@@ -140,7 +185,12 @@ public abstract class ServerCommunicationTest {
         @Test
         public void registerUserInvalidPasswordNoSpecialCharacter() {
             ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("ralf", "ralfralf1");
+                    null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("ralf", "ralfralf1");
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
             assertTrue(credentialsTest.registerUserCalled);
             assertEquals("ralf", credentialsTest.registerTransferredUsername);
@@ -150,7 +200,12 @@ public abstract class ServerCommunicationTest {
         @Test
         public void registerUserInvalidPasswordNoNumber() {
             ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("ralf", "ralfralf!");
+                    null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("ralf", "ralfralf!");
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
             assertTrue(credentialsTest.registerUserCalled);
             assertEquals("ralf", credentialsTest.registerTransferredUsername);
