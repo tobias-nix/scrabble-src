@@ -134,7 +134,7 @@ public abstract class ClientCommunicationTest {
             ReturnValues.ReturnJoinSession rjs = cc.joinSession(gameId);
             assertEquals(ReturnValues.ReturnJoinSession.SUCCESSFUL, rjs);
             assertTrue(nct.toServer.joinedSessionCalled);
-            assertTrue(nct.toServer.toClient.callback.userInSessionCalled);
+            assertTrue(nct.toServer.toClient.callback.userInSessionCalled); //ccct.userInSessionCalled
         }
     }
 
@@ -198,7 +198,7 @@ public abstract class ClientCommunicationTest {
 
 
     static class NetworkConnectTest implements NetworkConnect {
-        public ToServerTest toServer = null;
+        public ToServerTest toServer = null; //+toClient
         public String username;
         public String password;
 
@@ -223,7 +223,7 @@ public abstract class ClientCommunicationTest {
     }
 
     static class ToServerTest implements ToServer {
-        public ToClientTest toClient = null;
+        public ToClientTest toClient = null; //ToClient
         public boolean getUserStatisticsCalled = false;
         public boolean creatSessionCalled = false;
         public boolean startGameCalled = false;
@@ -232,7 +232,7 @@ public abstract class ClientCommunicationTest {
 
         public void setToClient(ToClientTest tct) {
             this.toClient = tct;
-        }
+        } //TODO: ToClient
 
         @Override
         public ReturnValues.ReturnStatistics getUserStatistics() throws RemoteException {
@@ -252,7 +252,7 @@ public abstract class ClientCommunicationTest {
         public ReturnValues.ReturnJoinSession joinSession(int gameID) throws RemoteException {
             joinedSessionCalled = true;
             if (gameID == 12345) {
-                this.toClient.usersInSession(null);
+                this.toClient.usersInSession(null); //TODO: String
                 return ReturnValues.ReturnJoinSession.SUCCESSFUL;
             }
             return ReturnValues.ReturnJoinSession.NETWORK_FAILURE;
@@ -285,7 +285,7 @@ public abstract class ClientCommunicationTest {
         }
     }
 
-    static class ToClientTest implements ToClient {
+    static class ToClientTest implements ToClient { //TODO: delete
         public final ClientConnectCallbackTest callback;
         public ToClientTest(ClientConnectCallbackTest callback) throws RemoteException {
             this.callback = callback;
