@@ -39,13 +39,27 @@ public class SpringScrabbleData implements Data{
         return worker;
     }
 
-    public void clear(){
-        if(worker != null){
+    public boolean clear(){
+        if(worker != null) {
             worker.clear();
+            return true;
         }
+        return false;
     }
 
-    public void fill(){
-        worker.fill();
+    public boolean fill(){
+        if(worker != null) {
+            worker.fill();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean deleteUser(String username){
+        if(username != null && worker != null) {
+        worker.deleteUser(username);
+        return true;
+    }
+        return false;
     }
 }
