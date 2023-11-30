@@ -320,7 +320,7 @@ public abstract class ServerCommunicationTest {
 
         @Test
         public void registerUserSuccessValidInputUserDoesNotYetExist() {
-            springDatabaseReal.clear();
+            springDatabaseReal.deleteUser("ralf");
             ReturnValues.ReturnRegisterUser returnRegisterUser = null;
             try {
                 returnRegisterUser = networkConnect.registerUser("ralf", "ralfralf1!");

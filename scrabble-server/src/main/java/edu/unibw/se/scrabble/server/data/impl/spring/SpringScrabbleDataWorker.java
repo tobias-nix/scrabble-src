@@ -23,14 +23,12 @@ public class SpringScrabbleDataWorker implements ScrabbleData, AuthData {
     @Autowired
     private UserRepository userRepository;
 
-
-    //TODO: Implementieren der Methoden
-
     @Override
     public boolean usernameExists(String username) {
         try {
             return userRepository.existsById(username);
         } catch (Exception e) {
+            e.printStackTrace(System.err);
             return false;
         }
     }
@@ -39,9 +37,9 @@ public class SpringScrabbleDataWorker implements ScrabbleData, AuthData {
     public String getPassword(String username) {
         try {
             User user = userRepository.findUserByUsername(username);
-            //User ist id und kann nicht null sein?
             return user.getPassword();
         } catch (Exception e) {
+            e.printStackTrace(System.err);
             return null;
         }
     }
@@ -53,6 +51,7 @@ public class SpringScrabbleDataWorker implements ScrabbleData, AuthData {
             userRepository.save(user);
             return true;
         } catch (Exception e) {
+            e.printStackTrace(System.err);
             return false;
         }
     }
@@ -61,10 +60,9 @@ public class SpringScrabbleDataWorker implements ScrabbleData, AuthData {
     public Statistics getUserStatistics(String username) {
         try {
             User user = userRepository.findUserByUsername(username);
-            //User ist id und kann nicht null sein?
-            //System.out.println("get: " + user.toString());
             return user.getStatistics();
         } catch (Exception e) {
+            e.printStackTrace(System.err);
             return null;
         }
     }
@@ -73,22 +71,26 @@ public class SpringScrabbleDataWorker implements ScrabbleData, AuthData {
     public boolean saveUserStatistics(String username, Statistics statistics) {
         try {
             User user = userRepository.findUserByUsername(username);
-            //User ist id und kann nicht null sein?
-            //System.out.println("before set: " + user.toString());
             user.setStatistics(statistics);
-            //System.out.println("after set: " + user.toString());
             userRepository.save(user);
             return true;
         } catch (Exception e) {
+            e.printStackTrace(System.err);
             return false;
         }
     }
 
-    public void clear() {
-        userRepository.deleteAll();
+    public boolean clear() {
+        try{
+            userRepository.deleteAll();
+            return true;
+        }catch(Exception e){
+            e.printStackTrace(System.err);
+            return false;
+        }
     }
 
-    public void fill() {
+    public boolean fill() {
         String filePath = getClass().getResource("/userdata.csv").getFile();
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath))) {
             bufferedReader.readLine(); //Erste Formatzeile
@@ -100,14 +102,30 @@ public class SpringScrabbleDataWorker implements ScrabbleData, AuthData {
                             Integer.parseInt(lineAsArray[2]), Integer.parseInt(lineAsArray[3]),
                             Integer.parseInt(lineAsArray[4]), Integer.parseInt(lineAsArray[5]));
                     userRepository.save(user);
+                    return true;
                 } catch (Exception e) {
-                    throw new UnsupportedOperationException();
+                    e.printStackTrace(System.err);
+                    return false;
                 }
             }
         } catch (FileNotFoundException e) {
-            System.out.println("File not found");
+            e.printStackTrace(System.err);
+            return false;
         } catch (IOException e) {
-            System.out.println("IO Exception");
+            e.printStackTrace(System.err);
+            return false;
+        }
+        return false;
+    }
+
+    public boolean deleteUser(String username){
+        try {
+            User user = userRepository.findUserByUsername(username);
+            userRepository.delete(user);
+            return true;
+        } catch(Exception e){
+            e.printStackTrace(System.err);
+            return false;
         }
     }
 }
