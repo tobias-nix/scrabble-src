@@ -281,6 +281,18 @@ public abstract class ServerCommunicationTest {
         }
     }
 
+    // TODO: Assert doesNotThrow einfügen!
+    /*
+    @Test
+  void login() {
+    assertDoesNotThrow(() -> {
+      ChatClientTestHelper chatClient = new ChatClientTestHelper();
+      ChatSession session = server.createSession("max", chatClient);
+      assertNotNull(session);
+    });
+  }
+     */
+
     @Nested
     class RegisterUserTestsWithRealAuthenticationAndData {
         @BeforeEach
