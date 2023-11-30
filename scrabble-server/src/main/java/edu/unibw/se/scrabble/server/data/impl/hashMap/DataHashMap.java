@@ -1,4 +1,4 @@
-package edu.unibw.se.scrabble.server.data.impl;
+package edu.unibw.se.scrabble.server.data.impl.hashMap;
 
 import edu.unibw.se.scrabble.common.base.Statistics;
 import edu.unibw.se.scrabble.server.data.AuthData;

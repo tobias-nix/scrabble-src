@@ -12,11 +12,42 @@
     <artifactId>scrabble-server</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-bom</artifactId>
+                <version>2023.0.5</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>edu.unibw.se</groupId>
             <artifactId>scrabble-common</artifactId>
             <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.1.214</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>6.3.1.Final</version>
         </dependency>
     </dependencies>
 
@@ -33,6 +64,10 @@
                         --add-opens scrabble.server/edu.unibw.se.scrabble.server.auth=ALL-UNNAMED
                         --add-opens scrabble.server/edu.unibw.se.scrabble.server.scom=ALL-UNNAMED
                         --add-opens scrabble.server/edu.unibw.se.scrabble.server.logic=ALL-UNNAMED
+                        --add-exports scrabble.server/edu.unibw.se.scrabble.server.data.impl.spring.jpa=spring.beans
+                        --add-exports scrabble.server/edu.unibw.se.scrabble.server.data.impl.spring=spring.beans
+                        --add-opens scrabble.server/edu.unibw.se.scrabble.server.data.impl.spring=ALL-UNNAMED
+                        --add-opens scrabble.server/edu.unibw.se.scrabble.server.data.impl.spring.jpa=ALL-UNNAMED
                     </argLine>
                     <testFailureIgnore>false</testFailureIgnore>
                 </configuration>
