@@ -69,8 +69,8 @@ public abstract class ClientCommunicationTest {
     static PlayerState playerState = PlayerState.NOT_VOTED;
     static List<Integer> countRackTiles = Arrays.asList(7, 7, 7, 7);
     static List<Integer> countSwapTiles = Arrays.asList(0, 0, 0, 0);
-    static List<TileWithPosition> tileWithPositions = tile;
-    static GameData gameData = new GameData(gameId, usernameS,currentPlayer,score,playerState,)
+    static List<TileWithPosition> tileWithPositions = new ArrayList<>();
+    static GameData gameData = GameData.TEST_GAMEDATA;
 
     char letter = 'N';
 
@@ -272,7 +272,7 @@ public abstract class ClientCommunicationTest {
         @Override
         public ReturnValues.ReturnStartGame startGame() throws RemoteException {
             startGameCalled = true;
-            this.toClient.sendGameState(rackTiles,swapTiles,gameState);
+            this.toClient.sendGameState(rackTiles,swapTiles,GameData.TEST_GAMEDATA);
             return ReturnValues.ReturnStartGame.SUCCESSFUL;
         }
 

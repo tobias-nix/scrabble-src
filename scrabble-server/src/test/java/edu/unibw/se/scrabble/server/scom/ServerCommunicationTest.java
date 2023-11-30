@@ -209,13 +209,82 @@ public abstract class ServerCommunicationTest {
     }
 
     @Nested
+    class LoginUserTestsWithRealAuthenticationAndData {
+        @BeforeEach
+        void init() {
+            serverCommunication = getServerCommunication();
+
+            serverConnectTest = new ServerConnectTest();
+            serverCommunication.setServerConnect(serverConnectTest);
+
+            authenticationReal = new AuthenticationImpl();
+            springDatabaseReal = new SpringScrabbleData();
+            //springDatabaseReal.fill();
+            springDatabaseReal.clear();
+
+            authenticationReal.setAuthData(springDatabaseReal.getAuthData());
+            serverCommunication.setCredentials(authenticationReal.getCredentials());
+
+            networkConnect = serverCommunication.getNetworkConnect();
+        }
+
+        @Test
+        void initTest() {
+            assertNotNull(serverCommunication);
+            assertNotNull(authenticationReal);
+            assertNotNull(springDatabaseReal);
+            assertNotNull(networkConnect);
+        }
+
+        @Test
+        public void loginUserSuccessfulValidInputUserNotInSession() {
+            String usernameTest = "Garfield1";
+            String passwordTest = "Garfield1!";
+            springDatabaseReal.getAuthData().createUser(usernameTest, passwordTest);
+
+            ToClientTest toClientTest = new ToClientTest();
+            assertDoesNotThrow(() -> {
+                NetworkConnect.ReturnLoginNetwork returnLoginUser =
+                        networkConnect.loginUser(usernameTest, passwordTest, toClientTest);
+
+                assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, returnLoginUser.state);
+                assertNotNull(returnLoginUser.toServer);
+            });
+
+            assertTrue(serverConnectTest.informAboutUserLoginCalled);
+            assertEquals(usernameTest, serverConnectTest.informAboutUserLoginUsernameTransferred);
+            assertFalse(toClientTest.sendGameStateCalled);
+        }
+
+        @Test
+        public void loginUserSuccessfulValidInputUserAlreadyInSession() {
+            String usernameTest = "Garfield2";
+            String passwordTest = "Garfield2!";
+            springDatabaseReal.getAuthData().createUser(usernameTest, passwordTest);
+
+            ToClientTest toClientTest = new ToClientTest();
+            assertDoesNotThrow(() -> {
+                NetworkConnect.ReturnLoginNetwork returnLoginUser =
+                        networkConnect.loginUser(usernameTest, passwordTest, toClientTest);
+
+                assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, returnLoginUser.state);
+                assertNotNull(returnLoginUser.toServer, "toServer");
+            });
+
+            assertTrue(serverConnectTest.informAboutUserLoginCalled, "informAboutUserLoginCalled");
+            assertEquals(usernameTest, serverConnectTest.informAboutUserLoginUsernameTransferred);
+            assertTrue(toClientTest.sendGameStateCalled, "sendGameStateCalled");
+            assertEquals(GameData.TEST_GAMEDATA, toClientTest.sendGameStateTransferredGameData);
+        }
+    }
+
+    @Nested
     class LoginUserTests {
         @BeforeEach
         void init() {
             serverCommunication = getServerCommunication();
 
             serverConnectTest = new ServerConnectTest();
-            serverConnectTest.setServerConnectCallback((ServerConnectCallback) serverCommunication);
             serverCommunication.setServerConnect(serverConnectTest);
 
             credentialsTest = new CredentialsTest();
@@ -244,6 +313,7 @@ public abstract class ServerCommunicationTest {
             } catch (RemoteException e) {
                 e.printStackTrace(System.err);
             }
+            assertNotNull(returnLoginUser);
             assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, returnLoginUser.state);
             assertNotNull(returnLoginUser.toServer);
             assertTrue(credentialsTest.loginUserCalled);
@@ -257,26 +327,26 @@ public abstract class ServerCommunicationTest {
 
         @Test
         public void loginUserSuccessfulValidInputUserAlreadyInSession() {
-            String usernameTest = "testSession";
+            String usernameTest = "Garfield2";
             String passwordTest = "test123!";
             ToClientTest toClientTest = new ToClientTest();
-            //serverConnectTest.serverConnectCallback.setToClient(toClientTest);
             NetworkConnect.ReturnLoginNetwork returnLoginUser = null;
             try {
                 returnLoginUser = networkConnect.loginUser(usernameTest, passwordTest, toClientTest);
             } catch (RemoteException e) {
                 e.printStackTrace(System.err);
             }
-
+            assertNotNull(returnLoginUser);
             assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, returnLoginUser.state);
             assertNotNull(returnLoginUser.toServer);
-            assertTrue(credentialsTest.loginUserCalled);
+            assertTrue(credentialsTest.loginUserCalled, "loginUserCalled");
             assertEquals(usernameTest, credentialsTest.loginTransferredUsername);
             assertEquals(passwordTest, credentialsTest.loginTransferredPassword);
 
-            assertTrue(serverConnectTest.informAboutUserLoginCalled);
+            assertTrue(serverConnectTest.informAboutUserLoginCalled, "Inform about user login");
             assertEquals(usernameTest, serverConnectTest.informAboutUserLoginUsernameTransferred);
-            assertTrue(toClientTest.sendGameStateCalled);
+            assertTrue(toClientTest.sendGameStateCalled, "Send GameState");
+            assertEquals(GameData.TEST_GAMEDATA, toClientTest.sendGameStateTransferredGameData);
         }
     }
 
@@ -538,8 +608,9 @@ public abstract class ServerCommunicationTest {
         public void informAboutUserLogin(String username) {
             informAboutUserLoginCalled = true;
             informAboutUserLoginUsernameTransferred = username;
-            if (Objects.equals("testSession", username)) {
-                this.serverConnectCallback.sendGameState(null, null, null, null);
+            GameData gameData = GameData.TEST_GAMEDATA;
+            if (Objects.equals("Garfield2", username)) {
+                this.serverConnectCallback.sendGameState(username, new char[]{}, new char[]{}, gameData);
             }
         }
     }
@@ -552,10 +623,12 @@ public abstract class ServerCommunicationTest {
         }
 
         public boolean sendGameStateCalled = false;
+        public GameData sendGameStateTransferredGameData = null;
 
         @Override
         public void sendGameState(char[] rackTiles, char[] swapTiles, GameData gameData) throws RemoteException {
             sendGameStateCalled = true;
+            sendGameStateTransferredGameData = gameData;
         }
 
         @Override

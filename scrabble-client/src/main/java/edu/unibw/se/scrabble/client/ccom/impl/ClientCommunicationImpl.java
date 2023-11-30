@@ -15,7 +15,7 @@ import java.rmi.RemoteException;
 public class ClientCommunicationImpl implements ClientCommunication, ClientConnect {
     private NetworkConnect networkConnect = null;
     private ToServer toServer = null;
-    private ClientConnectCallback cbc = null;
+    private ClientConnectCallback clientConnectCallback = null;
 
     @Override
     public ClientConnect getClientConnect() {
@@ -29,14 +29,14 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
 
     @Override
     public void setClientConnectCallback(ClientConnectCallback clientConnectCallback) {
-        this.cbc = clientConnectCallback;
+        this.clientConnectCallback = clientConnectCallback;
     }
 
     @Override
     public ReturnValues.ReturnLoginUser loginUser(String username, String password) {
         NetworkConnect.ReturnLoginNetwork ret;
         try {
-            ret = networkConnect.loginUser(username, password, new ToClientImpl(this.cbc));
+            ret = networkConnect.loginUser(username, password, new ToClientImpl(this.clientConnectCallback));
         } catch (RemoteException e) {
             return ReturnValues.ReturnLoginUser.NETWORK_FAILURE;
         }
