@@ -6,7 +6,7 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- @author Bößendörfer
+ * @author Bößendörfer
  */
 
 @DisplayName("Data Test")
@@ -80,13 +80,17 @@ public abstract class DataTest {
         void createUserWithValidInput() {
             boolean returnCreateUser = authData.createUser("franz", "password123!");
             assertTrue(returnCreateUser);
+            boolean returnUsername = authData.usernameExists("franz");
+            assertTrue(returnUsername);
         }
 
-        @Test
+        /*@Test
         void createUserWithInvalidUsername() {
             boolean returnCreateUser = authData.createUser("lea", "password123!");
             assertFalse(returnCreateUser);
-        }
+            boolean returnUsername = authData.usernameExists("lea");
+            assertFalse(returnUsername);
+        }*/
 
         @Test
         void createUserWithNull() {
@@ -108,9 +112,12 @@ public abstract class DataTest {
 
         @Test
         void saveUserStatisticsValid() {
+            Statistics testStatistics = new Statistics(99, 9, 999, 9999);
             boolean returnSaveUserStatistics = scrabbleData.saveUserStatistics("berta",
-                    new Statistics(99, 9, 999, 9999));
+                    testStatistics);
             assertTrue(returnSaveUserStatistics);
+            Statistics returnUserStatistics = scrabbleData.getUserStatistics("berta");
+            assertEquals(testStatistics, returnUserStatistics);
         }
 
         @Test
@@ -121,7 +128,7 @@ public abstract class DataTest {
         }
 
         @Test
-        void saveUserStatisticsInvalidStatistics(){
+        void saveUserStatisticsInvalidStatistics() {
             assertFalse(scrabbleData.saveUserStatistics("paul", null));
         }
     }

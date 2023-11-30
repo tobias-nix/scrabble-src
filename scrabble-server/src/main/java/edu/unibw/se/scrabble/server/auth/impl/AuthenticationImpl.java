@@ -63,6 +63,5 @@ public class AuthenticationImpl implements Authentication, Credentials {
             return ReturnValues.ReturnRegisterUser.SUCCESSFUL;
         }
         return ReturnValues.ReturnRegisterUser.DATABASE_FAILURE;
-
     }
 }

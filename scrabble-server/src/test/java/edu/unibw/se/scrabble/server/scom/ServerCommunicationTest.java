@@ -3,7 +3,11 @@ package edu.unibw.se.scrabble.server.scom;
 import edu.unibw.se.scrabble.common.base.*;
 import edu.unibw.se.scrabble.common.scom.NetworkConnect;
 import edu.unibw.se.scrabble.common.scom.ToClient;
+import edu.unibw.se.scrabble.server.auth.Authentication;
 import edu.unibw.se.scrabble.server.auth.Credentials;
+import edu.unibw.se.scrabble.server.auth.impl.AuthenticationImpl;
+import edu.unibw.se.scrabble.server.data.Data;
+import edu.unibw.se.scrabble.server.data.impl.spring.SpringScrabbleData;
 import edu.unibw.se.scrabble.server.logic.ServerConnect;
 import edu.unibw.se.scrabble.server.logic.ServerConnectCallback;
 import org.junit.jupiter.api.*;
@@ -22,7 +26,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class ServerCommunicationTest {
     private static CredentialsTest credentialsTest;
+    private static Authentication authenticationReal;
+    private static SpringScrabbleData springDatabaseReal;
     private static ServerConnectTest serverConnectTest;
+    private static ServerConnect serverConnectReal;
     private static NetworkConnect networkConnect;
     private static ServerCommunication serverCommunication;
 
@@ -282,6 +289,117 @@ public abstract class ServerCommunicationTest {
             assertTrue(serverConnectTest.informAboutUserLoginCalled);
             assertEquals(usernameTest, serverConnectTest.informAboutUserLoginUsernameTransferred);
             assertTrue(toClientTest.sendGameStateCalled);
+        }
+    }
+
+    @Nested
+    class RegisterUserTestsWithRealAuthenticationAndData {
+        @BeforeEach
+        void init() {
+            serverCommunication = getServerCommunication();
+            serverCommunication.setServerConnect(new ServerConnectTest());  // unnötig - registerUser braucht eigentlich kein Server Connect
+
+            authenticationReal = new AuthenticationImpl();
+            springDatabaseReal = new SpringScrabbleData();
+            springDatabaseReal.fill();
+
+            authenticationReal.setAuthData(springDatabaseReal.getAuthData());
+            serverCommunication.setCredentials(authenticationReal.getCredentials());
+
+            networkConnect = serverCommunication.getNetworkConnect();
+        }
+
+        @Test
+        void initTest() {
+            assertNotNull(serverCommunication);
+            assertNotNull(authenticationReal);
+            assertNotNull(springDatabaseReal);
+            assertNotNull(networkConnect);
+        }
+
+        @Test
+        public void registerUserSuccessValidInputUserDoesNotYetExist() {
+            springDatabaseReal.clear();
+            ReturnValues.ReturnRegisterUser returnRegisterUser =
+                    networkConnect.registerUser("ralf", "ralfralf1!");
+            assertEquals(ReturnValues.ReturnRegisterUser.SUCCESSFUL, returnRegisterUser);
+
+            assertTrue(springDatabaseReal.getAuthData().usernameExists("ralf"));
+            assertEquals("ralfralf1!", springDatabaseReal.getAuthData().getPassword("ralf"));
+        }
+
+        @Test
+        public void registerUserFailureValidInputUserAlreadyExists() {
+            ReturnValues.ReturnRegisterUser returnRegisterUser =
+                    networkConnect.registerUser("karl", "karl1234!");
+            assertEquals(ReturnValues.ReturnRegisterUser.USERNAME_ALREADY_EXISTS, returnRegisterUser);
+
+            assertTrue(springDatabaseReal.getAuthData().usernameExists("karl"));
+            assertEquals("karlkarl1!", springDatabaseReal.getAuthData().getPassword("karl"));
+        }
+
+        @Test
+        public void registerUserFailureNullAsUsername() {
+            springDatabaseReal.clear();
+            ReturnValues.ReturnRegisterUser returnRegisterUser =
+                    networkConnect.registerUser(null, "ralfralf1!");
+            assertEquals(ReturnValues.ReturnRegisterUser.FAILURE, returnRegisterUser);
+        }
+
+        @Test
+        public void registerUserFailureNullAsPassword() {
+            springDatabaseReal.clear();
+            ReturnValues.ReturnRegisterUser returnRegisterUser =
+                    networkConnect.registerUser("ralf", null);
+            assertEquals(ReturnValues.ReturnRegisterUser.FAILURE, returnRegisterUser);
+        }
+
+        @Test
+        public void registerUserFailureInvalidUsernameTooShort() {
+            springDatabaseReal.clear();
+            ReturnValues.ReturnRegisterUser returnRegisterUser =
+                    networkConnect.registerUser("123", "testtest1!");
+            assertEquals(ReturnValues.ReturnRegisterUser.INVALID_USERNAME, returnRegisterUser);
+        }
+
+        @Test
+        public void registerUserFailureInvalidUsernameTooLong() {
+            springDatabaseReal.clear();
+            ReturnValues.ReturnRegisterUser returnRegisterUser =
+                    networkConnect.registerUser("1234567890123456", "testtest1!");
+            assertEquals(ReturnValues.ReturnRegisterUser.INVALID_USERNAME, returnRegisterUser);
+        }
+
+        @Test
+        public void registerUserFailureInvalidPasswordTooShort() {
+            springDatabaseReal.clear();
+            ReturnValues.ReturnRegisterUser returnRegisterUser =
+                    networkConnect.registerUser("ralf", "test11!");
+            assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
+        }
+
+        @Test
+        public void registerUserFailureInvalidPasswordTooLong() {
+            springDatabaseReal.clear();
+            ReturnValues.ReturnRegisterUser returnRegisterUser =
+                    networkConnect.registerUser("ralf", "1234567890123456789A!");
+            assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
+        }
+
+        @Test
+        public void registerUserFailureInvalidPasswordNoNumber() {
+            springDatabaseReal.clear();
+            ReturnValues.ReturnRegisterUser returnRegisterUser =
+                    networkConnect.registerUser("ralf", "ralfralf!");
+            assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
+        }
+
+        @Test
+        public void registerUserFailureInvalidPasswordNoSpecialCharacter() {
+            springDatabaseReal.clear();
+            ReturnValues.ReturnRegisterUser returnRegisterUser =
+                    networkConnect.registerUser("ralf", "ralfralf1");
+            assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
         }
     }
 
