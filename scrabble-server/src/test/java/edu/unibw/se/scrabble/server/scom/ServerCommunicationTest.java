@@ -60,8 +60,7 @@ public abstract class ServerCommunicationTest {
 
         @Test
         public void registerUserValidInput() {
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    null;
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
             try {
                 returnRegisterUser = networkConnect.registerUser("ralf", "ralfralf1!");
             } catch (RemoteException e) {
@@ -75,8 +74,7 @@ public abstract class ServerCommunicationTest {
 
         @Test
         public void registerUserNullAsUsername() {
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    null;
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
             try {
                 returnRegisterUser = networkConnect.registerUser(null, "ralfralf1!");
             } catch (RemoteException e) {
@@ -88,8 +86,7 @@ public abstract class ServerCommunicationTest {
 
         @Test
         public void registerUserNullAsPassword() {
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    null;
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
             try {
                 returnRegisterUser = networkConnect.registerUser("ralf", null);
             } catch (RemoteException e) {
@@ -101,8 +98,7 @@ public abstract class ServerCommunicationTest {
 
         @Test
         public void registerUserUsernameAlreadyExists() {
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    null;
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
             try {
                 returnRegisterUser = networkConnect.registerUser("karl", "karlkarl1!");
             } catch (RemoteException e) {
@@ -116,8 +112,7 @@ public abstract class ServerCommunicationTest {
 
         @Test
         public void registerUserDatabaseFailure() {
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    null;
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
             try {
                 returnRegisterUser = networkConnect.registerUser("inge", "ingeinge1!");
             } catch (RemoteException e) {
@@ -131,8 +126,7 @@ public abstract class ServerCommunicationTest {
 
         @Test
         public void registerUserInvalidUsernameTooShort() {
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    null;
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
             try {
                 returnRegisterUser = networkConnect.registerUser("123", "ingeinge1!");
             } catch (RemoteException e) {
@@ -146,8 +140,7 @@ public abstract class ServerCommunicationTest {
 
         @Test
         public void registerUserInvalidUsernameTooLong() {
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    null;
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
             try {
                 returnRegisterUser = networkConnect.registerUser("1234567890123456", "ingeinge1!");
             } catch (RemoteException e) {
@@ -161,8 +154,7 @@ public abstract class ServerCommunicationTest {
 
         @Test
         public void registerUserInvalidPasswordTooShort() {
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    null;
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
             try {
                 returnRegisterUser = networkConnect.registerUser("ralf", "123");
             } catch (RemoteException e) {
@@ -176,8 +168,7 @@ public abstract class ServerCommunicationTest {
 
         @Test
         public void registerUserInvalidPasswordTooLong() {
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    null;
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
             try {
                 returnRegisterUser = networkConnect.registerUser("ralf", "123456789012345678901");
             } catch (RemoteException e) {
@@ -191,8 +182,7 @@ public abstract class ServerCommunicationTest {
 
         @Test
         public void registerUserInvalidPasswordNoSpecialCharacter() {
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    null;
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
             try {
                 returnRegisterUser = networkConnect.registerUser("ralf", "ralfralf1");
             } catch (RemoteException e) {
@@ -206,8 +196,7 @@ public abstract class ServerCommunicationTest {
 
         @Test
         public void registerUserInvalidPasswordNoNumber() {
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    null;
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
             try {
                 returnRegisterUser = networkConnect.registerUser("ralf", "ralfralf!");
             } catch (RemoteException e) {
@@ -320,8 +309,12 @@ public abstract class ServerCommunicationTest {
         @Test
         public void registerUserSuccessValidInputUserDoesNotYetExist() {
             springDatabaseReal.clear();
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("ralf", "ralfralf1!");
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("ralf", "ralfralf1!");
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.SUCCESSFUL, returnRegisterUser);
 
             assertTrue(springDatabaseReal.getAuthData().usernameExists("ralf"));
@@ -330,8 +323,12 @@ public abstract class ServerCommunicationTest {
 
         @Test
         public void registerUserFailureValidInputUserAlreadyExists() {
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("karl", "karl1234!");
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("karl", "karl1234!");
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.USERNAME_ALREADY_EXISTS, returnRegisterUser);
 
             assertTrue(springDatabaseReal.getAuthData().usernameExists("karl"));
@@ -341,72 +338,103 @@ public abstract class ServerCommunicationTest {
         @Test
         public void registerUserFailureNullAsUsername() {
             springDatabaseReal.clear();
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser(null, "ralfralf1!");
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
+            try {
+                returnRegisterUser = networkConnect.registerUser(null, "ralfralf1!");
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.FAILURE, returnRegisterUser);
         }
 
         @Test
         public void registerUserFailureNullAsPassword() {
             springDatabaseReal.clear();
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("ralf", null);
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("ralf", null);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.FAILURE, returnRegisterUser);
         }
 
         @Test
         public void registerUserFailureInvalidUsernameTooShort() {
             springDatabaseReal.clear();
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("123", "testtest1!");
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("123", "testtest1!");
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.INVALID_USERNAME, returnRegisterUser);
         }
 
         @Test
         public void registerUserFailureInvalidUsernameTooLong() {
             springDatabaseReal.clear();
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("1234567890123456", "testtest1!");
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("1234567890123456", "testtest1!");
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.INVALID_USERNAME, returnRegisterUser);
         }
 
         @Test
         public void registerUserFailureInvalidPasswordTooShort() {
             springDatabaseReal.clear();
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("ralf", "test11!");
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("ralf", "test11!");
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
         }
 
         @Test
         public void registerUserFailureInvalidPasswordTooLong() {
             springDatabaseReal.clear();
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("ralf", "1234567890123456789A!");
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("ralf", "1234567890123456789A!");
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
         }
 
         @Test
         public void registerUserFailureInvalidPasswordNoNumber() {
             springDatabaseReal.clear();
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("ralf", "ralfralf!");
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("ralf", "ralfralf!");
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
         }
 
         @Test
         public void registerUserFailureInvalidPasswordNoSpecialCharacter() {
             springDatabaseReal.clear();
-            ReturnValues.ReturnRegisterUser returnRegisterUser =
-                    networkConnect.registerUser("ralf", "ralfralf1");
+            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
+            try {
+                returnRegisterUser = networkConnect.registerUser("ralf", "ralfralf1");
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
         }
     }
 
     static class CredentialsTest implements Credentials {
         private static final Pattern usernamePattern = Pattern.compile("[a-zA-Z0-9]{4,15}");
-        private static final Pattern passwordPattern = Pattern.compile(
-                "^(?=.*?[A-Za-z])(?=.*?[0-9])(?=.*?[?!$%&/()*]).{8,20}$");
+        private static final Pattern passwordPattern = Pattern.compile("^(?=.*?[A-Za-z])(?=.*?[0-9])(?=.*?[?!$%&/()*]).{8,20}$");
 
 
         private boolean loginUserCalled = false;
