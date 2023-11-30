@@ -6,7 +6,6 @@ import edu.unibw.se.scrabble.common.scom.ToClient;
 import edu.unibw.se.scrabble.server.auth.Authentication;
 import edu.unibw.se.scrabble.server.auth.Credentials;
 import edu.unibw.se.scrabble.server.auth.impl.AuthenticationImpl;
-import edu.unibw.se.scrabble.server.data.Data;
 import edu.unibw.se.scrabble.server.data.impl.spring.SpringScrabbleData;
 import edu.unibw.se.scrabble.server.logic.ServerConnect;
 import edu.unibw.se.scrabble.server.logic.ServerConnectCallback;
@@ -243,7 +242,7 @@ public abstract class ServerCommunicationTest {
             try {
                 returnLoginUser = networkConnect.loginUser(usernameTest, passwordTest, toClientTest);
             } catch (RemoteException e) {
-                e.printStackTrace();
+                e.printStackTrace(System.err);
             }
             assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, returnLoginUser.state);
             assertNotNull(returnLoginUser.toServer);
@@ -266,7 +265,7 @@ public abstract class ServerCommunicationTest {
             try {
                 returnLoginUser = networkConnect.loginUser(usernameTest, passwordTest, toClientTest);
             } catch (RemoteException e) {
-                e.printStackTrace();
+                e.printStackTrace(System.err);
             }
 
             assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, returnLoginUser.state);
@@ -281,18 +280,6 @@ public abstract class ServerCommunicationTest {
         }
     }
 
-    // TODO: Assert doesNotThrow einfügen!
-    /*
-    @Test
-  void login() {
-    assertDoesNotThrow(() -> {
-      ChatClientTestHelper chatClient = new ChatClientTestHelper();
-      ChatSession session = server.createSession("max", chatClient);
-      assertNotNull(session);
-    });
-  }
-     */
-
     @Nested
     class RegisterUserTestsWithRealAuthenticationAndData {
         @BeforeEach
@@ -302,7 +289,8 @@ public abstract class ServerCommunicationTest {
 
             authenticationReal = new AuthenticationImpl();
             springDatabaseReal = new SpringScrabbleData();
-            springDatabaseReal.fill();
+            //springDatabaseReal.fill();
+            springDatabaseReal.clear();
 
             authenticationReal.setAuthData(springDatabaseReal.getAuthData());
             serverCommunication.setCredentials(authenticationReal.getCredentials());
@@ -320,127 +308,120 @@ public abstract class ServerCommunicationTest {
 
         @Test
         public void registerUserSuccessValidInputUserDoesNotYetExist() {
-            springDatabaseReal.deleteUser("ralf");
-            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
-            try {
-                returnRegisterUser = networkConnect.registerUser("ralf", "ralfralf1!");
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-            assertEquals(ReturnValues.ReturnRegisterUser.SUCCESSFUL, returnRegisterUser);
-
-            assertTrue(springDatabaseReal.getAuthData().usernameExists("ralf"));
-            assertEquals("ralfralf1!", springDatabaseReal.getAuthData().getPassword("ralf"));
+            String username = "ralf";
+            String password = "ralfralf1!";
+            springDatabaseReal.deleteUser(username);
+            assertDoesNotThrow(() -> {
+                ReturnValues.ReturnRegisterUser returnRegisterUser =
+                        networkConnect.registerUser(username, password);
+                assertEquals(ReturnValues.ReturnRegisterUser.SUCCESSFUL, returnRegisterUser);
+            });
+            assertTrue(springDatabaseReal.getAuthData().usernameExists(username));
+            assertEquals(password, springDatabaseReal.getAuthData().getPassword(username));
         }
 
         @Test
         public void registerUserFailureValidInputUserAlreadyExists() {
-            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
-            try {
-                returnRegisterUser = networkConnect.registerUser("karl", "karl1234!");
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-            assertEquals(ReturnValues.ReturnRegisterUser.USERNAME_ALREADY_EXISTS, returnRegisterUser);
+            String username = "karl";
+            String password = "karlkarl1!";
+            springDatabaseReal.getAuthData().createUser(username, password);
+            String newPassword = "karl1234!";
+            assertDoesNotThrow(() -> {
+                ReturnValues.ReturnRegisterUser returnRegisterUser =
+                        networkConnect.registerUser(username, newPassword);
+                assertEquals(ReturnValues.ReturnRegisterUser.USERNAME_ALREADY_EXISTS, returnRegisterUser);
+            });
 
-            assertTrue(springDatabaseReal.getAuthData().usernameExists("karl"));
-            assertEquals("karlkarl1!", springDatabaseReal.getAuthData().getPassword("karl"));
+            assertTrue(springDatabaseReal.getAuthData().usernameExists(username));
+            assertEquals(password, springDatabaseReal.getAuthData().getPassword(username));
         }
 
         @Test
         public void registerUserFailureNullAsUsername() {
-            springDatabaseReal.clear();
-            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
-            try {
-                returnRegisterUser = networkConnect.registerUser(null, "ralfralf1!");
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-            assertEquals(ReturnValues.ReturnRegisterUser.FAILURE, returnRegisterUser);
+            String username = null;
+            String password = "karlkarl1!";
+            assertDoesNotThrow(() -> {
+                ReturnValues.ReturnRegisterUser returnRegisterUser =
+                        networkConnect.registerUser(username, password);
+                assertEquals(ReturnValues.ReturnRegisterUser.FAILURE, returnRegisterUser);
+            });
         }
 
         @Test
         public void registerUserFailureNullAsPassword() {
-            springDatabaseReal.clear();
-            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
-            try {
-                returnRegisterUser = networkConnect.registerUser("ralf", null);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-            assertEquals(ReturnValues.ReturnRegisterUser.FAILURE, returnRegisterUser);
+            String username = "karl";
+            String password = null;
+            assertDoesNotThrow(() -> {
+                ReturnValues.ReturnRegisterUser returnRegisterUser =
+                        networkConnect.registerUser(username, password);
+                assertEquals(ReturnValues.ReturnRegisterUser.FAILURE, returnRegisterUser);
+            });
         }
 
         @Test
         public void registerUserFailureInvalidUsernameTooShort() {
-            springDatabaseReal.clear();
-            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
-            try {
-                returnRegisterUser = networkConnect.registerUser("123", "testtest1!");
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-            assertEquals(ReturnValues.ReturnRegisterUser.INVALID_USERNAME, returnRegisterUser);
+            String username = "123";
+            String password = "karlkarl1!";
+            assertDoesNotThrow(() -> {
+                ReturnValues.ReturnRegisterUser returnRegisterUser =
+                        networkConnect.registerUser(username, password);
+                assertEquals(ReturnValues.ReturnRegisterUser.INVALID_USERNAME, returnRegisterUser);
+            });
         }
 
         @Test
         public void registerUserFailureInvalidUsernameTooLong() {
-            springDatabaseReal.clear();
-            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
-            try {
-                returnRegisterUser = networkConnect.registerUser("1234567890123456", "testtest1!");
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-            assertEquals(ReturnValues.ReturnRegisterUser.INVALID_USERNAME, returnRegisterUser);
+            String username = "1234567890123456";
+            String password = "testtest1!";
+            assertDoesNotThrow(() -> {
+                ReturnValues.ReturnRegisterUser returnRegisterUser =
+                        networkConnect.registerUser(username, password);
+                assertEquals(ReturnValues.ReturnRegisterUser.INVALID_USERNAME, returnRegisterUser);
+            });
         }
 
         @Test
         public void registerUserFailureInvalidPasswordTooShort() {
-            springDatabaseReal.clear();
-            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
-            try {
-                returnRegisterUser = networkConnect.registerUser("ralf", "test11!");
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-            assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
+            String username = "ralf";
+            String password = "test11!";
+            assertDoesNotThrow(() -> {
+                ReturnValues.ReturnRegisterUser returnRegisterUser =
+                        networkConnect.registerUser(username, password);
+                assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
+            });
         }
 
         @Test
         public void registerUserFailureInvalidPasswordTooLong() {
-            springDatabaseReal.clear();
-            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
-            try {
-                returnRegisterUser = networkConnect.registerUser("ralf", "1234567890123456789A!");
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-            assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
+            String username = "ralf";
+            String password = "1234567890123456789A!";
+            assertDoesNotThrow(() -> {
+                ReturnValues.ReturnRegisterUser returnRegisterUser =
+                        networkConnect.registerUser(username, password);
+                assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
+            });
         }
 
         @Test
         public void registerUserFailureInvalidPasswordNoNumber() {
-            springDatabaseReal.clear();
-            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
-            try {
-                returnRegisterUser = networkConnect.registerUser("ralf", "ralfralf!");
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-            assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
+            String username = "ralf";
+            String password = "ralfralf!";
+            assertDoesNotThrow(() -> {
+                ReturnValues.ReturnRegisterUser returnRegisterUser =
+                        networkConnect.registerUser(username, password);
+                assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
+            });
         }
 
         @Test
         public void registerUserFailureInvalidPasswordNoSpecialCharacter() {
-            springDatabaseReal.clear();
-            ReturnValues.ReturnRegisterUser returnRegisterUser = null;
-            try {
-                returnRegisterUser = networkConnect.registerUser("ralf", "ralfralf1");
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-            assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
+            String username = "ralf";
+            String password = "ralfralf1";
+            assertDoesNotThrow(() -> {
+                ReturnValues.ReturnRegisterUser returnRegisterUser =
+                        networkConnect.registerUser(username, password);
+                assertEquals(ReturnValues.ReturnRegisterUser.INVALID_PASSWORD, returnRegisterUser);
+            });
         }
     }
 
