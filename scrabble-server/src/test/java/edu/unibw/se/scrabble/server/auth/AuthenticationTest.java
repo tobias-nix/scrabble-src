@@ -16,31 +16,22 @@ import static org.junit.jupiter.api.Assertions.*;
 public abstract class AuthenticationTest {
 
     private Authentication authentication;
-    //Abstrakte Methode, die für die Erzeugung der konkreten Authentication verantwortlich ist (Factory Method).
     protected abstract Authentication getAuthentication();
 
     private Credentials credentials;
 
     private AuthDataTest authDataTest = null;
-    //Abstrakte Methode, die für die Erzeugung der konkreten AuthData verantwortlich ist (Factory Method).
     protected abstract AuthData getAuthData();
 
     @BeforeEach
     void init() {
         authentication = getAuthentication();
-        /*
-        Erzeugt ein Objekt der Klasse AuthDataTest (siehe unten)
-        Übergabeparameter ist getAuthData() kann null, Dummy oder reale Komponente sein.
-         */
-        authDataTest = new AuthDataTest(null);
-        //Anschließen der AuthDataTest bzw. AuthData an die Authentication
+        authDataTest = new AuthDataTest(getAuthData());
         authentication.setAuthData(authDataTest);
-
-        //Anschließen der Credentials mit getCredentials()
         credentials = authentication.getCredentials();
     }
 
-    @Test   //Prüft, ob die Initialisierung von Authentication und Credentials erfolgreich war
+    @Test
     void initValid() {
         assertNotNull(authentication);
         assertNotNull(credentials);
@@ -157,12 +148,10 @@ public abstract class AuthenticationTest {
 
         final AuthData authData;
 
-        //Konstruktor ermöglicht Übergabe von realer Komponente (authData != null)
         AuthDataTest(AuthData authData) {
             this.authData = authData;
         }
 
-        //Variablen tracken, ob die Methoden aufgerufen wurde und welche Parameter übergeben wurden
         boolean usernameExistsIsCalled = false;
         String usernameExistsUsername = null;
 
@@ -170,14 +159,9 @@ public abstract class AuthenticationTest {
         public boolean usernameExists(String username) {
             usernameExistsIsCalled = true;
             usernameExistsUsername = username;
-            if (authData != null) {      //reale Komponente
-                return authData.usernameExists(username);
-            } else {                      //Dummy
-                throw new UnsupportedOperationException();
-            }
+            return authData.usernameExists(username);
         }
 
-        //Variablen tracken, ob die Methoden aufgerufen wurde und welche Parameter übergeben wurden
         boolean getPasswordIsCalled = false;
         String getPasswordUsername = null;
 
@@ -185,14 +169,9 @@ public abstract class AuthenticationTest {
         public String getPassword(String username) {
             getPasswordIsCalled = true;
             getPasswordUsername = username;
-            if (authData != null) {       //reale Komponente
-                return authData.getPassword(username);
-            } else {
-                throw new UnsupportedOperationException();
-            }
+            return authData.getPassword(username);
         }
 
-        //Variablen tracken, ob die Methoden aufgerufen wurde und welchen Parametern übergeben wurden
         boolean createUserIsCalled = false;
         String createUserUsername = null;
         String createUserPassword = null;
@@ -203,11 +182,7 @@ public abstract class AuthenticationTest {
             createUserUsername = username;
             createUserPassword = password;
 
-            if (authData != null) {       //reale Komponente
-                return authData.createUser(username, password);
-            } else {                     //Dummy
-                throw new UnsupportedOperationException();
-            }
+            return authData.createUser(username, password);
         }
     }
 }

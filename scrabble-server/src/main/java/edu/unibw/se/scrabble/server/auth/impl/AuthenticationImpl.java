@@ -10,8 +10,8 @@ import java.util.regex.Pattern;
 
 public class AuthenticationImpl implements Authentication, Credentials {
     private static final Pattern USERNAME_PATTERN = Pattern.compile("[a-zA-Z0-9]{4,15}");
-    private static final Pattern PASSWORD_PATTERN = Pattern.compile(
-            "^(?=.*?[A-Za-z])(?=.*?[0-9])(?=.*?[?!$%&/()*]).{8,20}$");
+    private static final Pattern PASSWORD_PATTERN =
+            Pattern.compile("^(?=.*?[A-Za-z])(?=.*?[0-9])(?=.*?[?!$%&/()*]).{8,20}$");
 
     private AuthData authData = null;
 

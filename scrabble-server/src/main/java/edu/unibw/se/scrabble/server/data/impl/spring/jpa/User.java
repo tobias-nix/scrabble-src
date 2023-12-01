@@ -6,8 +6,6 @@ import jakarta.persistence.*;
 /**
  * @author Bößendörfer
  */
-
-//Transportobjekt User
 @Entity
 @Table(name = "SCRABBLE_USER")
 public class User {
@@ -33,8 +31,7 @@ public class User {
     public User() {
     }
 
-    public User(String username, String password,
-                int gamesPlayed, int gamesWon, int highestScore, int totalScore) {
+    public User(String username, String password, int gamesPlayed, int gamesWon, int highestScore, int totalScore) {
         this.username = username;
         this.password = password;
         this.gamesPlayed = gamesPlayed;
@@ -43,8 +40,6 @@ public class User {
         this.totalScore = totalScore;
     }
 
-    //Welche Methoden braucht der User?
-
     public String getUsername() {
         return username;
     }
@@ -52,7 +47,6 @@ public class User {
     public String getPassword() {
         return password;
     }
-    //kein setPassword(): Unsere User können ihr passwort nicht ändern ;-)
 
     public Statistics getStatistics() {
         return new Statistics(gamesPlayed, gamesWon, highestScore, totalScore);
@@ -66,14 +60,10 @@ public class User {
     }
 
     @Override
-    public String toString(){
-        return "User{" +
-                "username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", gamesPlayed='" + gamesPlayed + '\'' +
-                ", gamesWon='" + gamesWon + '\'' +
-                ", highestScore='" + highestScore + '\'' +
-                ", totalScore='" + totalScore + '\'' +
-                '}';
+    public String toString() {
+        return "User{" + "username='" + username + '\'' + ", " +
+                "password='" + password + '\'' + ", gamesPlayed='" + gamesPlayed + '\'' + ", " +
+                "gamesWon='" + gamesWon + '\'' + ", highestScore='" + highestScore + '\'' + ", " +
+                "totalScore='" + totalScore + '\'' + '}';
     }
 }

@@ -5,7 +5,6 @@ import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnLoginUser;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.List;
 
 /**
  * NetworkConnect Interface for requesting authentication for user data from the server

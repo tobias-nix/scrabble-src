@@ -76,7 +76,7 @@ public class ServerCommunicationImpl implements ServerCommunication, NetworkConn
                 return ReturnLoginNetwork.FAILURE;
         }
 
-        ToServerImpl toServer = new ToServerImpl(username, toClient, this, this.serverConnect);
+        ToServerImpl toServer = new ToServerImpl(username, toClient, this.serverConnect);
         this.addSession(username, toServer);
 
         serverConnect.informAboutUserLogin(username);

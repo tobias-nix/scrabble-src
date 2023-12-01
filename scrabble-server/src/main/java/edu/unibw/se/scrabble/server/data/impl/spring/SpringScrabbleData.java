@@ -9,21 +9,20 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 /**
  * @author Bößendörfer
  */
-
-public class SpringScrabbleData implements Data{
+public class SpringScrabbleData implements Data {
 
     private final SpringScrabbleDataWorker worker;
     private static ApplicationContext applicationContext;
 
-    public SpringScrabbleData(){
-        if (applicationContext==null){
+    public SpringScrabbleData() {
+        if (applicationContext == null) {
             applicationContext = new ClassPathXmlApplicationContext("application-context.xml");
         }
         worker = applicationContext.getBean(SpringScrabbleDataWorker.class);
     }
 
-    public SpringScrabbleData(String applicationContextFile){
-        if(applicationContext == null){
+    public SpringScrabbleData(String applicationContextFile) {
+        if (applicationContext == null) {
             applicationContext = new ClassPathXmlApplicationContext(applicationContextFile);
         }
         worker = applicationContext.getBean(SpringScrabbleDataWorker.class);
@@ -39,27 +38,24 @@ public class SpringScrabbleData implements Data{
         return worker;
     }
 
-    public boolean clear(){
-        if(worker != null) {
-            worker.clear();
-            return true;
+    public boolean clear() {
+        if (worker == null) {
+            return false;
         }
-        return false;
+        return worker.clear();
     }
 
-    public boolean fill(){
-        if(worker != null) {
-            worker.fill();
-            return true;
+    public boolean fill() {
+        if (worker == null) {
+            return false;
         }
-        return false;
+        return worker.fill();
     }
 
-    public boolean deleteUser(String username){
-        if(username != null && worker != null) {
-        worker.deleteUser(username);
-        return true;
-    }
-        return false;
+    public boolean deleteUser(String username) {
+        if (username == null || worker == null) {
+            return false;
+        }
+        return worker.deleteUser(username);
     }
 }

@@ -37,7 +37,7 @@ public abstract class ClientCommunicationTHEREALTHINGTest {
     private static final String[] testTwoUsersInSession = {"Odie", "Garfield"};
     private static final String[] testThreeUsersInSession = {"Odie", "JonA", "Nermal"};
 
-    private class Client {
+    private static class Client {
         String username;
         String password;
         ClientCommunication clientCommunication;
@@ -306,7 +306,7 @@ public abstract class ClientCommunicationTHEREALTHINGTest {
         }
     }
 
-    class ClientConnectCallbackTest implements ClientConnectCallback {
+    static class ClientConnectCallbackTest implements ClientConnectCallback {
 
         public boolean usersInSessionCalled = false;
         public String[] usersInSessionCalledTransferredUsernames = {};
@@ -315,7 +315,6 @@ public abstract class ClientCommunicationTHEREALTHINGTest {
         public void usersInSession(String[] usernames) {
             usersInSessionCalled = true;
             usersInSessionCalledTransferredUsernames = usernames;
-            System.out.println("callback");
         }
 
         public boolean sendGameStateCalled = false;

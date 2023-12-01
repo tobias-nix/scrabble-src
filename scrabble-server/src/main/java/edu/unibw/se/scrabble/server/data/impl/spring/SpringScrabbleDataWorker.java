@@ -9,14 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author Bößendörfer
  */
-
 @Component
 public class SpringScrabbleDataWorker implements ScrabbleData, AuthData {
 
@@ -81,49 +80,45 @@ public class SpringScrabbleDataWorker implements ScrabbleData, AuthData {
     }
 
     public boolean clear() {
-        try{
+        try {
             userRepository.deleteAll();
             return true;
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace(System.err);
             return false;
         }
     }
 
     public boolean fill() {
-        String filePath = getClass().getResource("/userdata.csv").getFile();
+        String filePath = Objects.requireNonNull(getClass().getResource("/userdata.csv")).getFile();
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath))) {
             bufferedReader.readLine(); //Erste Formatzeile
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 String[] lineAsArray = line.split(",");
                 try {
-                    User user = new User(lineAsArray[0], lineAsArray[1],
-                            Integer.parseInt(lineAsArray[2]), Integer.parseInt(lineAsArray[3]),
-                            Integer.parseInt(lineAsArray[4]), Integer.parseInt(lineAsArray[5]));
+                    User user = new User(lineAsArray[0], lineAsArray[1], Integer.parseInt(lineAsArray[2]),
+                            Integer.parseInt(lineAsArray[3]), Integer.parseInt(lineAsArray[4]),
+                            Integer.parseInt(lineAsArray[5]));
                     userRepository.save(user);
-                    return true;
                 } catch (Exception e) {
                     e.printStackTrace(System.err);
                     return false;
                 }
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace(System.err);
-            return false;
+            return true;
         } catch (IOException e) {
             e.printStackTrace(System.err);
             return false;
         }
-        return false;
     }
 
-    public boolean deleteUser(String username){
+    public boolean deleteUser(String username) {
         try {
             User user = userRepository.findUserByUsername(username);
             userRepository.delete(user);
             return true;
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace(System.err);
             return false;
         }

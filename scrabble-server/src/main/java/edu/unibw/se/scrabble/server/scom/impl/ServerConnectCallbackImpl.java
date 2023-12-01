@@ -23,7 +23,6 @@ public class ServerConnectCallbackImpl implements ServerConnectCallback {
             (new Thread(() -> {
                 try {
                     toClient.usersInSession(usernames);
-                    System.out.println(user + " is here");
                 } catch (RemoteException e) {
                     this.serverCommunicationImpl.removeSession(user);
                 }

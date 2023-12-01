@@ -17,18 +17,14 @@ import java.rmi.server.UnicastRemoteObject;
 public class ToServerImpl extends UnicastRemoteObject implements ToServer {
     private final String username;
     final ToClient toClient;
-    private final ServerCommunicationImpl serverCommunication;
     private final ServerConnect serverConnect;
 
-    protected ToServerImpl(String username, ToClient toClient, ServerCommunicationImpl serverCommunication,
-                           ServerConnect serverConnect) throws RemoteException {
+    protected ToServerImpl(String username, ToClient toClient, ServerConnect serverConnect) throws RemoteException {
         this.username = username;
         this.toClient = toClient;
-        this.serverCommunication = serverCommunication;
         this.serverConnect = serverConnect;
     }
 
-    // TODO: Methoden auf package private setzen
     @Override
     public ReturnValues.ReturnStatistics getUserStatistics() throws RemoteException {
         return this.serverConnect.getUserStatistics(this.username);
@@ -70,7 +66,7 @@ public class ToServerImpl extends UnicastRemoteObject implements ToServer {
     }
 
     @Override
-    public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote) {
+    public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote) throws RemoteException {
         return this.serverConnect.sendPlayerVote(playerVote);
     }
 }

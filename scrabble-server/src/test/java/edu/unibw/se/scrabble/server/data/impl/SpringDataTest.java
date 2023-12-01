@@ -7,7 +7,6 @@ import edu.unibw.se.scrabble.server.data.impl.spring.SpringScrabbleData;
 /**
  * @author Bößendörfer
  */
-
 public class SpringDataTest extends DataTest {
 
     private final SpringScrabbleData springScrabbleDataTest =

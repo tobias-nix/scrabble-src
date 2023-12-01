@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Bößendörfer
  */
-
 @DisplayName("Data Test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class DataTest {
@@ -17,15 +16,10 @@ public abstract class DataTest {
     private static AuthData authData;
     private static ScrabbleData scrabbleData;
 
-    //Abstrakte Methode, die für die Erzeugung der konkreten Data verantwortlich ist (Factory Method).
     protected abstract Data getData();
 
     @BeforeAll
     void init() {
-        /*
-        Zur Erzeugung der konkreten Instanz wird auf die abstrakte Erzeugermethode zurückgegriffen.
-        Klasse DataTestImpl implementiert mögliche Erzeugermethode getData()
-         */
         data = getData();
         authData = data.getAuthData();
         scrabbleData = data.getScrabbleData();
@@ -83,14 +77,6 @@ public abstract class DataTest {
             boolean returnUsername = authData.usernameExists("franz");
             assertTrue(returnUsername);
         }
-
-        /*@Test
-        void createUserWithInvalidUsername() {
-            boolean returnCreateUser = authData.createUser("lea", "password123!");
-            assertFalse(returnCreateUser);
-            boolean returnUsername = authData.usernameExists("lea");
-            assertFalse(returnUsername);
-        }*/
 
         @Test
         void createUserWithNull() {

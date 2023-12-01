@@ -15,4 +15,7 @@ module scrabble.server {
     opens edu.unibw.se.scrabble.server.data.impl.spring.jpa;
 
     exports edu.unibw.se.scrabble.server.data.impl.spring to spring.beans;
+
+    exports edu.unibw.se.scrabble.server.auth;
+    exports edu.unibw.se.scrabble.server.data;
 }
