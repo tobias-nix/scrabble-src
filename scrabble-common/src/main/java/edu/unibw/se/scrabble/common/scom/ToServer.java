@@ -1,9 +1,6 @@
 package edu.unibw.se.scrabble.common.scom;
 
-import edu.unibw.se.scrabble.common.base.ActionState;
-import edu.unibw.se.scrabble.common.base.PlayerVote;
-import edu.unibw.se.scrabble.common.base.ReturnValues;
-import edu.unibw.se.scrabble.common.base.TileWithPosition;
+import edu.unibw.se.scrabble.common.base.*;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnStatistics;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnCreateSession;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnJoinSession;
@@ -36,7 +33,7 @@ public interface ToServer extends Remote {
      * @return {@link ReturnCreateSession} enum depending on success or error message.
      * @throws RemoteException throws exception if RMI connection fails
      */
-    ReturnCreateSession createSession() throws RemoteException;
+    ReturnCreateSession createSession(LanguageSetting languageSetting) throws RemoteException;
 
     /**
      * User joins an already existing session via a given game ID, if ID is valid and there are less than 4 players
@@ -44,11 +41,11 @@ public interface ToServer extends Remote {
      * <p>
      * Never returns {@code null}.
      *
-     * @param gameID ID of a session
+     * @param gameId ID of a session
      * @return {@link ReturnJoinSession} enum depending on success or error message.
      * @throws RemoteException throws exception if RMI connection fails
      */
-    ReturnJoinSession joinSession(int gameID) throws RemoteException;
+    ReturnJoinSession joinSession(int gameId) throws RemoteException;
 
     /**
      * Starts a game if there are at least 2 players in the session.

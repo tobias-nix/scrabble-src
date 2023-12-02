@@ -23,8 +23,8 @@ public class ToClientImpl extends UnicastRemoteObject implements ToClient {
     }
 
     @Override
-    public void sendGameState(char[] rackTiles, char[] swapTiles, GameData gameData) throws RemoteException {
-        callback.sendGameState(rackTiles, swapTiles, gameData);
+    public void sendGameData(char[] rackTiles, char[] swapTiles, GameData gameData) throws RemoteException {
+        callback.sendGameData(rackTiles, swapTiles, gameData);
     }
 
     @Override

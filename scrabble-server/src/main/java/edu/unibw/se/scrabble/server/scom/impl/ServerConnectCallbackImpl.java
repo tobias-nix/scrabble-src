@@ -31,14 +31,14 @@ public class ServerConnectCallbackImpl implements ServerConnectCallback {
     }
 
     @Override
-    public void sendGameState(String username, char[] rackTiles, char[] swapTiles, GameData gameData) {
+    public void sendGameData(String username, char[] rackTiles, char[] swapTiles, GameData gameData) {
         if (username == null || rackTiles == null || swapTiles == null || gameData == null) {
             return;
         }
         ToClient toClient = this.serverCommunicationImpl.getToClientFromUsername(username);
         (new Thread(() -> {
             try {
-                toClient.sendGameState(rackTiles, swapTiles, gameData);
+                toClient.sendGameData(rackTiles, swapTiles, gameData);
             } catch (RemoteException e) {
                 this.serverCommunicationImpl.removeSession(username);
             }

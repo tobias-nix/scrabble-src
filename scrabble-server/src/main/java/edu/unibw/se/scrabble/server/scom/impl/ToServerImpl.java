@@ -1,9 +1,6 @@
 package edu.unibw.se.scrabble.server.scom.impl;
 
-import edu.unibw.se.scrabble.common.base.ActionState;
-import edu.unibw.se.scrabble.common.base.PlayerVote;
-import edu.unibw.se.scrabble.common.base.ReturnValues;
-import edu.unibw.se.scrabble.common.base.TileWithPosition;
+import edu.unibw.se.scrabble.common.base.*;
 import edu.unibw.se.scrabble.common.scom.ToClient;
 import edu.unibw.se.scrabble.common.scom.ToServer;
 import edu.unibw.se.scrabble.server.logic.ServerConnect;
@@ -31,13 +28,13 @@ public class ToServerImpl extends UnicastRemoteObject implements ToServer {
     }
 
     @Override
-    public ReturnValues.ReturnCreateSession createSession() throws RemoteException {
-        return this.serverConnect.createSession(this.username);
+    public ReturnValues.ReturnCreateSession createSession(LanguageSetting languageSetting) throws RemoteException {
+        return this.serverConnect.createSession(languageSetting, this.username);
     }
 
     @Override
-    public ReturnValues.ReturnJoinSession joinSession(int gameID) throws RemoteException {
-        return this.serverConnect.joinSession(gameID, this.username);
+    public ReturnValues.ReturnJoinSession joinSession(int gameId) throws RemoteException {
+        return this.serverConnect.joinSession(gameId, this.username);
     }
 
     @Override

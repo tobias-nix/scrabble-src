@@ -25,7 +25,7 @@ public interface ServerConnectCallback {
      */
     // if swapTiles is empty, send empty array instead of null-pointer
     // game state is different for every user -> rackTiles
-    void sendGameState(String username, char[] rackTiles, char[] swapTiles, GameData gameData);
+    void sendGameData(String username, char[] rackTiles, char[] swapTiles, GameData gameData);
 
     /**
      * After a player placed tiles this method sends the formed words to the other players which must take the decision

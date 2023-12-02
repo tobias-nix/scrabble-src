@@ -1,6 +1,7 @@
 package edu.unibw.se.scrabble.client.ccom;
 
 import edu.unibw.se.scrabble.common.base.ActionState;
+import edu.unibw.se.scrabble.common.base.LanguageSetting;
 import edu.unibw.se.scrabble.common.base.PlayerVote;
 import edu.unibw.se.scrabble.common.base.TileWithPosition;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnLoginUser;
@@ -68,17 +69,17 @@ public interface ClientConnect {
      *
      * @return the interface {@link ReturnCreateSession} and the integer gameId
      */
-    ReturnCreateSession createSession();
+    ReturnCreateSession createSession(LanguageSetting languageSetting);
 
     /**
      * Adds the client to an existing session.
      * <p>
      * Never returns {@code null}.
      *
-     * @param gameID the gameId of the session the client will join
+     * @param gameId the gameId of the session the client will join
      * @return {@link ReturnJoinSession} enum type, depending on error type or success.
      */
-    ReturnJoinSession joinSession(int gameID);
+    ReturnJoinSession joinSession(int gameId);
 
 
     /**

@@ -8,6 +8,9 @@ import edu.unibw.se.scrabble.server.data.AuthData;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+/**
+ * @author Nerb
+ */
 public class AuthenticationImpl implements Authentication, Credentials {
     private static final Pattern USERNAME_PATTERN = Pattern.compile("[a-zA-Z0-9]{4,15}");
     private static final Pattern PASSWORD_PATTERN =
