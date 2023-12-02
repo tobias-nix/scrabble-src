@@ -61,7 +61,7 @@ public abstract class ServerLogicTest {
     public void createSessionSuccessful() {
         serverLogic.setServerState(0);
         ReturnValues.ReturnCreateSession returnCreateSession =
-                serverConnect.createSession("karl");
+                serverConnect.createSession(null, "karl");
         assertEquals(returnCreateSession.state(), ReturnValues.ReturnCreateSessionState.SUCCESSFUL);
         assertEquals(returnCreateSession.gameID(), 77777);
     }
@@ -70,7 +70,7 @@ public abstract class ServerLogicTest {
     public void createSessionFailedSessionLimitReached() {
         serverLogic.setServerState(10);
         ReturnValues.ReturnCreateSession returnCreateSession =
-                serverConnect.createSession("karl");
+                serverConnect.createSession(null, "karl");
         assertEquals(returnCreateSession.state(), ReturnValues.ReturnCreateSessionState.SESSION_LIMIT_REACHED);
         assertEquals(returnCreateSession.gameID(), -1);
     }
@@ -165,7 +165,7 @@ public abstract class ServerLogicTest {
 
         public boolean sendGameDataCalled = false;
         @Override
-        public void sendGameState(String username, char[] rackTiles, char[] swapTiles, GameData gameData) {
+        public void sendGameData(String username, char[] rackTiles, char[] swapTiles, GameData gameData) {
             sendGameDataCalled = true;
         }
 

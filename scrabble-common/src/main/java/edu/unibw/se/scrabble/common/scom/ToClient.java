@@ -27,7 +27,7 @@ public interface ToClient extends Remote {
      * @param gameData  contains all current information about tiles on the board or for example the current bag size
      * @throws RemoteException throws exception if RMI connection fails
      */
-    void sendGameState(char[] rackTiles, char[] swapTiles, GameData gameData) throws RemoteException;
+    void sendGameData(char[] rackTiles, char[] swapTiles, GameData gameData) throws RemoteException;
 
     /**
      * After a player placed tiles this method sends the formed words to the other players which must take the decision

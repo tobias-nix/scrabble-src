@@ -562,12 +562,12 @@ public abstract class ServerCommunicationTest {
         }
 
         @Override
-        public ReturnValues.ReturnCreateSession createSession(String username) {
+        public ReturnValues.ReturnCreateSession createSession(LanguageSetting languageSetting, String username) {
             return null;
         }
 
         @Override
-        public ReturnValues.ReturnJoinSession joinSession(int gameID, String username) {
+        public ReturnValues.ReturnJoinSession joinSession(int gameId, String username) {
             return null;
         }
 
@@ -611,7 +611,7 @@ public abstract class ServerCommunicationTest {
             informAboutUserLoginUsernameTransferred = username;
             GameData gameData = GameData.TEST_GAMEDATA;
             if (Objects.equals("Garfield2", username)) {
-                this.serverConnectCallback.sendGameState(username, new char[]{}, new char[]{}, gameData);
+                this.serverConnectCallback.sendGameData(username, new char[]{}, new char[]{}, gameData);
             }
         }
     }
@@ -627,7 +627,7 @@ public abstract class ServerCommunicationTest {
         public GameData sendGameStateTransferredGameData = null;
 
         @Override
-        public void sendGameState(char[] rackTiles, char[] swapTiles, GameData gameData) throws RemoteException {
+        public void sendGameData(char[] rackTiles, char[] swapTiles, GameData gameData) throws RemoteException {
             sendGameStateCalled = true;
             sendGameStateTransferredGameData = gameData;
         }

@@ -39,21 +39,22 @@ public interface ServerConnect {
      * <p>
      * Never returns {@code null}.
      *
-     * @param username the user's username
+     * @param languageSetting
+     * @param username        the user's username
      * @return {@link ReturnCreateSession} record, containing state-enum and gameID
      */
-    ReturnCreateSession createSession(String username);
+    ReturnCreateSession createSession(LanguageSetting languageSetting, String username);
 
     /**
      * Connects the player to the session if the gameID exists and it is enough space.
      * <p>
      * Never returns {@code null}.
      *
-     * @param gameID the ID of the game
+     * @param gameId   the ID of the game
      * @param username the user's username
      * @return {@link ReturnJoinSession} enum type, depending on error type or success.
      */
-    ReturnJoinSession joinSession(int gameID, String username);
+    ReturnJoinSession joinSession(int gameId, String username);
 
     /**
      * Starts the game if it has at least 2 player in the session.
