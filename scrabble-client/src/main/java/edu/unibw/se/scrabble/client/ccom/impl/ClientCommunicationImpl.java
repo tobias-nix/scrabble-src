@@ -3,10 +3,7 @@ package edu.unibw.se.scrabble.client.ccom.impl;
 import edu.unibw.se.scrabble.client.ccom.ClientCommunication;
 import edu.unibw.se.scrabble.client.ccom.ClientConnect;
 import edu.unibw.se.scrabble.client.ccom.ClientConnectCallback;
-import edu.unibw.se.scrabble.common.base.ActionState;
-import edu.unibw.se.scrabble.common.base.PlayerVote;
-import edu.unibw.se.scrabble.common.base.ReturnValues;
-import edu.unibw.se.scrabble.common.base.TileWithPosition;
+import edu.unibw.se.scrabble.common.base.*;
 import edu.unibw.se.scrabble.common.scom.NetworkConnect;
 import edu.unibw.se.scrabble.common.scom.ToServer;
 
@@ -70,13 +67,13 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
     }
 
     @Override
-    public ReturnValues.ReturnCreateSession createSession() {
+    public ReturnValues.ReturnCreateSession createSession(LanguageSetting languageSetting) {
         if (toServer == null) {
             return new ReturnValues.ReturnCreateSession(ReturnValues.ReturnCreateSessionState.NETWORK_FAILURE, -1);
         }
         ReturnValues.ReturnCreateSession rcs;
         try {
-            rcs = toServer.createSession();
+            rcs = toServer.createSession(languageSetting);
         } catch (RemoteException e) {
             return new ReturnValues.ReturnCreateSession(ReturnValues.ReturnCreateSessionState.NETWORK_FAILURE, -1);
         }
@@ -84,12 +81,12 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
     }
 
     @Override
-    public ReturnValues.ReturnJoinSession joinSession(int gameID) {
+    public ReturnValues.ReturnJoinSession joinSession(int gameId) {
         if (toServer == null) {
             return ReturnValues.ReturnJoinSession.NETWORK_FAILURE;
         }
         try {
-            return toServer.joinSession(gameID);
+            return toServer.joinSession(gameId);
         } catch (RemoteException e) {
             return ReturnValues.ReturnJoinSession.NETWORK_FAILURE;
         }

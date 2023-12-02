@@ -132,7 +132,7 @@ public abstract class ClientCommunicationTest {
 
         @Test
         void testCreateSession() {
-            ReturnValues.ReturnCreateSession rcs = cc.createSession();
+            ReturnValues.ReturnCreateSession rcs = cc.createSession(null);
             assertEquals(ReturnValues.ReturnCreateSessionState.SUCCESSFUL, rcs.state());
             assertEquals(gameId, rcs.gameID());
             assertTrue(nct.toServer.creatSessionCalled);
@@ -250,7 +250,7 @@ public abstract class ClientCommunicationTest {
         }
 
         @Override
-        public ReturnValues.ReturnCreateSession createSession() throws RemoteException {
+        public ReturnValues.ReturnCreateSession createSession(LanguageSetting languageSetting) throws RemoteException {
             creatSessionCalled = true;
             return new ReturnValues.ReturnCreateSession(ReturnValues.ReturnCreateSessionState.SUCCESSFUL, 12345);
         }
@@ -258,9 +258,9 @@ public abstract class ClientCommunicationTest {
         public boolean joinedSessionCalled = false;
 
         @Override
-        public ReturnValues.ReturnJoinSession joinSession(int gameID) throws RemoteException {
+        public ReturnValues.ReturnJoinSession joinSession(int gameId) throws RemoteException {
             joinedSessionCalled = true;
-            if (gameID == 12345) {
+            if (gameId == 12345) {
                 this.toClient.usersInSession(usernameS);
                 return ReturnValues.ReturnJoinSession.SUCCESSFUL;
             }
@@ -270,7 +270,7 @@ public abstract class ClientCommunicationTest {
         @Override
         public ReturnValues.ReturnStartGame startGame() throws RemoteException {
             startGameCalled = true;
-            this.toClient.sendGameState(rackTiles,swapTiles,GameData.TEST_GAMEDATA);
+            this.toClient.sendGameData(rackTiles,swapTiles,GameData.TEST_GAMEDATA);
             return ReturnValues.ReturnStartGame.SUCCESSFUL;
         }
 
@@ -312,7 +312,7 @@ public abstract class ClientCommunicationTest {
         }
 
         @Override
-        public void sendGameState(char[] rackTiles, char[] swapTiles, GameData gameData) throws RemoteException {
+        public void sendGameData(char[] rackTiles, char[] swapTiles, GameData gameData) throws RemoteException {
 
         }
 
@@ -332,7 +332,7 @@ public abstract class ClientCommunicationTest {
         }
 
         @Override
-        public void sendGameState(char[] rackTiles, char[] swapTiles, GameData gameData) {
+        public void sendGameData(char[] rackTiles, char[] swapTiles, GameData gameData) {
             this.sendGameStateCalled = true;
         }
 

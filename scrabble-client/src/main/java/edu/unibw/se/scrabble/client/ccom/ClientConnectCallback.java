@@ -22,7 +22,7 @@ public interface ClientConnectCallback {
      * @param swapTiles tiles, which are located on the player's bench
      * @param gameData {@link GameData} object, which includes all information needed to show the scrabble board
      */
-    void sendGameState(char[] rackTiles, char[] swapTiles, GameData gameData);
+    void sendGameData(char[] rackTiles, char[] swapTiles, GameData gameData);
 
     /**
      * After a player placed tiles this method sends the formed words to the other players which must take the decision
