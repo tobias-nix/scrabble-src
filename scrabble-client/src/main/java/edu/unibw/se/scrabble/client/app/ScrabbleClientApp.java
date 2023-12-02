@@ -16,14 +16,15 @@ public class ScrabbleClientApp {
         View view = new ViewControl();
         ClientCommunication clientCommunication = new ClientCommunicationImpl();
 
-        view.setClientConnect(clientCommunication.getClientConnect());
+
 
         NetworkConnect networkConnect = null;
         try {
-            networkConnect = (NetworkConnect) Naming.lookup("//127.0.0.1:1099/scrabble-server");
+            networkConnect = (NetworkConnect) Naming.lookup("//127.0.0.1:" + PORT + "/scrabble-server");
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(System.err);
         }
+        view.setClientConnect(clientCommunication.getClientConnect());
 
         clientCommunication.setNetworkConnect(networkConnect);
 

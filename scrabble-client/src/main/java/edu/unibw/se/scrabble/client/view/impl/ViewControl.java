@@ -9,7 +9,7 @@ public class ViewControl implements View {
 
     @Override
     public void setClientConnect(ClientConnect clientConnect) {
-        clientConnect = clientConnect;
+        ViewControl.clientConnect = clientConnect;
     }
 
     @Override

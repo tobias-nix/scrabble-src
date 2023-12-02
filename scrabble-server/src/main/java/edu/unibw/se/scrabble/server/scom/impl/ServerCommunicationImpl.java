@@ -9,18 +9,19 @@ import edu.unibw.se.scrabble.server.logic.ServerConnectCallback;
 import edu.unibw.se.scrabble.server.scom.ServerCommunication;
 
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 
 /**
  * @author Seegerer
  */
-public class ServerCommunicationImpl implements ServerCommunication, NetworkConnect {
+public class ServerCommunicationImpl extends UnicastRemoteObject implements ServerCommunication, NetworkConnect {
 
     private Credentials credentials;
     private ServerConnect serverConnect;
     private final ServerConnectCallback serverConnectCallback;
     private final HashMap<String, ToServerImpl> mapNameToSession = new HashMap<>();
-    public ServerCommunicationImpl () {
+    public ServerCommunicationImpl () throws RemoteException{
         this.serverConnectCallback = new ServerConnectCallbackImpl(this);
     }
 

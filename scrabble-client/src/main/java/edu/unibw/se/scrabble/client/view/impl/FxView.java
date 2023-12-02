@@ -6,20 +6,20 @@ import javafx.stage.Stage;
 
 public class FxView extends Application {
     private final WindowFactory windowFactory = new WindowFactory();
-    private FxView currentView;
+    private Stage currentView;
     private WindowState windowState = WindowState.LOGIN;
 
     @Override
     public void start(Stage stage) throws Exception {
         currentView = windowFactory.createWindow(windowState, this);
-
-        setWindowState(WindowState.LOGIN);
-        stage.setTitle("Scrabble");
+        currentView.showAndWait();
+        //setWindowState(WindowState.LOGIN);
+        //stage.setTitle("Scrabble");
 
         stage.show();
     }
 
-    public void setWindowState(WindowState state){
+    public void setWindowState(WindowState windowState){
         this.windowState = windowState;
     }
 

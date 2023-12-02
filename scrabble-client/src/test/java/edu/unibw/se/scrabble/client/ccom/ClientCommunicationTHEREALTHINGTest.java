@@ -12,6 +12,7 @@ import edu.unibw.se.scrabble.server.scom.ServerCommunication;
 import edu.unibw.se.scrabble.server.scom.impl.ServerCommunicationImpl;
 import org.junit.jupiter.api.*;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -209,7 +210,11 @@ public abstract class ClientCommunicationTHEREALTHINGTest {
             clients = new Client[]{new Client("Odie", "OdieOdie1!", getClientCommunication()),
                     new Client("Garfield", "Garfield1!", getClientCommunication())};
 
-            serverCommunication = new ServerCommunicationImpl();
+            try {
+                serverCommunication = new ServerCommunicationImpl();
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
             ServerLogic serverLogic = new ServerLogicImpl();
             ServerConnect serverConnectReal = serverLogic.getServerConnect();
             serverCommunication.setServerConnect(serverConnectReal);
@@ -259,7 +264,11 @@ public abstract class ClientCommunicationTHEREALTHINGTest {
             clients = new Client[]{new Client("Odie", "OdieOdie1!", getClientCommunication()),
                     new Client("Garfield", "Garfield1!", getClientCommunication())};
 
-            serverCommunication = new ServerCommunicationImpl();
+            try {
+                serverCommunication = new ServerCommunicationImpl();
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
             ServerLogic serverLogic = new ServerLogicImpl();
             ServerConnect serverConnectReal = serverLogic.getServerConnect();
             serverCommunication.setServerConnect(serverConnectReal);
@@ -312,7 +321,11 @@ public abstract class ClientCommunicationTHEREALTHINGTest {
 
             ArrayList<Client> alreadyJoined = new ArrayList<>();
 
-            serverCommunication = new ServerCommunicationImpl();
+            try {
+                serverCommunication = new ServerCommunicationImpl();
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
             ServerLogic serverLogic = new ServerLogicImpl();
             ServerConnect serverConnectReal = serverLogic.getServerConnect();
             serverCommunication.setServerConnect(serverConnectReal);
@@ -387,7 +400,11 @@ public abstract class ClientCommunicationTHEREALTHINGTest {
                     new Client("Nermal", "Nermal123!", getClientCommunication()),
                     new Client("JonA", "JonA1234!", getClientCommunication())));
 
-            serverCommunication = new ServerCommunicationImpl();
+            try {
+                serverCommunication = new ServerCommunicationImpl();
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
             ServerLogic serverLogic = new ServerLogicImpl();
             ServerConnect serverConnectReal = serverLogic.getServerConnect();
             serverCommunication.setServerConnect(serverConnectReal);
