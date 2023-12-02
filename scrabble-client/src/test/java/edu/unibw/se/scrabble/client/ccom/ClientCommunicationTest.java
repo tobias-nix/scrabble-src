@@ -68,7 +68,7 @@ public abstract class ClientCommunicationTest {
     static TileWithPosition[] tileWithPositions = {tile1, tile2};
     static int bagSize = 40;
     static GameState gameState = GameState.PLAY;
-    static GameData gameData = new GameData(gameId, usernameS,currentPlayer,score,playerState,countRackTiles,countSwapTiles,tileWithPositions,bagSize,gameState);
+    static GameData gameData = GameData.TEST_GAMEDATA; //(gameId, usernameS,currentPlayer,score,playerState,countRackTiles,countSwapTiles,tileWithPositions,bagSize,gameState);
 
     char letter = 'N';
 

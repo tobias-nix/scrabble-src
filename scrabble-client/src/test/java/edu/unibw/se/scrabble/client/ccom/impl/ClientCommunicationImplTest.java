@@ -12,8 +12,8 @@ public class ClientCommunicationImplTest extends ClientCommunicationTest {
         return rmiClientCommunication;
     }
 
-    @Override
+    /*@Override
     protected NetworkConnect getNetworkConnect() {
         return null;
-    }
+    }*/
 }
