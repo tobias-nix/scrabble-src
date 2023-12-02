@@ -35,9 +35,9 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
         try {
             ret = networkConnect.loginUser(username, password, new ToClientImpl(this.clientConnectCallback));
         } catch (RemoteException e) {
+            System.out.println("Remote Exception in ClientCommunication");
             return ReturnValues.ReturnLoginUser.NETWORK_FAILURE;
         }
-        this.toServer = ret.toServer;
         return ret.state;
     }
 

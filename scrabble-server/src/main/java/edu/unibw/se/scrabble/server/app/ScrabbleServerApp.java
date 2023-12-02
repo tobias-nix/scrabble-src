@@ -15,16 +15,18 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 public class ScrabbleServerApp {
+    static final int PORT = 1099;
     public static void main(String[] args) {
-        ServerCommunication serverCommunication = null;
+        ServerCommunication serverCommunication;
         try {
             serverCommunication = new ServerCommunicationImpl();
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
+        /*
         ServerLogic serverLogic = new ServerLogicImpl();
-        ServerConnect serverConnectReal = serverLogic.getServerConnect();
-        serverCommunication.setServerConnect(serverConnectReal);
+        ServerConnect serverConnect = serverLogic.getServerConnect();
+        serverCommunication.setServerConnect(serverConnect);
 
         Authentication authentication = new AuthenticationImpl();
         SpringScrabbleData springDatabase = new SpringScrabbleData();
@@ -32,6 +34,14 @@ public class ScrabbleServerApp {
 
         authentication.setAuthData(springDatabase.getAuthData());
         serverCommunication.setCredentials(authentication.getCredentials());
+        */
+
+        serverCommunication.setServerConnect((new ServerLogicImpl()).getServerConnect());
+
+        Authentication authentication = new AuthenticationImpl();
+        authentication.setAuthData((new SpringScrabbleData()).getAuthData());
+        serverCommunication.setCredentials(authentication.getCredentials());
+
 
         try {
             LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
@@ -41,11 +51,10 @@ public class ScrabbleServerApp {
         }
 
         try {
-            System.out.println("Start Try Block Naming");
-            Naming.rebind("//127.0.0.1:1099/scrabble-server", serverCommunication.getNetworkConnect());
+            Naming.rebind("//127.0.0.1:" + PORT + "/scrabble-server", serverCommunication.getNetworkConnect());
             System.out.println("[scrabble-server] eingetragen.");
-        } catch (Exception ex) {
-            ex.printStackTrace(System.err);
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
         }
     }
 }
