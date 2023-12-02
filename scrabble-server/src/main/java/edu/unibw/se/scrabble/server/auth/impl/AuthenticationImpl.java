@@ -30,7 +30,6 @@ public class AuthenticationImpl implements Authentication, Credentials {
 
     @Override
     public ReturnValues.ReturnLoginUser loginUser(String username, String password) {
-        System.out.println(username + " " + password);
         if (username == null || password == null) {
             return ReturnValues.ReturnLoginUser.FAILURE;
         }

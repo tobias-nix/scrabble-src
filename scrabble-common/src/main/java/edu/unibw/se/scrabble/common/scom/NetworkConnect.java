@@ -3,6 +3,7 @@ package edu.unibw.se.scrabble.common.scom;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnRegisterUser;
 import edu.unibw.se.scrabble.common.base.ReturnValues.ReturnLoginUser;
 
+import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -24,7 +25,7 @@ public interface NetworkConnect extends Remote {
      * @return {@link ReturnLoginNetwork} object consisting of {@link ReturnLoginUser} state and {@link ToServer} object
      */
     ReturnLoginNetwork loginUser(String username, String password, ToClient toClient) throws RemoteException;
-    class ReturnLoginNetwork {
+    class ReturnLoginNetwork implements Serializable {
         public static ReturnLoginNetwork INVALID_USERNAME =
                 new ReturnLoginNetwork(ReturnLoginUser.INVALID_USERNAME);
         public static ReturnLoginNetwork INVALID_PASSWORD =
