@@ -9,9 +9,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,8 +38,6 @@ public abstract class ClientCommunicationTest {
 
     protected abstract ClientCommunication getClientCommunication();
 
-    protected abstract NetworkConnect getNetworkConnect(); //TODO
-
     /*
     gameId = 12345
     user = karl(host) , paul
@@ -60,17 +55,20 @@ public abstract class ClientCommunicationTest {
     static String username = "karl";
     static String password = "password1!";
     static Statistics statistics = new Statistics(11, 1, 111, 1111);
-    static TileWithPosition tile = new TileWithPosition('N', 7, 8);
+    static TileWithPosition tile1 = new TileWithPosition('N', 7, 8);
+    static TileWithPosition tile2 = new TileWithPosition('E', 8, 8);
     static String[] usernameS = {"karl", "paul", "berta", "anna"}; //TODO: Callback Check joinSession: usersInSession
     static String currentPlayer = "karl";
     static char[] rackTiles = {'N', 'A', 'E'}; //TODO: sendGameData
     static char[] swapTiles = {'U', 'S', 'R', 'T'};
-    static  List<Integer> score = Arrays.asList(0, 0, 0, 0);
-    static PlayerState playerState = PlayerState.NOT_VOTED;
-    static List<Integer> countRackTiles = Arrays.asList(7, 7, 7, 7);
-    static List<Integer> countSwapTiles = Arrays.asList(0, 0, 0, 0);
-    static List<TileWithPosition> tileWithPositions = new ArrayList<>();
-    static GameData gameData = GameData.TEST_GAMEDATA;
+    static int[] score = {0, 0, 0, 0};
+    static PlayerState[] playerState = {PlayerState.NOT_VOTED, PlayerState.CONFIRMED};
+    static int[] countRackTiles = {7, 7, 7, 7};
+    static int[] countSwapTiles = {0, 0, 0, 0};
+    static TileWithPosition[] tileWithPositions = {tile1, tile2};
+    static int bagSize = 40;
+    static GameState gameState = GameState.PLAY;
+    static GameData gameData = new GameData(gameId, usernameS,currentPlayer,score,playerState,countRackTiles,countSwapTiles,tileWithPositions,bagSize,gameState);
 
     char letter = 'N';
 
@@ -191,7 +189,7 @@ public abstract class ClientCommunicationTest {
 
         @Test
         void testPlaceTile() {
-            ReturnValues.ReturnPlaceTile rpt = cc.placeTile(tile);
+            ReturnValues.ReturnPlaceTile rpt = cc.placeTile(tile1);
             assertEquals(ReturnValues.ReturnPlaceTile.SUCCESSFUL, rpt);
         }
 
