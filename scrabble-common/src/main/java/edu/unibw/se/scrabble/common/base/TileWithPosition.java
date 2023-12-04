@@ -1,4 +1,6 @@
 package edu.unibw.se.scrabble.common.base;
 
-public record TileWithPosition(char letter, int row, int column) {
+import java.io.Serializable;
+
+public record TileWithPosition(char letter, int row, int column) implements Serializable {
 }

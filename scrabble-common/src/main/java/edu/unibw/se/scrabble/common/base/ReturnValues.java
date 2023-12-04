@@ -24,7 +24,7 @@ public class ReturnValues {
         DATABASE_FAILURE, NETWORK_FAILURE, FAILURE, SUCCESSFUL
     }
 
-    public record ReturnCreateSession(ReturnCreateSessionState state, int gameID) {
+    public record ReturnCreateSession(ReturnCreateSessionState state, int gameID) implements Serializable {
     }
 
     public enum ReturnCreateSessionState {

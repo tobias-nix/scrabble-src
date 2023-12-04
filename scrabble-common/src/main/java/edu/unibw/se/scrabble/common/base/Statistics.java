@@ -1,4 +1,6 @@
 package edu.unibw.se.scrabble.common.base;
 
-public record Statistics(int gamesPlayed, int gamesWon, int highestScore, int totalScore) {
+import java.io.Serializable;
+
+public record Statistics(int gamesPlayed, int gamesWon, int highestScore, int totalScore) implements Serializable {
 }
