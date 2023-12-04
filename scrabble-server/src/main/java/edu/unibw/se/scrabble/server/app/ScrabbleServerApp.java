@@ -23,24 +23,19 @@ public class ScrabbleServerApp {
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
-        /*
-        ServerLogic serverLogic = new ServerLogicImpl();
-        ServerConnect serverConnect = serverLogic.getServerConnect();
-        serverCommunication.setServerConnect(serverConnect);
 
+        ServerLogic serverLogic = new ServerLogicImpl();
         Authentication authentication = new AuthenticationImpl();
         SpringScrabbleData springDatabase = new SpringScrabbleData();
-        springDatabase.clear();
+
+        serverCommunication.setServerConnect(serverLogic.getServerConnect());
+        serverCommunication.setCredentials(authentication.getCredentials());
 
         authentication.setAuthData(springDatabase.getAuthData());
-        serverCommunication.setCredentials(authentication.getCredentials());
-        */
 
-        serverCommunication.setServerConnect((new ServerLogicImpl()).getServerConnect());
+        serverLogic.setScrabbleData(springDatabase.getScrabbleData());
 
-        Authentication authentication = new AuthenticationImpl();
-        authentication.setAuthData((new SpringScrabbleData()).getAuthData());
-        serverCommunication.setCredentials(authentication.getCredentials());
+        springDatabase.clear();
 
 
         try {

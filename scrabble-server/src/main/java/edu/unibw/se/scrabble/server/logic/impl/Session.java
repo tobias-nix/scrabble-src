@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class Session {
     private final int gameId;
     private final ArrayList<String> users = new ArrayList<>();
-    private ScrabbleGame scrabbleGame;
+    private ScrabbleGame scrabbleGame = null;
     private final LanguageSetting languageSetting;
 
     public Session(String username, int gameId, LanguageSetting languageSetting) {
@@ -16,6 +16,8 @@ public class Session {
         this.gameId = gameId;
         this.languageSetting = languageSetting;
     }
+
+    boolean hasGameStarted() { return scrabbleGame != null; }
 
     int getNumberOfUsers() {
         return users.size();

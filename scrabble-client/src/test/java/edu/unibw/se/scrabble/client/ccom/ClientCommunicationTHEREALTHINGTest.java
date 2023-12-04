@@ -472,6 +472,46 @@ public abstract class ClientCommunicationTHEREALTHINGTest {
         }
     }
 
+    @Nested
+    class GetUserStatisticsTest {
+        @Test
+        public void getUserStatisticsTest() {
+            Client client = new Client("Garfield", "Garfield1!", getClientCommunication());
+
+            try {
+                serverCommunication = new ServerCommunicationImpl();
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+            ServerLogic serverLogic = new ServerLogicImpl();
+            ServerConnect serverConnect = serverLogic.getServerConnect();
+
+            authentication = new AuthenticationImpl();
+            springDatabase = new SpringScrabbleData();
+            springDatabase.clear();
+            serverCommunication.setServerConnect(serverConnect);
+
+            serverLogic.setScrabbleData(springDatabase.getScrabbleData());
+
+            authentication.setAuthData(springDatabase.getAuthData());
+            serverCommunication.setCredentials(authentication.getCredentials());
+
+            client.clientCommunication.setNetworkConnect(serverCommunication.getNetworkConnect());
+
+            springDatabase.getAuthData().createUser(client.username, client.password);
+            ReturnValues.ReturnLoginUser returnLoginUser =
+                    client.clientCommunication.getClientConnect().loginUser(client.username, client.password);
+            assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, returnLoginUser,
+                    "Login User");
+
+            ReturnValues.ReturnStatistics returnGetUserStatistics =
+                    client.clientCommunication.getClientConnect().getUserStatistics();
+            assertEquals(ReturnValues.ReturnStatisticsState.SUCCESSFUL, returnGetUserStatistics.state());
+            assertEquals(new Statistics(0,0,0,0),
+                    returnGetUserStatistics.userStatistics(), "User statistics equals");
+        }
+    }
+
     static class ServerConnectTest implements ServerConnect {
         public ServerConnectCallback serverConnectCallback = null;
 

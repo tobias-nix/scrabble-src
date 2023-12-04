@@ -162,7 +162,11 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
 
     @Override
     public void informAboutUserLogin(String username) {
-        // TODO: wenn user in session, dann sendgamestate, sonst getUserStatistics
+        if (mapUsernameToGameId.containsKey(username)) {
+            if(getSessionWithUsername(username).hasGameStarted()) {
+                sendGameData(getSessionWithUsername(username));
+            }
+        }
     }
 
     private ScrabbleGame getScrabbleGameFromMap(String username) {
