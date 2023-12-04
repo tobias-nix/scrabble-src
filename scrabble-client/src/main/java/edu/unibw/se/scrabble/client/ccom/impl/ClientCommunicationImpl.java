@@ -11,7 +11,7 @@ import java.rmi.RemoteException;
 
 public class ClientCommunicationImpl implements ClientCommunication, ClientConnect {
     private NetworkConnect networkConnect = null;
-    private ToServer toServer = null;
+    private ToServer toServer;
     private ClientConnectCallback clientConnectCallback = null;
 
     @Override
@@ -36,8 +36,10 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
             ret = networkConnect.loginUser(username, password, new ToClientImpl(this.clientConnectCallback));
         } catch (RemoteException e) {
             System.out.println("Remote Exception in ClientCommunication");
+            e.printStackTrace(System.err);
             return ReturnValues.ReturnLoginUser.NETWORK_FAILURE;
         }
+        this.toServer = ret.toServer;
         return ret.state;
     }
 
@@ -47,6 +49,8 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
         try {
             rru = networkConnect.registerUser(username, password);
         } catch (RemoteException e) {
+            System.out.println("Remote Exception in ClientCommunication");
+            e.printStackTrace(System.err);
             return ReturnValues.ReturnRegisterUser.NETWORK_FAILURE;
         }
         return rru;
@@ -61,6 +65,8 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
         try {
             rs = toServer.getUserStatistics();
         } catch (RemoteException e) {
+            System.out.println("Remote Exception in ClientCommunication");
+            e.printStackTrace(System.err);
             return new ReturnValues.ReturnStatistics(ReturnValues.ReturnStatisticsState.NETWORK_FAILURE, null);
         }
         return rs;
@@ -75,6 +81,8 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
         try {
             rcs = toServer.createSession(languageSetting);
         } catch (RemoteException e) {
+            System.out.println("Remote Exception in ClientCommunication");
+            e.printStackTrace(System.err);
             return new ReturnValues.ReturnCreateSession(ReturnValues.ReturnCreateSessionState.NETWORK_FAILURE, -1);
         }
         return rcs;
@@ -88,6 +96,8 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
         try {
             return toServer.joinSession(gameId);
         } catch (RemoteException e) {
+            System.out.println("Remote Exception in ClientCommunication");
+            e.printStackTrace(System.err);
             return ReturnValues.ReturnJoinSession.NETWORK_FAILURE;
         }
     }
@@ -100,6 +110,8 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
         try {
             return toServer.startGame();
         } catch (RemoteException e) {
+            System.out.println("Remote Exception in ClientCommunication");
+            e.printStackTrace(System.err);
             return ReturnValues.ReturnStartGame.NETWORK_FAILURE;
         }
     }
@@ -112,6 +124,8 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
         try {
             return toServer.selectAction(actionState);
         } catch (RemoteException e) {
+            System.out.println("Remote Exception in ClientCommunication");
+            e.printStackTrace(System.err);
             return ReturnValues.ReturnSelectAction.NETWORK_FAILURE;
         }
     }
@@ -124,6 +138,8 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
         try {
             return toServer.placeTile(tileWithPosition);
         } catch (RemoteException e) {
+            System.out.println("Remote Exception in ClientCommunication");
+            e.printStackTrace(System.err);
             return ReturnValues.ReturnPlaceTile.NETWORK_FAILURE;
         }    }
 
@@ -135,6 +151,8 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
         try {
             return toServer.swapTile(letter);
         } catch (RemoteException e) {
+            System.out.println("Remote Exception in ClientCommunication");
+            e.printStackTrace(System.err);
             return ReturnValues.ReturnSwapTile.NETWORK_FAILURE;
         }
     }
@@ -147,6 +165,8 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
         try {
             return toServer.endTurn();
         } catch (RemoteException e) {
+            System.out.println("Remote Exception in ClientCommunication");
+            e.printStackTrace(System.err);
             return ReturnValues.ReturnEndTurn.NETWORK_FAILURE;
         }
     }
@@ -159,6 +179,8 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
         try {
             return this.toServer.sendPlayerVote(playerVote);
         } catch (RemoteException e) {
+            System.out.println("Remote Exception in ClientCommunication");
+            e.printStackTrace(System.err);
             return ReturnValues.ReturnSendPlayerVote.NETWORK_FAILURE;
         }
     }

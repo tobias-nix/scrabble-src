@@ -29,13 +29,6 @@ public class ScrabbleGame {
         }
     }
 
-    Player getPlayerByUsername(String username) {
-        return players.stream()
-                .filter(player -> player.username.equals(username))
-                .findFirst()
-                .orElse(null); // Player not found
-    }
-
 
     ScrabbleGame(ArrayList<String> usernames, LanguageSetting languageSetting) {
         this.players = new ArrayList<>(usernames.size());
@@ -44,6 +37,13 @@ public class ScrabbleGame {
         this.gameState = GameState.PLAY;
         this.bag = createBagFromLanguageSetting(languageSetting);
         players.forEach(this::drawFromBag);
+    }
+
+    Player getPlayerByUsername(String username) {
+        return players.stream()
+                .filter(player -> player.username.equals(username))
+                .findFirst()
+                .orElse(null); // Player not found
     }
 
     private ArrayList<ScrabbleTile> createBagFromLanguageSetting(LanguageSetting languageSetting) {
@@ -79,7 +79,7 @@ public class ScrabbleGame {
     }
 
     private void drawFromBag(Player player) {
-        while (player.rackTiles.size() < 7) {
+        while (player.rackTiles.size() < 7 && !this.bag.isEmpty()) {
             player.rackTiles.add(this.bag.removeFirst());
         }
     }
@@ -164,10 +164,6 @@ public class ScrabbleGame {
                 .map(player -> player.swapTiles.size())
                 .collect(Collectors.toCollection(ArrayList::new));
     }
-
-
-
-
 
 
     boolean isRackTiles(char letter) {
