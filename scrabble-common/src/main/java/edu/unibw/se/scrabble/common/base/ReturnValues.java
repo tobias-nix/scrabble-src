@@ -1,5 +1,7 @@
 package edu.unibw.se.scrabble.common.base;
 
+import java.io.Serializable;
+
 public class ReturnValues {
     private ReturnValues() {
 
@@ -15,7 +17,7 @@ public class ReturnValues {
         SUCCESSFUL
     }
 
-    public record ReturnStatistics(ReturnStatisticsState state, Statistics userStatistics) {
+    public record ReturnStatistics(ReturnStatisticsState state, Statistics userStatistics) implements Serializable {
     }
 
     public enum ReturnStatisticsState {

@@ -33,11 +33,11 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
 
     @Override
     public ReturnValues.ReturnStatistics getUserStatistics(String username) {
-        if (username == null) {
+        if (username == null || this.scrabbleData == null) {
             return new ReturnValues.ReturnStatistics(ReturnValues.ReturnStatisticsState.FAILURE, null);
         }
         return new ReturnValues.ReturnStatistics(ReturnValues.ReturnStatisticsState.SUCCESSFUL,
-                scrabbleData.getUserStatistics(username));
+                this.scrabbleData.getUserStatistics(username));
     }
 
     @Override
@@ -116,7 +116,10 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
 
     @Override
     public ReturnValues.ReturnSelectAction selectAction(ActionState actionState, String username) {
-        serverConnectCallback.sendGameData(null, null, null, null);
+
+
+
+        //sendGameData(session);
         return ReturnValues.ReturnSelectAction.SUCCESSFUL;
     }
 
