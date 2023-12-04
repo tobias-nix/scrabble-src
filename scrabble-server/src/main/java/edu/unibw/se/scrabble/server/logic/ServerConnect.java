@@ -115,9 +115,10 @@ public interface ServerConnect {
      * Never returns {@code null}
      *
      * @param playerVote Player vote - rejected or confirmed
+     * @param username
      * @return {@link ReturnValues.ReturnSendPlayerVote} enum type, depending on error type or success.
      */
-    ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote);
+    ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote, String username);
 
     void informAboutUserLogin(String username);
 }

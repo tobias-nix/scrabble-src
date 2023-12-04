@@ -64,6 +64,6 @@ public class ToServerImpl extends UnicastRemoteObject implements ToServer {
 
     @Override
     public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote) throws RemoteException {
-        return this.serverConnect.sendPlayerVote(playerVote);
+        return this.serverConnect.sendPlayerVote(playerVote, this.username);
     }
 }

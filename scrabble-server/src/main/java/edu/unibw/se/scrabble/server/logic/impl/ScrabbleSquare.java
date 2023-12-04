@@ -4,7 +4,6 @@ import edu.unibw.se.scrabble.common.base.SquareState;
 
 class ScrabbleSquare {
     private SquareState squareState;
-
     private final int wordFactor;
     private final int letterFactor;
     private ScrabbleTile scrabbleTile;
@@ -15,20 +14,25 @@ class ScrabbleSquare {
         this.squareState = SquareState.FREE;
         this.scrabbleTile = null;
     }
+    ScrabbleTile removeScrabbleTile() {
+        ScrabbleTile tmp = this.scrabbleTile;
+        this.scrabbleTile = null;
+        return tmp;
+    }
 
     SquareState getSquareState() {
         return this.squareState;
     }
 
-    void changeSquareStateToFree() {
+    void setSquareStateToFree() {
         this.squareState = SquareState.FREE;
     }
 
-    void changeSquareStateToOccupied() {
+    void setSquareStateToOccupied() {
         this.squareState = SquareState.OCCUPIED;
     }
 
-    void changeSquareStateToMove() {
+    void setSquareStateToMove() {
         this.squareState = SquareState.MOVE;
     }
 

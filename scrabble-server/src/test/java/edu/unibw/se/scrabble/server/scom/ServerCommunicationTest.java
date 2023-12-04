@@ -598,7 +598,7 @@ public abstract class ServerCommunicationTest {
         }
 
         @Override
-        public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote) {
+        public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote, String username) {
             return null;
         }
 

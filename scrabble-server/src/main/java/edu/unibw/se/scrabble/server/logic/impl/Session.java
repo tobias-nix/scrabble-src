@@ -50,4 +50,6 @@ public class Session {
     GameData getGameData() {
         return this.scrabbleGame.getGameData(this.gameId);
     }
+
+
 }

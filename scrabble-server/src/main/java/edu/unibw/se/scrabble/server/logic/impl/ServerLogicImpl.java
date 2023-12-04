@@ -61,6 +61,16 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         return new ReturnValues.ReturnCreateSession(ReturnValues.ReturnCreateSessionState.SUCCESSFUL, generatedGameId);
     }
 
+    private int generateGameId() {
+        Random r = new Random();
+        int newGameId;
+        do {
+            newGameId = r.nextInt(100000 - 1) + 1;
+        } while (this.mapGameIdToSession.containsKey(newGameId));
+
+        return newGameId;
+    }
+
     @Override
     public ReturnValues.ReturnJoinSession joinSession(int gameId, String username) {
         if (username == null) {
@@ -85,6 +95,10 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         return ReturnValues.ReturnJoinSession.SUCCESSFUL;
     }
 
+    private Session getSessionWithUsername(String username) {
+        return this.mapGameIdToSession.get(this.mapUsernameToGameId.get(username));
+    }
+
     @Override
     public ReturnValues.ReturnStartGame startGame(String username) {
         if (username == null || !this.mapUsernameToGameId.containsKey(username)) {
@@ -105,34 +119,64 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
     }
 
     private void sendGameData(Session session) {
-        session.getUserUsernames().forEach(player -> {
-            serverConnectCallback.sendGameData(
-                    player,
-                    session.getRackTilesWithUsername(player),
-                    session.getSwapTilesWithUsername(player),
-                    session.getGameData());
-        });
+        session.getUserUsernames().forEach(player ->
+                serverConnectCallback.sendGameData(
+                        player,
+                        session.getRackTilesWithUsername(player),
+                        session.getSwapTilesWithUsername(player),
+                        session.getGameData())
+        );
     }
 
     @Override
     public ReturnValues.ReturnSelectAction selectAction(ActionState actionState, String username) {
+        if (username == null || actionState == null || !this.mapUsernameToGameId.containsKey(username)) {
+            return ReturnValues.ReturnSelectAction.FAILURE;
+        }
+        Session session = this.getSessionWithUsername(username);
+        if (!session.hasGameStarted()) {
+            return ReturnValues.ReturnSelectAction.FAILURE;
+        }
 
+        ScrabbleGame scrabbleGame = session.getScrabbleGame();
+        GameState currentGameState = scrabbleGame.getGameState();
+        if (!currentGameState.equals(GameState.PLAY) &&
+                !currentGameState.equals(GameState.PLACE) &&
+                !currentGameState.equals(GameState.SWAP) &&
+                !currentGameState.equals(GameState.PASS)) {
+            return ReturnValues.ReturnSelectAction.FAILURE;
+        }
 
+        if (actionState.equals(ActionState.SWAP) && scrabbleGame.getBagSize() < 7) {
+            return ReturnValues.ReturnSelectAction.LESS_THAN_SEVEN_TILES_IN_BAG;
+        }
 
-        //sendGameData(session);
+        scrabbleGame.returnPlacedAndSwapTilesToRack();
+
+        scrabbleGame.setGameState(actionState);
+
+        sendGameData(session);
         return ReturnValues.ReturnSelectAction.SUCCESSFUL;
     }
 
     @Override
     public ReturnValues.ReturnPlaceTile placeTile(TileWithPosition tileWithPosition, String username) {
+        if (username == null || tileWithPosition == null || !this.mapUsernameToGameId.containsKey(username)) {
+            return ReturnValues.ReturnPlaceTile.FAILURE;
+        }
+        Session session = this.getSessionWithUsername(username);
+        if (!session.hasGameStarted()) {
+            return ReturnValues.ReturnPlaceTile.FAILURE;
+        }
 
-        ScrabbleGame scrabbleGame = getScrabbleGameFromMap(username);
+        ScrabbleGame scrabbleGame = session.getScrabbleGame();
+
         if (scrabbleGame.getGameState() != GameState.PLACE ||
                 !Objects.equals(scrabbleGame.getCurrentPlayerUsername(), username)) {
             return ReturnValues.ReturnPlaceTile.FAILURE;
         }
 
-        if (scrabbleGame.isRackTiles(tileWithPosition.letter())) {
+        if (scrabbleGame.playerHasRackTileWithThisLetter(tileWithPosition.letter())) {
             return ReturnValues.ReturnPlaceTile.FAILURE;
         }
 
@@ -142,52 +186,136 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
 
         scrabbleGame.placeTile(tileWithPosition);
 
-        // TODO send gamestate individuell anpassen
-        serverConnectCallback.sendGameData(null, null, null, null);
+        this.sendGameData(session);
         return ReturnValues.ReturnPlaceTile.SUCCESSFUL;
     }
 
     @Override
     public ReturnValues.ReturnSwapTile swapTile(char letter, String username) {
-        serverConnectCallback.sendGameData(null, null, null, null);
+        if (!Character.isLetter(letter) || username == null) {
+            return ReturnValues.ReturnSwapTile.FAILURE;
+        }
+        Session session = this.getSessionWithUsername(username);
+        if (!session.hasGameStarted()) {
+            return ReturnValues.ReturnSwapTile.FAILURE;
+        }
+
+        ScrabbleGame scrabbleGame = session.getScrabbleGame();
+
+        if (scrabbleGame.getGameState() != GameState.SWAP ||
+                !Objects.equals(scrabbleGame.getCurrentPlayerUsername(), username)) {
+            return ReturnValues.ReturnSwapTile.FAILURE;
+        }
+
+        if (scrabbleGame.playerHasRackTileWithThisLetter(letter)) {
+            return ReturnValues.ReturnSwapTile.FAILURE;
+        }
+
+        scrabbleGame.swapTile(letter);
+
+        this.sendGameData(session);
+
         return ReturnValues.ReturnSwapTile.SUCCESSFUL;
     }
 
     @Override
     public ReturnValues.ReturnEndTurn endTurn(String username) {
-        return null;
+        if (username == null) {
+            return ReturnValues.ReturnEndTurn.FAILURE;
+        }
+        Session session = this.getSessionWithUsername(username);
+        if (!session.hasGameStarted()) {
+            return ReturnValues.ReturnEndTurn.FAILURE;
+        }
+
+        ScrabbleGame scrabbleGame = session.getScrabbleGame();
+
+        if (scrabbleGame.getGameState() != GameState.SWAP ||
+                !Objects.equals(scrabbleGame.getCurrentPlayerUsername(), username)) {
+            return ReturnValues.ReturnEndTurn.FAILURE;
+        }
+
+        switch (scrabbleGame.getGameState()) {
+            case SWAP:
+                scrabbleGame.endTurnSwap();
+                return ReturnValues.ReturnEndTurn.SUCCESSFUL;
+            case PLACE:
+                /*session.getUserUsernames().forEach(player ->
+                        serverConnectCallback.vote(player, scrabbleGame.getPlacedWords())
+                ); // NOTFALLS DAS HIER da wirds an alle geschickt */
+                session.getUserUsernames().stream()
+                        .filter(player -> !player.equals(scrabbleGame.getCurrentPlayerUsername()))
+                        .forEach(player ->
+                        serverConnectCallback.vote(player, scrabbleGame.getPlacedWords())
+                );
+                scrabbleGame.endTurnPlace();
+                return ReturnValues.ReturnEndTurn.SUCCESSFUL;
+            case PASS:
+                if (scrabbleGame.getPassCounter() < session.getNumberOfUsers() * 2 - 1) {
+                    scrabbleGame.endTurnPass();
+                } else {
+                    scrabbleGame.endTurnGameOver();
+                    this.sendGameData(session);
+
+                    List<Integer> score = session.getGameData().score;
+                    List<String> usernames = session.getUserUsernames();
+
+                    for (int i = 0; i < session.getNumberOfUsers(); i++) {
+                        String player = usernames.get(i);
+                        Statistics statistics = scrabbleData.getUserStatistics(player);
+                        int newGamesPlayed = statistics.gamesPlayed() + 1;
+                        int newGamesWon = Collections.max(score).equals(score.get(i)) ? statistics.gamesWon() + 1 : statistics.gamesWon();
+                        int newHighestScore = Math.max(statistics.highestScore(), score.get(i));
+                        int newTotalScore = statistics.totalScore() + score.get(i);
+
+                        scrabbleData.saveUserStatistics(player, new Statistics(newGamesPlayed, newGamesWon, newHighestScore, newTotalScore));
+                    }
+                }
+                return ReturnValues.ReturnEndTurn.SUCCESSFUL;
+        }
+        return ReturnValues.ReturnEndTurn.FAILURE;
     }
 
     @Override
-    public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote) {
+    public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote, String username) {
+        if (playerVote == null) {
+            return ReturnValues.ReturnSendPlayerVote.FAILURE;
+        }
+
+        ScrabbleGame scrabbleGame = getSessionWithUsername(username).getScrabbleGame();
+
+        if (scrabbleGame.getGameState() != GameState.VOTE) {
+            return ReturnValues.ReturnSendPlayerVote.FAILURE;
+        }
+
+        scrabbleGame.setPlayerState(playerVote, username);
+
+
+
+        // TODO Wie sollen wir das vote system umsetzten, wenn 4 Leute gleichzeitig was vom Server wollen?
+        while (!scrabbleGame.getPlayerStates().contains(PlayerState.NOT_VOTED)) {
+            try {
+                wait(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace(System.err);
+                throw new RuntimeException(e);
+            }
+        }
+
+
+
+
+        // Alle player wieder auf not voted setzen
         return null;
     }
 
     @Override
     public void informAboutUserLogin(String username) {
         if (mapUsernameToGameId.containsKey(username)) {
-            if(getSessionWithUsername(username).hasGameStarted()) {
+            if (getSessionWithUsername(username).hasGameStarted()) {
                 sendGameData(getSessionWithUsername(username));
             }
         }
-    }
-
-    private ScrabbleGame getScrabbleGameFromMap(String username) {
-        return this.mapGameIdToSession.get(this.mapUsernameToGameId.get(username)).getScrabbleGame();
-    }
-
-    private Session getSessionWithUsername(String username) {
-        return this.mapGameIdToSession.get(this.mapUsernameToGameId.get(username));
-    }
-
-    private int generateGameId() {
-        Random r = new Random();
-        int newGameId;
-        do {
-            newGameId = r.nextInt(100000 - 1) + 1;
-        } while (this.mapGameIdToSession.containsKey(newGameId));
-
-        return newGameId;
     }
 
 

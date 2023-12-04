@@ -473,6 +473,88 @@ public abstract class ClientCommunicationTHEREALTHINGTest {
     }
 
     @Nested
+    class SelectActionTests {
+        @Test
+        public void selectActionSuccess() {
+            ArrayList<Client> clientList = new ArrayList<>(List.of(
+                    new Client("Odie", "OdieOdie1!", getClientCommunication()),
+                    new Client("Garfield", "Garfield1!", getClientCommunication()),
+                    new Client("Nermal", "Nermal123!", getClientCommunication()),
+                    new Client("JonA", "JonA1234!", getClientCommunication())));
+
+            try {
+                serverCommunication = new ServerCommunicationImpl();
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+            ServerLogic serverLogic = new ServerLogicImpl();
+            ServerConnect serverConnectReal = serverLogic.getServerConnect();
+            serverCommunication.setServerConnect(serverConnectReal);
+
+            authentication = new AuthenticationImpl();
+            springDatabase = new SpringScrabbleData();
+            springDatabase.clear();
+
+            authentication.setAuthData(springDatabase.getAuthData());
+            serverCommunication.setCredentials(authentication.getCredentials());
+
+            clientList.forEach(client -> {
+                client.clientCommunication.setNetworkConnect(serverCommunication.getNetworkConnect());
+            });
+
+            clientList.forEach(client -> {
+                springDatabase.getAuthData().createUser(client.username, client.password);
+                ReturnValues.ReturnLoginUser returnLoginUser =
+                        client.clientCommunication.getClientConnect().loginUser(client.username, client.password);
+                assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, returnLoginUser,
+                        "Login User");
+            });
+
+            ReturnValues.ReturnCreateSession returnCreateSession =
+                    clientList.getFirst().clientCommunication.getClientConnect().createSession(LanguageSetting.GERMAN);
+            assertEquals(ReturnValues.ReturnCreateSessionState.SUCCESSFUL, returnCreateSession.state());
+            System.out.println(clientList.getFirst() + " created session with GameID " + returnCreateSession.gameID());
+            assertTrue(returnCreateSession.gameID() < 100000 && returnCreateSession.gameID() > 0);
+            int createdGameId = returnCreateSession.gameID();
+
+
+            Client tmpStorageForFirstWhileTheOthersJoin = clientList.removeFirst();
+
+            clientList.forEach(client -> {
+                ReturnValues.ReturnJoinSession returnJoinSession =
+                        client.clientCommunication.getClientConnect().joinSession(createdGameId);
+                System.out.println(client.username + " joined GameID " + createdGameId);
+                assertEquals(ReturnValues.ReturnJoinSession.SUCCESSFUL, returnJoinSession);
+            });
+
+            clientList.add(0, tmpStorageForFirstWhileTheOthersJoin);
+
+            clientList.forEach(client -> {
+                assertTrue(client.clientConnectCallbackTest.usersInSessionCalled, "usersInSessionCalled");
+                String[] usernames = clientList.stream().map(e -> e.username).toArray(String[]::new);
+                assertArrayEquals(usernames,
+                        client.clientConnectCallbackTest.usersInSessionCalledTransferredUsernames,
+                        "usersInSessionCalledTransferredUsernames");
+            });
+
+            System.out.println("Users in session: " + clientList + "\n");
+
+            ReturnValues.ReturnStartGame returnStartGame =
+                    clientList.getFirst().clientCommunication.getClientConnect().startGame();
+            assertEquals(ReturnValues.ReturnStartGame.SUCCESSFUL, returnStartGame);
+            System.out.println("Game started successfully\n");
+
+            System.out.println("Sent GameData:");
+            clientList.forEach(client -> {
+                assertTrue(client.clientConnectCallbackTest.sendGameStateCalled, client.username + " sendGameStateCalled");
+                System.out.println(client.username + " RackTiles:" + Arrays.toString(client.clientConnectCallbackTest.sendGameStateTransferredRackTiles));
+                System.out.println(client.username + " SwapTiles:" + Arrays.toString(client.clientConnectCallbackTest.sendGameStateTransferredSwapTiles));
+                System.out.println(client.username + " GameData: " + client.clientConnectCallbackTest.sendGameStateTransferredGameData);
+            });
+        }
+    }
+
+    @Nested
     class GetUserStatisticsTest {
         @Test
         public void getUserStatisticsTest() {
@@ -573,7 +655,7 @@ public abstract class ClientCommunicationTHEREALTHINGTest {
         }
 
         @Override
-        public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote) {
+        public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote, String username) {
             return null;
         }
 

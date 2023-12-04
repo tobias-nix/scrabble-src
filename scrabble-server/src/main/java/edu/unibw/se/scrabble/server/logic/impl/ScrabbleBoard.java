@@ -19,9 +19,21 @@ public class ScrabbleBoard {
 
     }
 
-    // TODO spalte zeile +/-1???? je nachdem wies kommt
+    List<ScrabbleTile> returnMoveTiles() {
+        List<ScrabbleTile> moveTiles = new ArrayList<>();
+        for (ScrabbleSquare[] scrabbleSquares : gameBoard) {
+            for (ScrabbleSquare scrabbleSquare : scrabbleSquares) {
+                if (scrabbleSquare.getSquareState().equals(SquareState.MOVE)) {
+                    moveTiles.add(scrabbleSquare.removeScrabbleTile());
+                    scrabbleSquare.setSquareStateToFree();
+                }
+            }
+        }
+        return moveTiles;
+    }
+
     boolean isPositionAllowed(int column, int row) {
-        if(gameBoard[column][row].getSquareState() != SquareState.FREE) {
+        if (gameBoard[column][row].getSquareState() != SquareState.FREE) {
             return false;
         }
 
@@ -30,9 +42,8 @@ public class ScrabbleBoard {
     }
 
     void placeTile(int column, int row, ScrabbleTile scrabbleTile) {
-
         this.gameBoard[column][row].placeScrabbleTile(scrabbleTile);
-        this.gameBoard[column][row].changeSquareStateToMove();
+        this.gameBoard[column][row].setSquareStateToMove();
     }
 
     private List<SquareState> getNeighbourState(int column, int row) {
@@ -55,9 +66,6 @@ public class ScrabbleBoard {
     private boolean neighbourPositionIsValid(int column, int row) {
         return column >= 0 && column < 15 && row >= 0 && row < 15;
     }
-
-
-
 
 
     static ScrabbleSquare[][] createScrabbleGameBoard() {

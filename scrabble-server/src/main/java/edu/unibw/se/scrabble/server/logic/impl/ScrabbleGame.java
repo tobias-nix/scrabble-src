@@ -13,16 +13,16 @@ public class ScrabbleGame {
     private Player currentPlayer;
     private GameState gameState;
     private final ArrayList<ScrabbleTile> bag;
-    // TODO bag
     private final ArrayList<TileWithPosition> placedTilesForSendGameData = new ArrayList<>();
     private final ScrabbleBoard scrabbleBoard = new ScrabbleBoard();
+    private int passCounter = 0;
 
     static class Player {
         String username;
         int score = 0;
         ArrayList<ScrabbleTile> rackTiles = new ArrayList<>();
         ArrayList<ScrabbleTile> swapTiles = new ArrayList<>();
-        PlayerState playerVote = PlayerState.NOT_VOTED;
+        PlayerState playerState = PlayerState.NOT_VOTED;
 
         Player(String username) {
             this.username = username;
@@ -38,6 +38,7 @@ public class ScrabbleGame {
         this.bag = createBagFromLanguageSetting(languageSetting);
         players.forEach(this::drawFromBag);
     }
+
 
     Player getPlayerByUsername(String username) {
         return players.stream()
@@ -78,20 +79,22 @@ public class ScrabbleGame {
         return newBag;
     }
 
-    private void drawFromBag(Player player) {
+    void drawFromBag(Player player) {
         while (player.rackTiles.size() < 7 && !this.bag.isEmpty()) {
             player.rackTiles.add(this.bag.removeFirst());
         }
     }
 
-
-    void switchCurrentPlayerToNext() {
-        int index = this.players.indexOf(currentPlayer);
-        this.currentPlayer = players.get((index + 1) % players.size());
-    }
-
     String getCurrentPlayerUsername() {
         return this.currentPlayer.username;
+    }
+
+    void setGameState(ActionState actionState) {
+        switch (actionState) {
+            case PLACE -> this.gameState = GameState.PLACE;
+            case PASS -> this.gameState = GameState.PASS;
+            case SWAP -> this.gameState = GameState.SWAP;
+        }
     }
 
     GameState getGameState() {
@@ -149,7 +152,7 @@ public class ScrabbleGame {
 
     ArrayList<PlayerState> getPlayerVotes() {
         return players.stream()
-                .map(player -> player.playerVote)
+                .map(player -> player.playerState)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
@@ -165,17 +168,30 @@ public class ScrabbleGame {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    int getBagSize() {
+        return this.bag.size();
+    }
 
-    boolean isRackTiles(char letter) {
-        return true;/*
-        ArrayList<ScrabbleTile> rackTiles = mapUsernameToRackTiles.get(this.currentPlayer);
-        final boolean[] flag = {false};
-        rackTiles.forEach(tile -> {
-            if (tile.letter == letter) {
-                flag[0] = true;
+    void returnPlacedAndSwapTilesToRack() {
+        if (this.gameState.equals(GameState.SWAP)) {
+            this.currentPlayer.rackTiles.addAll(currentPlayer.swapTiles);
+        } else if (this.gameState.equals(GameState.PLACE)) {
+            List<ScrabbleTile> returnedMoveTiles = this.scrabbleBoard.returnMoveTiles();
+            this.currentPlayer.rackTiles.addAll(returnedMoveTiles);
+
+            for (int i = 0; i < returnedMoveTiles.size(); i++) {
+                this.placedTilesForSendGameData.removeLast();
             }
-        });
-        return flag[0];*/
+        }
+    }
+
+    boolean playerHasRackTileWithThisLetter(char letter) {
+        for (char rackTileLetter : getPlayerRackTiles(this.currentPlayer.username)) {
+            if (rackTileLetter == letter) {
+                return true;
+            }
+        }
+        return false;
     }
 
     boolean isPlaceAllowed(TileWithPosition tileWithPosition) {
@@ -183,23 +199,78 @@ public class ScrabbleGame {
                 tileWithPosition.row() - 1);
     }
 
+    private ScrabbleTile getRackTileWithLetter(char letter) {
+        return this.currentPlayer.rackTiles.stream()
+                .filter(tile -> tile.letter == letter)
+                .findFirst()
+                .orElse(null);
+    }
+
     void placeTile(TileWithPosition tileWithPosition) {
-        return;/*
-        ArrayList<ScrabbleTile> rackTiles = mapUsernameToRackTiles.get(this.currentPlayer);
+        ScrabbleTile foundTile = getRackTileWithLetter(tileWithPosition.letter());
+        this.currentPlayer.rackTiles.remove(foundTile);
+        scrabbleBoard.placeTile(tileWithPosition.column(), tileWithPosition.row(), foundTile);
+        this.placedTilesForSendGameData.add(tileWithPosition);
+    }
 
-        ScrabbleTile scrabbleTile;
-        for (int i = 0; i < rackTiles.size(); i++) {
-            scrabbleTile = rackTiles.get(i);
-            if (scrabbleTile.letter == tileWithPosition.letter()) {
-                scrabbleTile = rackTiles.remove(i);
-                scrabbleBoard.placeTile(tileWithPosition.column() - 1,
-                        tileWithPosition.row() - 1, scrabbleTile);
-                this.placedTilesForSendGameData.add(tileWithPosition);
+    void swapTile(char letter) {
+        ScrabbleTile foundTile = getRackTileWithLetter(letter);
+        this.currentPlayer.rackTiles.remove(foundTile);
+        this.currentPlayer.swapTiles.add(foundTile);
+    }
+
+    void endTurnSwap() {
+        this.drawFromBag(this.currentPlayer);
+        this.bag.addAll(this.currentPlayer.swapTiles);
+        this.switchCurrentPlayerToNext();
+        this.passCounter = 0;
+    }
+
+    void endTurnPlace() {
+        this.gameState = GameState.VOTE;
+    }
+
+    void endTurnPass() {
+        this.passCounter++;
+        this.switchCurrentPlayerToNext();
+    }
+
+    void endTurnGameOver() {
+        this.gameState = GameState.GAME_OVER;
+    }
 
 
-                break;
-            }
-        }*/
+    void switchCurrentPlayerToNext() {
+        int index = this.players.indexOf(currentPlayer);
+        this.currentPlayer = players.get((index + 1) % players.size());
+    }
+
+    int getPassCounter() {
+        return this.passCounter;
+    }
+
+    ArrayList<PlayerState> getPlayerStates() {
+        return this.players.stream()
+                .map(player -> player.playerState)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+
+    void setPlayerState(PlayerVote playerVote, String username) {
+        switch (playerVote) {
+            case REJECTED -> this.getPlayerByUsername(username).playerState = PlayerState.REJECTED;
+            case CONFIRMED -> this.getPlayerByUsername(username).playerState = PlayerState.CONFIRMED;
+        }
+    }
+
+    public String[] getPlacedWords() {
+        List<String> placedWords = new ArrayList<>();
+
+
+
+        // TODO
+
+        return placedWords.toArray(new String[0]);
     }
 
 }
