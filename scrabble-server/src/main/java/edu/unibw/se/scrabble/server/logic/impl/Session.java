@@ -17,32 +17,35 @@ public class Session {
         this.languageSetting = languageSetting;
     }
 
-    public int getNumberOfUsers() {
+    int getNumberOfUsers() {
         return users.size();
     }
 
-    public void addUser(String username) {
+    void addUser(String username) {
         users.add(username);
     }
 
-    public ArrayList<String> getUserUsernames() {
+    ArrayList<String> getUserUsernames() {
         return this.users;
     }
 
-    public char[] getRackTilesWithUsername(String username) {
+    char[] getRackTilesWithUsername(String username) {
         return this.scrabbleGame.getPlayerRackTiles(username);
     }
 
-    public char[] getSwapTilesWithUsername(String username) {
+    char[] getSwapTilesWithUsername(String username) {
         return this.scrabbleGame.getPlayerSwapTiles(username);
     }
 
-    public ScrabbleGame getScrabbleGame() {
+    ScrabbleGame getScrabbleGame() {
         return this.scrabbleGame;
     }
 
-    public GameData startGame() {
+    void startGame() {
         this.scrabbleGame = new ScrabbleGame(users, languageSetting);
+    }
+
+    GameData getGameData() {
         return this.scrabbleGame.getGameData(this.gameId);
     }
 }

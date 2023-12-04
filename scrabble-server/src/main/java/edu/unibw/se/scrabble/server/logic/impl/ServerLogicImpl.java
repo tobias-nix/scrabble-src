@@ -97,17 +97,21 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         if (!Objects.equals(session.getUserUsernames().getFirst(), username)) {
             return ReturnValues.ReturnStartGame.USER_NOT_THE_HOST;
         }
-        GameData gameData = session.startGame();
+        session.startGame();
 
+        sendGameData(session);
+
+        return ReturnValues.ReturnStartGame.SUCCESSFUL;
+    }
+
+    private void sendGameData(Session session) {
         session.getUserUsernames().forEach(player -> {
             serverConnectCallback.sendGameData(
                     player,
                     session.getRackTilesWithUsername(player),
-                    session.getSwapTilesWithUsername(username),
-                    gameData);
+                    session.getSwapTilesWithUsername(player),
+                    session.getGameData());
         });
-
-        return ReturnValues.ReturnStartGame.SUCCESSFUL;
     }
 
     @Override

@@ -58,7 +58,7 @@ public abstract class ClientCommunicationTHEREALTHINGTest {
 
         @Override
         public String toString() {
-            return "Username: " + username;
+            return username;
         }
     }
 
@@ -431,7 +431,7 @@ public abstract class ClientCommunicationTHEREALTHINGTest {
             ReturnValues.ReturnCreateSession returnCreateSession =
                     clientList.getFirst().clientCommunication.getClientConnect().createSession(LanguageSetting.GERMAN);
             assertEquals(ReturnValues.ReturnCreateSessionState.SUCCESSFUL, returnCreateSession.state());
-            System.out.println("Session ID: " + returnCreateSession.gameID());
+            System.out.println(clientList.getFirst() + " created session with GameID " + returnCreateSession.gameID());
             assertTrue(returnCreateSession.gameID() < 100000 && returnCreateSession.gameID() > 0);
             int createdGameId = returnCreateSession.gameID();
 
@@ -450,25 +450,23 @@ public abstract class ClientCommunicationTHEREALTHINGTest {
             clientList.forEach(client -> {
                 assertTrue(client.clientConnectCallbackTest.usersInSessionCalled, "usersInSessionCalled");
                 String[] usernames = clientList.stream().map(e -> e.username).toArray(String[]::new);
-                System.out.println(Arrays.toString(usernames));
                 assertArrayEquals(usernames,
                         client.clientConnectCallbackTest.usersInSessionCalledTransferredUsernames,
                         "usersInSessionCalledTransferredUsernames");
             });
 
-            System.out.println(clientList);
+            System.out.println("Users in session: " + clientList + "\n");
 
             ReturnValues.ReturnStartGame returnStartGame =
                     clientList.getFirst().clientCommunication.getClientConnect().startGame();
             assertEquals(ReturnValues.ReturnStartGame.SUCCESSFUL, returnStartGame);
+            System.out.println("Game started successfully\n");
 
+            System.out.println("Sent GameData:");
             clientList.forEach(client -> {
-                assertTrue(client.clientConnectCallbackTest.sendGameStateCalled);
+                assertTrue(client.clientConnectCallbackTest.sendGameStateCalled, client.username + " sendGameStateCalled");
                 System.out.println(client.username + " RackTiles:" + Arrays.toString(client.clientConnectCallbackTest.sendGameStateTransferredRackTiles));
                 System.out.println(client.username + " SwapTiles:" + Arrays.toString(client.clientConnectCallbackTest.sendGameStateTransferredSwapTiles));
-            });
-
-            clientList.forEach(client -> {
                 System.out.println(client.username + " GameData: " + client.clientConnectCallbackTest.sendGameStateTransferredGameData);
             });
         }
