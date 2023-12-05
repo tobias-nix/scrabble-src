@@ -23,5 +23,5 @@ public interface ServerLogic {
      */
     void setScrabbleData(ScrabbleData scrabbleData);
 
-    void setServerState(int numberOfSessionsActive);
+    void setServerState();
 }

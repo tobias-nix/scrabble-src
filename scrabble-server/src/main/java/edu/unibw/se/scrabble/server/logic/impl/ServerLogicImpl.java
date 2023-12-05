@@ -6,6 +6,12 @@ import edu.unibw.se.scrabble.server.logic.ServerConnect;
 import edu.unibw.se.scrabble.server.logic.ServerConnectCallback;
 import edu.unibw.se.scrabble.server.logic.ServerLogic;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class ServerLogicImpl implements ServerLogic, ServerConnect {
@@ -126,6 +132,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
                         session.getSwapTilesWithUsername(player),
                         session.getGameData())
         );
+        session.scrabbleGame.printGameBoard();
     }
 
     @Override
@@ -161,7 +168,6 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
 
     @Override
     public ReturnValues.ReturnPlaceTile placeTile(TileWithPosition tileWithPosition, String username) {
-        // TODO erstes Place muss aufs sternfeld gehen.
         if (username == null || tileWithPosition == null || !this.mapUsernameToGameId.containsKey(username)) {
             return ReturnValues.ReturnPlaceTile.FAILURE;
         }
@@ -177,11 +183,20 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
             return ReturnValues.ReturnPlaceTile.FAILURE;
         }
 
-        if (scrabbleGame.playerHasRackTileWithThisLetter(tileWithPosition.letter())) {
-            return ReturnValues.ReturnPlaceTile.FAILURE;
+        if (scrabbleGame.isSquareFree(new TileWithPosition(' ', 8, 8)) &&
+                (tileWithPosition.row() != 8 && tileWithPosition.column() != 8)) {
+            return ReturnValues.ReturnPlaceTile.POSITION_NOT_ALLOWED;
         }
 
-        if (!scrabbleGame.isPlaceAllowed(tileWithPosition)) {
+        if (!scrabbleGame.playerHasRackTileWithThisLetter(tileWithPosition.letter())) {
+            return ReturnValues.ReturnPlaceTile.TILE_NOT_ON_RACK;
+        }
+
+        if (!scrabbleGame.isSquareFree(tileWithPosition)) {
+            return ReturnValues.ReturnPlaceTile.SQUARE_OCCUPIED;
+        }
+
+        if (!scrabbleGame.hasNeighbour(tileWithPosition)) {
             return ReturnValues.ReturnPlaceTile.POSITION_NOT_ALLOWED;
         }
 
@@ -208,8 +223,8 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
             return ReturnValues.ReturnSwapTile.FAILURE;
         }
 
-        if (scrabbleGame.playerHasRackTileWithThisLetter(letter)) {
-            return ReturnValues.ReturnSwapTile.FAILURE;
+        if (!scrabbleGame.playerHasRackTileWithThisLetter(letter)) {
+            return ReturnValues.ReturnSwapTile.TILE_NOT_ON_RACK;
         }
 
         scrabbleGame.swapTile(letter);
@@ -231,7 +246,9 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
 
         ScrabbleGame scrabbleGame = session.getScrabbleGame();
 
-        if (scrabbleGame.getGameState() != GameState.SWAP ||
+        if (!(scrabbleGame.getGameState() == GameState.SWAP ||
+                scrabbleGame.getGameState() == GameState.PLACE ||
+                scrabbleGame.getGameState() == GameState.PASS) ||
                 !Objects.equals(scrabbleGame.getCurrentPlayerUsername(), username)) {
             return ReturnValues.ReturnEndTurn.FAILURE;
         }
@@ -239,8 +256,10 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         switch (scrabbleGame.getGameState()) {
             case SWAP:
                 scrabbleGame.endTurnSwap();
+                this.sendGameData(session);
                 return ReturnValues.ReturnEndTurn.SUCCESSFUL;
             case PLACE:
+                // TODO eventuell müssen wir das eh an alle schicken
                 /*session.getUserUsernames().forEach(player ->
                         serverConnectCallback.vote(player, scrabbleGame.getPlacedWords())
                 ); // NOTFALLS DAS HIER da wirds an alle geschickt */
@@ -254,6 +273,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
             case PASS:
                 if (scrabbleGame.getPassCounter() < session.getNumberOfUsers() * 2 - 1) {
                     scrabbleGame.endTurnPass();
+                    this.sendGameData(session);
                 } else {
                     scrabbleGame.endTurnGameOver();
                     this.sendGameData(session);
@@ -313,16 +333,76 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
     @Override
     public void informAboutUserLogin(String username) {
         if (mapUsernameToGameId.containsKey(username)) {
-            if (getSessionWithUsername(username).hasGameStarted()) {
+            Session session = getSessionWithUsername(username);
+            if (session.hasGameStarted()) {
                 sendGameData(getSessionWithUsername(username));
+            } else {
+                serverConnectCallback.usersInSession(session.getUserUsernames().toArray(new String[0]));
             }
         }
     }
 
-
-    // TODO: schnelle hässliche lösung für tests, hier sollte eigentlich die csv eingelesen werden
     @Override
-    public void setServerState(int numberOfSessionsActive) {
+    public void setServerState() {
+        Path sessionPath;
+        Path gamePath;
+        try {
+            sessionPath = Paths.get(Objects.requireNonNull(Sandbox.class.getResource("/session.csv")).toURI()).toAbsolutePath();
+            gamePath = Paths.get(Objects.requireNonNull(Sandbox.class.getResource("/scrabble.csv")).toURI()).toAbsolutePath();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
 
+        try (BufferedReader reader = Files.newBufferedReader(sessionPath)) {
+            String line = reader.readLine();
+            if (line != null) {
+                String[] parts = line.split(",");
+                int gameId = Integer.parseInt(parts[0].trim());
+                LanguageSetting languageSetting = LanguageSetting.valueOf(parts[1].trim().toUpperCase());
+                List<String> usernames = Arrays.stream(parts)
+                        .skip(2)
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .toList();
+
+                Session newSession = new Session(usernames.getFirst(), gameId, languageSetting);
+                mapUsernameToGameId.put(usernames.getFirst(), gameId);
+                mapGameIdToSession.put(gameId, newSession);
+                usernames.forEach(user -> {
+                    this.joinSession(gameId, user);
+                    mapUsernameToGameId.put(user, gameId);
+                });
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        try (BufferedReader reader = Files.newBufferedReader(gamePath)) {
+            reader.readLine();
+            String line = reader.readLine();
+            if (line != null) {
+                String[] parts = line.split(",", -1);
+                int gameId = Integer.parseInt(parts[0].trim());
+                GameState gameState = GameState.valueOf(parts[1].trim().toUpperCase());
+                List<String> bag = parts[2].isEmpty() ? new ArrayList<>() : Arrays.asList(parts[2].split(";"));
+
+                List<String> fixedTiles = parts[3].isEmpty() ? new ArrayList<>() : Arrays.asList(parts[3].split(";"));
+                List<String> movedTiles = parts[4].isEmpty() ? new ArrayList<>() : Arrays.asList(parts[4].split(";"));
+
+                List<Integer> scores = Arrays.stream(parts[5].split(";"))
+                        .map(Integer::parseInt)
+                        .toList();
+
+                List<String> rackTiles = parts[6].isEmpty() ? new ArrayList<>() : Arrays.asList(parts[6].split(";"));
+                List<String> swapTiles = parts[7].isEmpty() ? new ArrayList<>() : Arrays.asList(parts[7].split(";"));
+
+                Session session = this.mapGameIdToSession.get(gameId);
+                session.scrabbleGame = new ScrabbleGame(session.users, session.languageSetting,gameState, bag, fixedTiles, movedTiles, scores, rackTiles, swapTiles);
+
+                sendGameData(session);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

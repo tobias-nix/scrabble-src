@@ -35,6 +35,9 @@ public class SpringScrabbleDataWorker implements ScrabbleData, AuthData {
     @Override
     public String getPassword(String username) {
         try {
+            if(!userRepository.existsById(username)) {
+                return null;
+            }
             User user = userRepository.findUserByUsername(username);
             return user.getPassword();
         } catch (Exception e) {
@@ -58,6 +61,9 @@ public class SpringScrabbleDataWorker implements ScrabbleData, AuthData {
     @Override
     public Statistics getUserStatistics(String username) {
         try {
+            if(!userRepository.existsById(username)) {
+                return null;
+            }
             User user = userRepository.findUserByUsername(username);
             return user.getStatistics();
         } catch (Exception e) {
@@ -69,6 +75,9 @@ public class SpringScrabbleDataWorker implements ScrabbleData, AuthData {
     @Override
     public boolean saveUserStatistics(String username, Statistics statistics) {
         try {
+            if(!userRepository.existsById(username)) {
+                return false;
+            }
             User user = userRepository.findUserByUsername(username);
             user.setStatistics(statistics);
             userRepository.save(user);

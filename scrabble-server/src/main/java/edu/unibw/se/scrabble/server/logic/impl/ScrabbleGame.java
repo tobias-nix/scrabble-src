@@ -39,6 +39,66 @@ public class ScrabbleGame {
         players.forEach(this::drawFromBag);
     }
 
+    ScrabbleGame(ArrayList<String> usernames, LanguageSetting languageSetting, GameState gameState, List<String> bag,
+                 List<String> fixedTiles, List<String> movedTiles, List<Integer> scores, List<String> rackTiles, List<String> swapTiles) {
+        this.players = new ArrayList<>(usernames.size());
+        usernames.forEach(username -> this.players.add(new Player(username)));
+        this.gameState = gameState;
+        this.currentPlayer = players.getFirst();
+        List<ScrabbleTile> allTiles = createBagFromLanguageSetting(languageSetting);
+
+        this.bag = new ArrayList<>();
+        bag.forEach(bagLetter -> {
+            this.bag.addLast(allTiles.stream().filter(tile -> tile.letter == bagLetter.charAt(0)).findFirst().orElse(null));
+        });
+
+        for(String tilePosition: fixedTiles) {
+            String[] parts = tilePosition.split("#");
+            int col = Integer.parseInt(parts[0]) - 1;
+            int row = Integer.parseInt(parts[1]) - 1;
+            char letter = parts[2].charAt(0);
+
+            ScrabbleTile fixedTile = allTiles.stream().filter(tile -> tile.letter == letter).findFirst().orElse(null);
+            scrabbleBoard.gameBoard[col][row].scrabbleTile = fixedTile;
+            scrabbleBoard.gameBoard[col][row].setSquareStateToOccupied();
+        }
+
+        for(String tilePosition: movedTiles) {
+            String[] parts = tilePosition.split("#");
+            int col = Integer.parseInt(parts[0]) - 1;
+            int row = Integer.parseInt(parts[1]) - 1;
+            char letter = parts[2].charAt(0);
+
+            ScrabbleTile movedTile = allTiles.stream().filter(tile -> tile.letter == letter).findFirst().orElse(null);
+            scrabbleBoard.gameBoard[col][row].scrabbleTile = movedTile;
+            scrabbleBoard.gameBoard[col][row].setSquareStateToOccupied();
+        }
+
+        for (int i = 0; i< scores.size(); i++) {
+            players.get(i).score = scores.get(i);
+        }
+
+        for(int i = 0; i < rackTiles.size(); i++) {
+            String rackTilesPerUser = rackTiles.get(i);
+            String[] parts = rackTilesPerUser.split("#");
+            for(String rackLetter: parts) {
+                ScrabbleTile rackTileForUser = allTiles.stream()
+                        .filter(tile -> tile.letter == rackLetter.charAt(0)).findFirst().orElse(null);
+                players.get(i).rackTiles.addLast(rackTileForUser);
+            }
+        }
+
+        for(int i = 0; i < swapTiles.size(); i++) {
+            String swapTilesPerUser = swapTiles.get(i);
+            String[] parts = swapTilesPerUser.split("#");
+            for(String swapLetter: parts) {
+                ScrabbleTile swapTileForUser = allTiles.stream()
+                        .filter(tile -> tile.letter == swapLetter.charAt(0)).findFirst().orElse(null);
+                players.get(i).swapTiles.addLast(swapTileForUser);
+            }
+        }
+    }
+
 
     Player getPlayerByUsername(String username) {
         return players.stream()
@@ -194,8 +254,13 @@ public class ScrabbleGame {
         return false;
     }
 
-    boolean isPlaceAllowed(TileWithPosition tileWithPosition) {
-        return scrabbleBoard.isPositionAllowed(tileWithPosition.column() - 1,
+    boolean isSquareFree(TileWithPosition tileWithPosition) {
+        return scrabbleBoard.isSquareFree(tileWithPosition.column() - 1,
+                tileWithPosition.row() - 1);
+    }
+
+    boolean hasNeighbour(TileWithPosition tileWithPosition) {
+        return scrabbleBoard.hasNeighbour(tileWithPosition.column() - 1,
                 tileWithPosition.row() - 1);
     }
 
@@ -209,7 +274,7 @@ public class ScrabbleGame {
     void placeTile(TileWithPosition tileWithPosition) {
         ScrabbleTile foundTile = getRackTileWithLetter(tileWithPosition.letter());
         this.currentPlayer.rackTiles.remove(foundTile);
-        scrabbleBoard.placeTile(tileWithPosition.column(), tileWithPosition.row(), foundTile);
+        scrabbleBoard.placeTile(tileWithPosition.column() - 1, tileWithPosition.row() - 1, foundTile);
         this.placedTilesForSendGameData.add(tileWithPosition);
     }
 
@@ -220,9 +285,17 @@ public class ScrabbleGame {
     }
 
     void endTurnSwap() {
+        //System.out.println("Bag Size before draw: " + this.bag.size());
         this.drawFromBag(this.currentPlayer);
+        //System.out.println("Bag Size before addAll: " + this.bag.size());
         this.bag.addAll(this.currentPlayer.swapTiles);
+        this.currentPlayer.swapTiles.clear();
+        Collections.shuffle(this.bag);
+        //System.out.println("Bag Size after addAll: " + this.bag.size());
+        // TODO prüfen ob Nix das hinkriegt
+        this.gameState = GameState.PLAY;
         this.switchCurrentPlayerToNext();
+        //System.out.println("Passcounter before reset: " + this.passCounter);
         this.passCounter = 0;
     }
 
@@ -233,6 +306,8 @@ public class ScrabbleGame {
     void endTurnPass() {
         this.passCounter++;
         this.switchCurrentPlayerToNext();
+        // TODO prüfen ob Nix das hinkriegt
+        this.gameState = GameState.PLAY;
     }
 
     void endTurnGameOver() {
@@ -266,9 +341,12 @@ public class ScrabbleGame {
     public String[] getPlacedWords() {
 
 
-        // TODO
-
-        return this.scrabbleBoard.getPlacedWords().toArray(new String[0]);
+        // TODO ints zwischenspeichern oder so oder zurück zur view geben
+        List<Word> wordList = this.scrabbleBoard.getPlacedWords();
+        return wordList.stream().map(Word::word).toList().toArray(new String[0]);
     }
 
+    public void printGameBoard(){
+        this.scrabbleBoard.printGameBoardInThePrettiestWayPossiblePlease();
+    }
 }

@@ -59,7 +59,7 @@ public abstract class ServerLogicTest {
 
     @Test
     public void createSessionSuccessful() {
-        serverLogic.setServerState(0);
+        serverLogic.setServerState();
         ReturnValues.ReturnCreateSession returnCreateSession =
                 serverConnect.createSession(null, "karl");
         assertEquals(returnCreateSession.state(), ReturnValues.ReturnCreateSessionState.SUCCESSFUL);
@@ -68,7 +68,7 @@ public abstract class ServerLogicTest {
 
     @Test
     public void createSessionFailedSessionLimitReached() {
-        serverLogic.setServerState(10);
+        serverLogic.setServerState();
         ReturnValues.ReturnCreateSession returnCreateSession =
                 serverConnect.createSession(null, "karl");
         assertEquals(returnCreateSession.state(), ReturnValues.ReturnCreateSessionState.SESSION_LIMIT_REACHED);
@@ -77,7 +77,7 @@ public abstract class ServerLogicTest {
 
     @Test
     public void startGameSuccessful() {
-        serverLogic.setServerState(10); //TODO
+        serverLogic.setServerState(); //TODO
         ReturnValues.ReturnStartGame returnStartGame = serverConnect.startGame("karl");
         assertEquals(returnStartGame, ReturnValues.ReturnStartGame.SUCCESSFUL);
         assertTrue(serverConnectCallbackTest.sendGameDataCalled);
@@ -85,7 +85,7 @@ public abstract class ServerLogicTest {
 
     @Test
     public void selectActionSuccessfulPass() {
-        serverLogic.setServerState(0); // TODO
+        serverLogic.setServerState(); // TODO
         ReturnValues.ReturnSelectAction returnSelectAction = serverConnect.selectAction(
                 ActionState.PASS, "karl"
         );
@@ -95,7 +95,7 @@ public abstract class ServerLogicTest {
 
     @Test
     public void selectActionSuccessfulPlace() {
-        serverLogic.setServerState(0); // TODO
+        serverLogic.setServerState(); // TODO
         ReturnValues.ReturnSelectAction returnSelectAction = serverConnect.selectAction(
                 ActionState.PLACE, "karl"
         );
@@ -105,7 +105,7 @@ public abstract class ServerLogicTest {
 
     @Test
     public void selectActionSuccessfulSwap() {
-        serverLogic.setServerState(0); // TODO
+        serverLogic.setServerState(); // TODO
         ReturnValues.ReturnSelectAction returnSelectAction = serverConnect.selectAction(
                 ActionState.SWAP, "karl"
         );
@@ -115,7 +115,7 @@ public abstract class ServerLogicTest {
 
     @Test
     public void placeTileSuccessful() {
-        serverLogic.setServerState(0); // TODO
+        serverLogic.setServerState(); // TODO
         ReturnValues.ReturnPlaceTile returnPlaceTile = serverConnect.placeTile(
                 new TileWithPosition('E', 5, 5), "karl"
         );
@@ -125,7 +125,7 @@ public abstract class ServerLogicTest {
 
     @Test
     public void placeSwapSuccessful() {
-        serverLogic.setServerState(0); // TODO
+        serverLogic.setServerState(); // TODO
         ReturnValues.ReturnSwapTile returnSwapTile = serverConnect.swapTile(
                'E', "karl"
         );

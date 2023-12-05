@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class ScrabbleBoard {
-    final private ScrabbleSquare[][] gameBoard = createScrabbleGameBoard();
+    final ScrabbleSquare[][] gameBoard = createScrabbleGameBoard();
 
     public ScrabbleBoard() {
         //gameBoard[1][0].placeScrabbleTile(new ScrabbleTile('A', 2));
@@ -130,11 +130,11 @@ public class ScrabbleBoard {
         return moveTiles;
     }
 
-    boolean isPositionAllowed(int column, int row) {
-        if (gameBoard[column][row].getSquareState() != SquareState.FREE) {
-            return false;
-        }
+    boolean isSquareFree(int column, int row) {
+        return gameBoard[column][row].getSquareState() == SquareState.FREE;
+    }
 
+    boolean hasNeighbour(int column, int row) {
         return getNeighbourState(column, row).contains(SquareState.MOVE) ||
                 getNeighbourState(column, row).contains(SquareState.OCCUPIED);
     }
@@ -189,27 +189,6 @@ public class ScrabbleBoard {
     }
 
     public void printGameBoardInThePrettiestWayPossiblePlease() {
-        System.out.println(Arrays.deepToString(gameBoard).replace("], ", "]\n"));
+        System.out.println(Arrays.deepToString(gameBoard).replace("], ", "]\n").replace("null", "|_/_|"));
     }
-
-
-
-
-
-
-
-    /*ScrabbleBoard(String gameString) {
-        String[] gameData = gameString.split(",");
-        gameID = Integer.parseInt(gameData[0]);
-        //language
-        //gameState
-        //bag
-        //fixedTiles
-        // movedTiles
-        // players
-        // playersScore
-        // rackTiles
-        // swapTiles
-        //TODO: CSV aufsplitten
-    }*/
 }
