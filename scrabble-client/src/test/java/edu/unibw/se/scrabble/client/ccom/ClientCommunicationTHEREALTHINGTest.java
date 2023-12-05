@@ -252,6 +252,8 @@ public abstract class ClientCommunicationTHEREALTHINGTest {
             assertEquals(ReturnValues.ReturnCreateSessionState.SUCCESSFUL, returnCreateSession.state());
             System.out.println("Session ID: " + returnCreateSession.gameID());
             assertTrue(returnCreateSession.gameID() < 100000 && returnCreateSession.gameID() > 0);
+            assertTrue(clients[0].clientConnectCallbackTest.usersInSessionCalled);
+            assertArrayEquals(clients[0].clientConnectCallbackTest.usersInSessionCalledTransferredUsernames, new String[]{"Odie"});
         }
     }
 

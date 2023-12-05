@@ -64,6 +64,8 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         mapUsernameToGameId.put(username, generatedGameId);
         mapGameIdToSession.put(generatedGameId, newSession);
 
+        this.serverConnectCallback.usersInSession(newSession.getUserUsernames().toArray(new String[0]));
+
         return new ReturnValues.ReturnCreateSession(ReturnValues.ReturnCreateSessionState.SUCCESSFUL, generatedGameId);
     }
 
