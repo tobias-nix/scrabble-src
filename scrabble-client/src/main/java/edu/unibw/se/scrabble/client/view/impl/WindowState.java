@@ -6,6 +6,5 @@ public enum WindowState {
     MAIN,
     WAIT,
     GAME,
-    STATISTICS,
-    EXIT
+    STATISTICS
 }

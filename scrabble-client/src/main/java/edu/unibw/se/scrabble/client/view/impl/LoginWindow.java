@@ -1,151 +1,149 @@
 package edu.unibw.se.scrabble.client.view.impl;
 
 import edu.unibw.se.scrabble.common.base.ReturnValues;
+import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-public class LoginWindow extends Stage{
-    private final FxView mainView;
+public class LoginWindow extends Stage {
+    private final Label heading = new Label("Scrabble");
+    private final Label nameLabel = new Label("Username");
     private final TextField nameField = new TextField();
     private final Label passwordLabel = new Label("Password");
     private final PasswordField passwordField = new PasswordField();
     private final Button loginButton = new Button("Login");
     private final Button registerButton = new Button("Register");
-    private final GridPane grid = new GridPane();
+    private final VBox vBox = new VBox();
+    private final HBox hBoxN = new HBox();
+    private final HBox hBoxP = new HBox();
+    private final HBox hBoxT = new HBox();
+    private final HBox hBoxB = new HBox();
 
     {
         setTitle("Scrabble");
-        nameField.setText("username");
-        grid.add(nameField, 1, 0, 2 ,1);
-        grid.add(passwordLabel, 0, 1);
-        grid.add(passwordField, 1, 1, 2 ,1);
-        grid.add(loginButton, 2, 2);
-        grid.add(registerButton, 3,2);
 
-        setScene(new Scene(grid));
+        hBoxN.setAlignment(Pos.CENTER);
+        hBoxN.setSpacing(10);
+
+        hBoxP.setAlignment(Pos.CENTER);
+        hBoxP.setSpacing(10);
+
+        hBoxT.setAlignment(Pos.CENTER);
+        hBoxT.setSpacing(40);
+
+        hBoxB.setAlignment(Pos.CENTER);
+        hBoxB.setSpacing(20);
+
+        vBox.setAlignment(Pos.CENTER);
+        vBox.setSpacing(30);
+
+        heading.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, 80));
+        nameLabel.setFont(Font.font("Arial", 20));
+        passwordLabel.setFont(Font.font("Arial", 20));
+
+        hBoxN.getChildren().addAll(nameLabel, nameField);
+        hBoxP.getChildren().addAll(passwordLabel, passwordField);
+        hBoxT.getChildren().addAll(hBoxN, hBoxP);
+        hBoxB.getChildren().addAll(loginButton, registerButton);
+        vBox.getChildren().addAll(heading, hBoxT, hBoxB);
+
+        setScene(new Scene(vBox));
     }
 
     public LoginWindow(FxView mainView) {
-        this.mainView = mainView;
 
-        setOnCloseRequest((event) -> {
-            mainView.setWindowState(WindowState.EXIT);
+        setOnCloseRequest(event -> {
+            close();
+            Platform.exit();
+            event.consume();
+            System.exit(0);
         });
+
         registerButton.setOnAction((event) -> {
             mainView.setWindowState(WindowState.REGISTER);
+
             close();
         });
 
         loginButton.setOnAction((event) -> {
-            ReturnValues.ReturnLoginUser result = ViewControl.clientConnect.loginUser(
-                    nameField.getText(), passwordField.getText());
+            String userName = nameField.getText();
 
-            if (result != ReturnValues.ReturnLoginUser.SUCCESSFUL) {
-                String message = switch (result) {
-                    case USERNAME_NOT_IN_DATABASE -> "Please register first";
-                    case WRONG_PASSWORD -> "Wrong password!";
-                    case INVALID_PASSWORD -> "To many users are logged in, please try later.";
-                    case NETWORK_FAILURE, DATABASE_FAILURE, FAILURE -> "Server problem, please call the support.";
-                    default -> "Unknown error, please call the support";
-                };
+            String message = validateUsername(userName);
 
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Message from chat");
-                alert.setHeaderText(null);
-                alert.setContentText(message);
-                alert.initStyle(StageStyle.UTILITY);
-                alert.showAndWait();
-
+            if (message != null) {
+                showAlert(message);
             } else {
-                mainView.setWindowState(WindowState.MAIN);
-                close();
+                String password = passwordField.getText();
+                message = validatePassword(password);
+                if (message != null) {
+                    showAlert(message);
+                } else {
+                    ReturnValues.ReturnLoginUser result = ViewControl.clientConnect.loginUser(userName, password);
+                    if (result != ReturnValues.ReturnLoginUser.SUCCESSFUL) {
+                        message = getErrorMessageFromServer(result);
+                        showAlert(message);
+                    } else {
+                        mainView.setUsername(userName);
+                        mainView.setWindowState(WindowState.MAIN);
+                        close();
+                    }
+                }
             }
         });
     }
 
-
-/*
-    @Override
-    public void show() {
-        /*
-        Stage stage = new Stage();
-
-        // Set up the title label
-        titleLabel.setFont(new Font("Arial", 24));
-        GridPane.setHalignment(titleLabel, HPos.CENTER);
-
-        // Set up the grid
-        grid.setPadding(new Insets(20, 20, 20, 20));
-        grid.setVgap(10);
-        grid.setHgap(10);
-
-        // Add components to the grid
-        grid.add(titleLabel, 0, 0, 2, 1);
-        grid.add(nameLabel, 0, 1);
-        grid.add(nameField, 1, 1);
-        grid.add(passwordLabel, 0, 2);
-        grid.add(passwordField, 1, 2);
-        grid.add(loginButton, 0, 3);
-        grid.add(registerButton, 1, 3);
-
-        // Set up event handlers
-        loginButton.setOnAction(event -> handleLogin());
-        registerButton.setOnAction(event -> handleRegister());
-
-        // Set up the stage
-        stage.setTitle("Login");
-        stage.setScene(new Scene(grid));
-        stage.show();
-    }
-
-    @Override
-    public void hide() {
-        // Optional: Implement cleanup or hide logic
-    }
-
-    @Override
-    public void onCloseRequest() {
-        // Optional: Implement logic to handle window close event
-    }
-
-    private void handleLogin() {
-        // Perform login logic using ChatLogic
-        ChatLogic.LoginUserReturn result = JavaFXViewControl.chatLogic.loginUser(
-                nameField.getText(),
-                Password.hashAndClearPassword(nameField.getText(), passwordField.getText().toCharArray())
-        );
-
-        handleLoginResult(result);
-    }
-
-    private void handleRegister() {
-        // Switch to the Register state
-        mainView.switchToWindowState(WindowState.REGISTER);
-    }
-
-    private void handleLoginResult(ReturnValues.ReturnLoginUser result) {
-        if (result != ReturnValues.ReturnLoginUser.SUCCESSFUL) {
-            String message = switch (result) {
-                case NETWORK_FAILURE -> "N";
-                case DATABASE_FAILURE -> "D";
-                case USERNAME_NOT_IN_DATABASE -> "U";
-                case WRONG_PASSWORD -> "W";
-                case INVALID_USERNAME, INVALID_PASSWORD, FAILURE -> "I";
-                default -> "NO";
-            };
-
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Message");
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.initStyle(StageStyle.UTILITY);
-            alert.showAndWait();
+    private String validateUsername(String userName) {
+        if (userName.length() < 4) {
+            return "Username too short";
+        } else if (userName.length() > 15) {
+            return "Username too long";
+        } else if (!userName.matches("[a-zA-Z0-9_]+")) {
+            return "Invalid characters in username";
         } else {
-            // Switch to the Game state
-            mainView.switchToWindowState(WindowState.MAIN);
+            return null;
         }
-    }*/
+    }
+
+    private String validatePassword(String password) {
+        if (password.length() < 8) {
+            return "Password too short";
+        } else if (password.length() > 20) {
+            return "Password too long";
+        } else if (!password.matches("[a-zA-Z0-9?!$%&/()*]+")) {
+            return "Invalid characters in password";
+        } else {
+            return null;
+        }
+    }
+
+    private String getErrorMessageFromServer(ReturnValues.ReturnLoginUser result) {
+        return switch (result) {
+            case USERNAME_NOT_IN_DATABASE -> "USERNAME_NOT_IN_DATABASE: Please register first";
+            case WRONG_PASSWORD -> "WRONG_PASSWORD: Wrong password!";
+            case INVALID_USERNAME -> "INVALID_USERNAME: Please take a look at the username regulations";
+            case INVALID_PASSWORD -> "INVALID_PASSWORD: Please take a look at the password regulations";
+            case NETWORK_FAILURE, DATABASE_FAILURE, FAILURE ->
+                    "NETWORK_FAILURE, DATABASE_FAILURE, FAILURE: Server problem, please call support.";
+            default -> "DEFAULT: Unknown error, please call support";
+        };
+    }
+
+    private void showAlert(String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Login information");
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.initStyle(StageStyle.UTILITY);
+        alert.showAndWait();
+    }
 }
