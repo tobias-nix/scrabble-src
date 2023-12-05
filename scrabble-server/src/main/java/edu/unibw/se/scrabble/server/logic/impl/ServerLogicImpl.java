@@ -161,6 +161,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
 
     @Override
     public ReturnValues.ReturnPlaceTile placeTile(TileWithPosition tileWithPosition, String username) {
+        // TODO erstes Place muss aufs sternfeld gehen.
         if (username == null || tileWithPosition == null || !this.mapUsernameToGameId.containsKey(username)) {
             return ReturnValues.ReturnPlaceTile.FAILURE;
         }

@@ -3,10 +3,10 @@ package edu.unibw.se.scrabble.server.logic.impl;
 import edu.unibw.se.scrabble.common.base.SquareState;
 
 class ScrabbleSquare {
-    private SquareState squareState;
-    private final int wordFactor;
-    private final int letterFactor;
-    private ScrabbleTile scrabbleTile;
+    SquareState squareState;
+    final int wordFactor;
+    final int letterFactor;
+    ScrabbleTile scrabbleTile;
 
     ScrabbleSquare(int wordFactor, int letterFactor) {
         this.wordFactor = wordFactor;
@@ -43,5 +43,8 @@ class ScrabbleSquare {
     @Override
     public String toString() {
         return wordFactor + "#" + letterFactor + "#" + scrabbleTile;
+    }
+    char getLetter() {
+        return this.scrabbleTile.letter;
     }
 }

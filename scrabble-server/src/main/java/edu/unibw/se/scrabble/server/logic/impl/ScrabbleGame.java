@@ -264,13 +264,11 @@ public class ScrabbleGame {
     }
 
     public String[] getPlacedWords() {
-        List<String> placedWords = new ArrayList<>();
-
 
 
         // TODO
 
-        return placedWords.toArray(new String[0]);
+        return this.scrabbleBoard.getPlacedWords().toArray(new String[0]);
     }
 
 }

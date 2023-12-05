@@ -19,6 +19,104 @@ public class ScrabbleBoard {
 
     }
 
+    List<Word> getPlacedWords() {
+        ArrayList<Word> placedWords = new ArrayList<>();
+        WordDirection wordDirection = null;
+
+        ArrayList<int[]> moveTilePositions = new ArrayList<>();
+
+        for (int row = 0; row < 15; row++) {
+            for (int col = 0; col < 15; col++) {
+                if (this.gameBoard[col][row].getSquareState().equals(SquareState.MOVE)) {
+                    moveTilePositions.add(new int[]{col, row});
+                }
+            }
+        }
+        wordDirection = this.getWordDirection(moveTilePositions);
+
+        int[] positionOfFirstLetter = this.searchForFirstLetterOfWord(moveTilePositions.get(0), wordDirection);
+        Word placedWord = constructPlacedWord(positionOfFirstLetter, wordDirection);
+        placedWords.add(placedWord);
+
+        wordDirection = wordDirection.equals(WordDirection.DOWN) ? WordDirection.RIGHT : WordDirection.DOWN;
+
+        WordDirection finalWordDirection = wordDirection;
+        moveTilePositions.forEach(position -> {
+            int[] positionOfFirstLetterForOtherTiles = this.searchForFirstLetterOfWord(moveTilePositions.get(0), finalWordDirection);
+            Word placedWordForOtherTiles = constructPlacedWord(positionOfFirstLetterForOtherTiles, finalWordDirection);
+            placedWords.add(placedWordForOtherTiles);
+        });
+        return placedWords;
+    }
+
+    private WordDirection getWordDirection(List<int[]> moveTilePositions) {
+        if (moveTilePositions.size() == 1) {
+            int firstMoveTileCol = moveTilePositions.get(0)[0];
+            int firstMoveTileRow = moveTilePositions.get(0)[1];
+
+            if (hasOccupiedSquare(firstMoveTileCol, firstMoveTileRow - 1) || hasOccupiedSquare(firstMoveTileCol, firstMoveTileRow + 1)) {
+                return WordDirection.DOWN;
+            } else if (hasOccupiedSquare(firstMoveTileCol - 1, firstMoveTileRow) || hasOccupiedSquare(firstMoveTileCol + 1, firstMoveTileRow)) {
+                return WordDirection.RIGHT;
+            }
+        } else if (moveTilePositions.get(0)[0] == moveTilePositions.get(1)[0]) {
+            return WordDirection.DOWN;
+        }
+
+        return WordDirection.RIGHT;
+    }
+
+    private boolean hasOccupiedSquare(int col, int row) {
+        return col >= 0 && col < 15 && row >= 0 && row < 15 &&
+                this.gameBoard[col][row].getSquareState().equals(SquareState.OCCUPIED);
+    }
+
+
+    private enum WordDirection {
+        DOWN, RIGHT
+    }
+
+    private int[] searchForFirstLetterOfWord(int[] positionOfFirstTile, WordDirection wordDirection) {
+        if (wordDirection.equals(WordDirection.DOWN)) {
+            while (positionOfFirstTile[1] != 0 &&
+                    !this.gameBoard[positionOfFirstTile[0]][positionOfFirstTile[1] - 1].getSquareState().equals(SquareState.FREE)) {
+                positionOfFirstTile[1] = positionOfFirstTile[1] - 1;
+            }
+        } else {
+            while (positionOfFirstTile[0] != 0 &&
+                    !this.gameBoard[positionOfFirstTile[1] - 1][positionOfFirstTile[1]].getSquareState().equals(SquareState.FREE)) {
+                positionOfFirstTile[0] = positionOfFirstTile[0] - 1;
+            }
+        }
+        return positionOfFirstTile;
+    }
+
+    private Word constructPlacedWord(int[] positionOfFirstTile, WordDirection wordDirection) {
+        StringBuilder placedWord = new StringBuilder();
+        int wordFactor = 1;
+        int wordScore = 0;
+        if (wordDirection.equals(WordDirection.DOWN)) {
+            while (positionOfFirstTile[1] != 14 &&
+                    !this.gameBoard[positionOfFirstTile[0]][positionOfFirstTile[1] + 1].getSquareState().equals(SquareState.FREE)) {
+                positionOfFirstTile[1] = positionOfFirstTile[1] + 1;
+                ScrabbleSquare scrabbleSquare = this.gameBoard[positionOfFirstTile[0]][positionOfFirstTile[1]];
+                placedWord.append(scrabbleSquare.scrabbleTile.letter);
+                wordScore += scrabbleSquare.scrabbleTile.value * scrabbleSquare.letterFactor;
+                wordFactor *= scrabbleSquare.wordFactor;
+            }
+        } else {
+            while (positionOfFirstTile[0] != 14 &&
+                    !this.gameBoard[positionOfFirstTile[0] + 1][positionOfFirstTile[1]].getSquareState().equals(SquareState.FREE)) {
+                positionOfFirstTile[0] = positionOfFirstTile[0] + 1;
+                ScrabbleSquare scrabbleSquare = this.gameBoard[positionOfFirstTile[0]][positionOfFirstTile[1]];
+                placedWord.append(scrabbleSquare.scrabbleTile.letter);
+                wordScore += scrabbleSquare.scrabbleTile.value * scrabbleSquare.letterFactor;
+                wordFactor *= scrabbleSquare.wordFactor;
+            }
+        }
+        return new Word(placedWord.toString(), wordScore * wordFactor);
+    }
+
     List<ScrabbleTile> returnMoveTiles() {
         List<ScrabbleTile> moveTiles = new ArrayList<>();
         for (ScrabbleSquare[] scrabbleSquares : gameBoard) {
