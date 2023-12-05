@@ -1,29 +1,50 @@
 package edu.unibw.se.scrabble.client.view.impl;
 
-import edu.unibw.se.scrabble.client.view.View;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 
 public class FxView extends Application {
     private final WindowFactory windowFactory = new WindowFactory();
     private Stage currentView;
     private WindowState windowState = WindowState.LOGIN;
+    private String username;
+    private int gameId;
 
     @Override
-    public void start(Stage stage) throws Exception {
-        currentView = windowFactory.createWindow(windowState, this);
-        currentView.showAndWait();
-        //setWindowState(WindowState.LOGIN);
-        //stage.setTitle("Scrabble");
-
-        stage.show();
+    public void start(Stage stage) {
+        setWindowState(windowState);
     }
 
-    public void setWindowState(WindowState windowState){
+    public void setWindowState(WindowState windowState) {
         this.windowState = windowState;
+
+        currentView = windowFactory.createWindow(windowState, this);
+        currentView.setMaximized(true);
+
+        currentView.setOnCloseRequest(event -> {
+            currentView.close();
+            Platform.exit();
+            event.consume();
+            System.exit(0);
+        });
+
+        currentView.show();
     }
 
-    public void switchToWindowState(WindowState state) throws Exception {
-        setWindowState(state);
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public int getGameId() {
+        return gameId;
+    }
+
+    public void setGameId(int gameId) {
+        this.gameId = gameId;
     }
 }
