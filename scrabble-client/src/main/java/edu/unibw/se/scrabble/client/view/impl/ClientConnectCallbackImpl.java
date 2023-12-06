@@ -6,6 +6,8 @@ import edu.unibw.se.scrabble.client.view.impl.FxView;
 import edu.unibw.se.scrabble.client.view.impl.WindowState;
 import edu.unibw.se.scrabble.common.base.GameData;
 
+import java.util.Arrays;
+
 public class ClientConnectCallbackImpl implements ClientConnectCallback {
 
     private FxView view;
@@ -16,7 +18,8 @@ public class ClientConnectCallbackImpl implements ClientConnectCallback {
 
     @Override
     public void usersInSession(String[] usernames) {
-        ViewControl.usernames = usernames;
+        System.out.println("usernames: "+ Arrays.toString(usernames));
+        ViewControl.setUsername(usernames);
         view.setWindowState(WindowState.WAIT); //TODO: Callback
     }
 

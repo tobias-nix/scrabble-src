@@ -2,6 +2,7 @@ package edu.unibw.se.scrabble.client.view.impl;
 
 import edu.unibw.se.scrabble.common.base.ReturnValues;
 import javafx.application.Platform;
+import javafx.beans.property.StringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -54,8 +55,12 @@ public class WaitWindow extends Stage {
         gameId.setText("GameID: " + mainView.getGameId());
 
         //TODO: Callback, usersInSession
+        System.out.println(Arrays.toString(ViewControl.getUsername()));
+        String[] usersAsArray = ViewControl.getUsername();
         Label playerA = new Label();
-        playerA.setText(Arrays.toString(ViewControl.usernames));
+
+        playerA.setText(usersAsArray[0]);
+        vBox2.getChildren().addAll(playerA);
 
         setOnCloseRequest(event -> {
             close();

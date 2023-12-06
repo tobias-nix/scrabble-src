@@ -37,7 +37,7 @@ public class ScrabbleServerApp {
 
         serverLogic.setScrabbleData(springDatabase.getScrabbleData());
 
-        springDatabase.clear();
+        //springDatabase.clear();
 
 
         try {
