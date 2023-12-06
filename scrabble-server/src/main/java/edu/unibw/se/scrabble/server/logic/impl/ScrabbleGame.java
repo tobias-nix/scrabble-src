@@ -346,6 +346,11 @@ public class ScrabbleGame {
         return wordList.stream().map(Word::word).toList().toArray(new String[0]);
     }
 
+    boolean checkPlacedWords(){
+        //TODO
+        return true;
+    }
+
     public void printGameBoard(){
         this.scrabbleBoard.printGameBoardInThePrettiestWayPossiblePlease();
     }

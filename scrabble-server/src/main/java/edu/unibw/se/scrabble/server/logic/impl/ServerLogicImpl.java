@@ -261,15 +261,11 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
                 this.sendGameData(session);
                 return ReturnValues.ReturnEndTurn.SUCCESSFUL;
             case PLACE:
-                // TODO eventuell müssen wir das eh an alle schicken
-                /*session.getUserUsernames().forEach(player ->
-                        serverConnectCallback.vote(player, scrabbleGame.getPlacedWords())
-                ); // NOTFALLS DAS HIER da wirds an alle geschickt */
                 session.getUserUsernames().stream()
                         .filter(player -> !player.equals(scrabbleGame.getCurrentPlayerUsername()))
                         .forEach(player ->
-                        serverConnectCallback.vote(player, scrabbleGame.getPlacedWords())
-                );
+                                serverConnectCallback.vote(player, scrabbleGame.getPlacedWords())
+                        );
                 scrabbleGame.endTurnPlace();
                 return ReturnValues.ReturnEndTurn.SUCCESSFUL;
             case PASS:
@@ -299,6 +295,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         return ReturnValues.ReturnEndTurn.FAILURE;
     }
 
+
     @Override
     public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote, String username) {
         if (playerVote == null) {
@@ -314,22 +311,24 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         scrabbleGame.setPlayerState(playerVote, username);
 
 
-
         // TODO Wie sollen wir das vote system umsetzten, wenn 4 Leute gleichzeitig was vom Server wollen?
-        while (!scrabbleGame.getPlayerStates().contains(PlayerState.NOT_VOTED)) {
-            try {
-                wait(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace(System.err);
-                throw new RuntimeException(e);
-            }
+        if (!scrabbleGame.getPlayerStates().contains(PlayerState.REJECTED)) {
+            //boolean checkPlacedWord();
         }
 
 
+        if (!scrabbleGame.getPlayerStates().contains(PlayerState.NOT_VOTED)) {
+            this.sendGameData(getSessionWithUsername(username));
+            return ReturnValues.ReturnSendPlayerVote.SUCCESSFUL;
+        }
+        if (!scrabbleGame.getPlayerStates().contains(PlayerState.REJECTED)) {
+            // sendGameData
 
-
-        // Alle player wieder auf not voted setzen
-        return null;
+            // else überprüfung
+            // Alle player wieder auf not voted setzen
+            return null;
+        }
+        return ReturnValues.ReturnSendPlayerVote.SUCCESSFUL;
     }
 
     @Override
@@ -399,7 +398,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
                 List<String> swapTiles = parts[7].isEmpty() ? new ArrayList<>() : Arrays.asList(parts[7].split(";"));
 
                 Session session = this.mapGameIdToSession.get(gameId);
-                session.scrabbleGame = new ScrabbleGame(session.users, session.languageSetting,gameState, bag, fixedTiles, movedTiles, scores, rackTiles, swapTiles);
+                session.scrabbleGame = new ScrabbleGame(session.users, session.languageSetting, gameState, bag, fixedTiles, movedTiles, scores, rackTiles, swapTiles);
 
                 sendGameData(session);
             }

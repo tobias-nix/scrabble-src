@@ -189,6 +189,6 @@ public class ScrabbleBoard {
     }
 
     public void printGameBoardInThePrettiestWayPossiblePlease() {
-        System.out.println(Arrays.deepToString(gameBoard).replace("], ", "]\n").replace("null", "|_/_|"));
+        System.out.println(Arrays.deepToString(gameBoard).replace("], ", "]\n").replace("null", "|_/_|").replace("[[" , "\n[").replace("]]","]\n"));
     }
 }
