@@ -19,7 +19,7 @@ public class ScrabbleBoard {
 
     }
 
-    List<Word> getPlacedWords() {
+    ArrayList<Word> getPlacedWords() {
         ArrayList<Word> placedWords = new ArrayList<>();
         WordDirection wordDirection = null;
 

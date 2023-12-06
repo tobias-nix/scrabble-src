@@ -16,6 +16,7 @@ public class ScrabbleGame {
     private final ArrayList<TileWithPosition> placedTilesForSendGameData = new ArrayList<>();
     private final ScrabbleBoard scrabbleBoard = new ScrabbleBoard();
     private int passCounter = 0;
+    private ArrayList<Word> placedWordsInThisTurn = new ArrayList<>();
 
     static class Player {
         String username;
@@ -52,7 +53,7 @@ public class ScrabbleGame {
             this.bag.addLast(allTiles.stream().filter(tile -> tile.letter == bagLetter.charAt(0)).findFirst().orElse(null));
         });
 
-        for(String tilePosition: fixedTiles) {
+        for (String tilePosition : fixedTiles) {
             String[] parts = tilePosition.split("#");
             int col = Integer.parseInt(parts[0]) - 1;
             int row = Integer.parseInt(parts[1]) - 1;
@@ -63,7 +64,7 @@ public class ScrabbleGame {
             scrabbleBoard.gameBoard[col][row].setSquareStateToOccupied();
         }
 
-        for(String tilePosition: movedTiles) {
+        for (String tilePosition : movedTiles) {
             String[] parts = tilePosition.split("#");
             int col = Integer.parseInt(parts[0]) - 1;
             int row = Integer.parseInt(parts[1]) - 1;
@@ -74,24 +75,24 @@ public class ScrabbleGame {
             scrabbleBoard.gameBoard[col][row].setSquareStateToOccupied();
         }
 
-        for (int i = 0; i< scores.size(); i++) {
+        for (int i = 0; i < scores.size(); i++) {
             players.get(i).score = scores.get(i);
         }
 
-        for(int i = 0; i < rackTiles.size(); i++) {
+        for (int i = 0; i < rackTiles.size(); i++) {
             String rackTilesPerUser = rackTiles.get(i);
             String[] parts = rackTilesPerUser.split("#");
-            for(String rackLetter: parts) {
+            for (String rackLetter : parts) {
                 ScrabbleTile rackTileForUser = allTiles.stream()
                         .filter(tile -> tile.letter == rackLetter.charAt(0)).findFirst().orElse(null);
                 players.get(i).rackTiles.addLast(rackTileForUser);
             }
         }
 
-        for(int i = 0; i < swapTiles.size(); i++) {
+        for (int i = 0; i < swapTiles.size(); i++) {
             String swapTilesPerUser = swapTiles.get(i);
             String[] parts = swapTilesPerUser.split("#");
-            for(String swapLetter: parts) {
+            for (String swapLetter : parts) {
                 ScrabbleTile swapTileForUser = allTiles.stream()
                         .filter(tile -> tile.letter == swapLetter.charAt(0)).findFirst().orElse(null);
                 players.get(i).swapTiles.addLast(swapTileForUser);
@@ -292,7 +293,6 @@ public class ScrabbleGame {
         this.currentPlayer.swapTiles.clear();
         Collections.shuffle(this.bag);
         //System.out.println("Bag Size after addAll: " + this.bag.size());
-        // TODO prüfen ob Nix das hinkriegt
         this.gameState = GameState.PLAY;
         this.switchCurrentPlayerToNext();
         //System.out.println("Passcounter before reset: " + this.passCounter);
@@ -301,12 +301,12 @@ public class ScrabbleGame {
 
     void endTurnPlace() {
         this.gameState = GameState.VOTE;
+        this.placedWordsInThisTurn = this.scrabbleBoard.getPlacedWords();
     }
 
     void endTurnPass() {
         this.passCounter++;
         this.switchCurrentPlayerToNext();
-        // TODO prüfen ob Nix das hinkriegt
         this.gameState = GameState.PLAY;
     }
 
@@ -338,20 +338,26 @@ public class ScrabbleGame {
         }
     }
 
-    public String[] getPlacedWords() {
-
-
-        // TODO ints zwischenspeichern oder so oder zurück zur view geben
-        List<Word> wordList = this.scrabbleBoard.getPlacedWords();
-        return wordList.stream().map(Word::word).toList().toArray(new String[0]);
+    public ArrayList<String> getPlacedWords() {
+        return new ArrayList<>(this.placedWordsInThisTurn.stream().map(Word::word).toList());
     }
 
-    boolean checkPlacedWords(){
-        //TODO
-        return true;
+    void endVotePlacedWordsOk() {
+        // implementieren was passiert, wenn wort ok ist.
+        // tiles auf placed setzen, punkte zählen und abziehen, next player, gamestate, nachziehen
+        // Zusammenfassen mit alle haben bestätigt
+
+
+        this.placedWordsInThisTurn.clear();
     }
 
-    public void printGameBoard(){
+    void endVotePlacedWordsNotOk() {
+        //implementieren was passiert, wenn wort nicht ok ist
+        // tiles zurück, next player, gamestate
+
+    }
+
+    public void printGameBoard() {
         this.scrabbleBoard.printGameBoardInThePrettiestWayPossiblePlease();
     }
 }

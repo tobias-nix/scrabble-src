@@ -17,6 +17,37 @@ import java.util.*;
 public class ServerLogicImpl implements ServerLogic, ServerConnect {
     private ScrabbleData scrabbleData = null;
     private ServerConnectCallback serverConnectCallback = null;
+    HashMap<LanguageSetting, HashSet<String>> allDictionaries;
+
+    public ServerLogicImpl() {
+        this.allDictionaries = createDictionaries();
+    }
+
+    private HashMap<LanguageSetting, HashSet<String>> createDictionaries() {
+        HashMap<LanguageSetting, HashSet<String>> allDictionaries = new HashMap<>();
+        for(LanguageSetting language : LanguageSetting.values()) {
+            HashSet<String> newHashSetDict = new HashSet<>();
+            Path dictPath;
+            try {
+                dictPath = Paths.get(Objects.requireNonNull(Sandbox.class.getResource("/" + language.toString().toLowerCase() +"_dict.txt")).toURI()).toAbsolutePath();
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+
+            try (BufferedReader reader = Files.newBufferedReader(dictPath)) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Convert each line to uppercase and add to the HashSet
+                    newHashSetDict.add(line.trim().toUpperCase());
+                }
+            } catch (IOException e) {
+                e.printStackTrace(System.err);
+                throw new RuntimeException();
+            }
+            allDictionaries.put(language, newHashSetDict);
+        }
+        return allDictionaries;
+    }
 
     @Override
     public ServerConnect getServerConnect() {
@@ -264,7 +295,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
                 session.getUserUsernames().stream()
                         .filter(player -> !player.equals(scrabbleGame.getCurrentPlayerUsername()))
                         .forEach(player ->
-                                serverConnectCallback.vote(player, scrabbleGame.getPlacedWords())
+                                serverConnectCallback.vote(player, scrabbleGame.getPlacedWords().toArray(String[]::new))
                         );
                 scrabbleGame.endTurnPlace();
                 return ReturnValues.ReturnEndTurn.SUCCESSFUL;
@@ -295,14 +326,14 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         return ReturnValues.ReturnEndTurn.FAILURE;
     }
 
-
     @Override
     public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote, String username) {
         if (playerVote == null) {
             return ReturnValues.ReturnSendPlayerVote.FAILURE;
         }
 
-        ScrabbleGame scrabbleGame = getSessionWithUsername(username).getScrabbleGame();
+        Session session = getSessionWithUsername(username);
+        ScrabbleGame scrabbleGame = session.getScrabbleGame();
 
         if (scrabbleGame.getGameState() != GameState.VOTE) {
             return ReturnValues.ReturnSendPlayerVote.FAILURE;
@@ -311,24 +342,29 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         scrabbleGame.setPlayerState(playerVote, username);
 
 
-        // TODO Wie sollen wir das vote system umsetzten, wenn 4 Leute gleichzeitig was vom Server wollen?
-        if (!scrabbleGame.getPlayerStates().contains(PlayerState.REJECTED)) {
-            //boolean checkPlacedWord();
+        if (scrabbleGame.getPlayerStates().contains(PlayerState.REJECTED)) {
+            if(this.checkPlacedWords(session)) {
+                scrabbleGame.endVotePlacedWordsOk();
+            } else {
+                scrabbleGame.endVotePlacedWordsNotOk();
+            }
+            this.sendGameData(session);
+            return ReturnValues.ReturnSendPlayerVote.SUCCESSFUL;
         }
 
 
         if (!scrabbleGame.getPlayerStates().contains(PlayerState.NOT_VOTED)) {
-            this.sendGameData(getSessionWithUsername(username));
+            this.sendGameData(session);
             return ReturnValues.ReturnSendPlayerVote.SUCCESSFUL;
         }
-        if (!scrabbleGame.getPlayerStates().contains(PlayerState.REJECTED)) {
-            // sendGameData
 
-            // else überprüfung
-            // Alle player wieder auf not voted setzen
-            return null;
-        }
+        scrabbleGame.endVotePlacedWordsOk();
+
         return ReturnValues.ReturnSendPlayerVote.SUCCESSFUL;
+    }
+
+    boolean checkPlacedWords(Session session) {
+        return this.allDictionaries.get(session.languageSetting).containsAll(session.getScrabbleGame().getPlacedWords());
     }
 
     @Override
