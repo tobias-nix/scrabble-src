@@ -62,7 +62,7 @@ public class LoginWindow extends Stage {
 
     public LoginWindow(FxView mainView) {
 
-        setOnCloseRequest(event -> {
+        setOnCloseRequest(event -> { //weg
             close();
             Platform.exit();
             event.consume();

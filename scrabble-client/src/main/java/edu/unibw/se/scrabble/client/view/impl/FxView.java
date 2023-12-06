@@ -14,6 +14,7 @@ public class FxView extends Application {
     @Override
     public void start(Stage stage) {
         setWindowState(windowState);
+        ViewControl.cccI.setView(this);
     }
 
     public void setWindowState(WindowState windowState) {

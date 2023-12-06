@@ -6,10 +6,15 @@ import javafx.application.Application;
 
 public class ViewControl implements View {
     static ClientConnect clientConnect = null;
+    static ClientConnectCallbackImpl cccI = null;
+    static String[] usernames = null;
 
     @Override
     public void setClientConnect(ClientConnect clientConnect) {
         ViewControl.clientConnect = clientConnect;
+        cccI = new ClientConnectCallbackImpl();
+
+        ViewControl.clientConnect.setClientConnectCallback(cccI);
     }
 
     @Override

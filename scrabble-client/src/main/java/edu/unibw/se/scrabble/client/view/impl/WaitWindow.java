@@ -17,6 +17,8 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.util.Arrays;
+
 public class WaitWindow extends Stage {
     private final Label heading = new Label("Scrabble");
     private final Label waitLabel = new Label("Waiting for Players ...");
@@ -51,9 +53,11 @@ public class WaitWindow extends Stage {
 
         gameId.setText("GameID: " + mainView.getGameId());
 
+
+
         //TODO: Callback, usersInSession
-        //Label playerA = new Label();
-        //playerA.setText(mainView.);
+        Label playerA = new Label();
+        playerA.setText(Arrays.toString(ViewControl.usernames));
 
         setOnCloseRequest(event -> {
             close();

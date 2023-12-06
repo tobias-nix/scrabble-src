@@ -1,4 +1,4 @@
-package edu.unibw.se.scrabble.client.ccom.impl;
+package edu.unibw.se.scrabble.client.view.impl;
 
 import edu.unibw.se.scrabble.client.ccom.ClientConnectCallback;
 import edu.unibw.se.scrabble.client.view.View;
@@ -8,13 +8,15 @@ import edu.unibw.se.scrabble.common.base.GameData;
 
 public class ClientConnectCallbackImpl implements ClientConnectCallback {
 
-    private final FxView view;
+    private FxView view;
 
-    protected ClientConnectCallbackImpl (FxView view) {
+    public void setView(FxView view) {
         this.view = view;
     }
+
     @Override
     public void usersInSession(String[] usernames) {
+        ViewControl.usernames = usernames;
         view.setWindowState(WindowState.WAIT); //TODO: Callback
     }
 
