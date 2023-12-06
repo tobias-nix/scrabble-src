@@ -61,7 +61,7 @@ public abstract class ClientCommunicationFillTest {
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
             ReturnValues.ReturnPlaceTile returnPlaceTile =
-                    clientList.getFirst().clientCommunication.getClientConnect().placeTile(new TileWithPosition('N', 9, 12));
+                    clientList.getFirst().clientCommunication.getClientConnect().placeTile(new TileWithPosition('N', 12, 9));
             assertEquals(ReturnValues.ReturnPlaceTile.SUCCESSFUL, returnPlaceTile);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
@@ -84,7 +84,7 @@ public abstract class ClientCommunicationFillTest {
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
             ReturnValues.ReturnPlaceTile returnPlaceTile =
-                    clientList.getFirst().clientCommunication.getClientConnect().placeTile(new TileWithPosition('N', 9, 12));
+                    clientList.getFirst().clientCommunication.getClientConnect().placeTile(new TileWithPosition('N', 12, 9));
             assertEquals(ReturnValues.ReturnPlaceTile.SUCCESSFUL, returnPlaceTile);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
@@ -97,7 +97,7 @@ public abstract class ClientCommunicationFillTest {
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
             ReturnValues.ReturnPlaceTile returnPlaceTile =
-                    clientList.getFirst().clientCommunication.getClientConnect().placeTile(new TileWithPosition('N', 9, 13));
+                    clientList.getFirst().clientCommunication.getClientConnect().placeTile(new TileWithPosition('N', 13, 9));
             assertEquals(ReturnValues.ReturnPlaceTile.POSITION_NOT_ALLOWED, returnPlaceTile);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
@@ -123,7 +123,7 @@ public abstract class ClientCommunicationFillTest {
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
             ReturnValues.ReturnPlaceTile returnPlaceTile =
-                    clientList.getFirst().clientCommunication.getClientConnect().placeTile(new TileWithPosition('I', 8, 12));
+                    clientList.getFirst().clientCommunication.getClientConnect().placeTile(new TileWithPosition('I', 12, 8));
             assertEquals(ReturnValues.ReturnPlaceTile.TILE_NOT_ON_RACK, returnPlaceTile);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
@@ -266,7 +266,45 @@ public abstract class ClientCommunicationFillTest {
         }
 
         @Test
-        public void endTurnSuccessPlace() {
+        public void endTurnSuccessPlaceReich() {
+            ArrayList<Client> clientList = setUpClientList();
+
+            checkIfSendGameDataWasCalledAndPrint(clientList);
+
+            for (int i = 0; i < 2; i++) {
+                ReturnValues.ReturnSelectAction returnSelectAction =
+                        clientList.get(i).clientCommunication.getClientConnect().selectAction(ActionState.PASS);
+                assertEquals(ReturnValues.ReturnSelectAction.SUCCESSFUL, returnSelectAction);
+                ReturnValues.ReturnEndTurn returnEndTurn =
+                        clientList.get(i).clientCommunication.getClientConnect().endTurn();
+                assertEquals(ReturnValues.ReturnEndTurn.SUCCESSFUL, returnEndTurn);
+            }
+
+            checkIfSendGameDataWasCalledAndPrint(clientList);
+
+            ReturnValues.ReturnSelectAction returnSelectAction =
+                    clientList.get(2).clientCommunication.getClientConnect().selectAction(ActionState.PLACE);
+            assertEquals(ReturnValues.ReturnSelectAction.SUCCESSFUL, returnSelectAction);
+            char[] placeLetters = "ER".toCharArray();
+            for (int i = 0; i < placeLetters.length; i++) {
+                ReturnValues.ReturnPlaceTile returnPlaceTile =
+                        clientList.get(2).clientCommunication.getClientConnect().placeTile(new TileWithPosition(placeLetters[i], 8, 6 - i));
+                assertEquals(ReturnValues.ReturnPlaceTile.SUCCESSFUL, returnPlaceTile, "Place Tile");
+
+                checkIfSendGameDataWasCalledAndPrint(clientList);
+            }
+
+            ReturnValues.ReturnEndTurn returnEndTurn =
+                    clientList.get(2).clientCommunication.getClientConnect().endTurn();
+            assertEquals(ReturnValues.ReturnEndTurn.SUCCESSFUL, returnEndTurn, "End Turn");
+
+            checkIfSendGameDataWasCalledAndPrint(clientList);
+            assertTrue(clientList.get(0).clientConnectCallbackTest.voteCalled, "vote called");
+            assertArrayEquals(new String[]{"REICH"}, clientList.get(0).clientConnectCallbackTest.voteTransferredPlacedWords, "voteTransferredPlacedWords");
+        }
+
+        @Test
+        public void endTurnSuccessPlaceReichliche() {
             ArrayList<Client> clientList = setUpClientList();
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
@@ -283,10 +321,22 @@ public abstract class ClientCommunicationFillTest {
             ReturnValues.ReturnSelectAction returnSelectAction =
                     clientList.get(2).clientCommunication.getClientConnect().selectAction(ActionState.PLACE);
             assertEquals(ReturnValues.ReturnSelectAction.SUCCESSFUL, returnSelectAction);
+
+            checkIfSendGameDataWasCalledAndPrint(clientList);
+
             char[] placeLetters = "ER".toCharArray();
             for (int i = 0; i < placeLetters.length; i++) {
                 ReturnValues.ReturnPlaceTile returnPlaceTile =
-                        clientList.get(2).clientCommunication.getClientConnect().placeTile(new TileWithPosition(placeLetters[i], 6 - i, 8));
+                        clientList.get(2).clientCommunication.getClientConnect().placeTile(new TileWithPosition(placeLetters[i], 8, 6 - i));
+                assertEquals(ReturnValues.ReturnPlaceTile.SUCCESSFUL, returnPlaceTile, "Place Tile");
+
+                checkIfSendGameDataWasCalledAndPrint(clientList);
+            }
+
+            placeLetters = "LICHE".toCharArray();
+            for (int i = 0; i < placeLetters.length; i++) {
+                ReturnValues.ReturnPlaceTile returnPlaceTile =
+                        clientList.get(2).clientCommunication.getClientConnect().placeTile(new TileWithPosition(placeLetters[i], 8, 10 + i));
                 assertEquals(ReturnValues.ReturnPlaceTile.SUCCESSFUL, returnPlaceTile, "Place Tile");
 
                 checkIfSendGameDataWasCalledAndPrint(clientList);
@@ -298,7 +348,7 @@ public abstract class ClientCommunicationFillTest {
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
             assertTrue(clientList.get(0).clientConnectCallbackTest.voteCalled, "vote called");
-            assertArrayEquals(new String[]{"REICH"}, clientList.get(0).clientConnectCallbackTest.voteTransferredPlacedWords, "voteTransferredPlacedWords");
+            assertArrayEquals(new String[]{"REICHLICHE"}, clientList.get(0).clientConnectCallbackTest.voteTransferredPlacedWords, "voteTransferredPlacedWords");
         }
     }
 
@@ -385,7 +435,6 @@ public abstract class ClientCommunicationFillTest {
         public void vote(String[] placedWords) {
             voteCalled = true;
             voteTransferredPlacedWords = placedWords;
-            System.out.println(Arrays.toString(placedWords));
         }
     }
 }

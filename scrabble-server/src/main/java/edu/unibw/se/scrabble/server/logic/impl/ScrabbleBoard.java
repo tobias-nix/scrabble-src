@@ -21,14 +21,14 @@ public class ScrabbleBoard {
 
     ArrayList<Word> getPlacedWords() {
         ArrayList<Word> placedWords = new ArrayList<>();
-        WordDirection wordDirection = null;
+        WordDirection wordDirection;
 
         ArrayList<int[]> moveTilePositions = new ArrayList<>();
 
         for (int row = 0; row < 15; row++) {
             for (int col = 0; col < 15; col++) {
-                if (this.gameBoard[col][row].getSquareState().equals(SquareState.MOVE)) {
-                    moveTilePositions.add(new int[]{col, row});
+                if (this.gameBoard[row][col].getSquareState().equals(SquareState.MOVE)) {
+                    moveTilePositions.add(new int[]{row, col});
                 }
             }
         }
@@ -44,31 +44,33 @@ public class ScrabbleBoard {
         moveTilePositions.forEach(position -> {
             int[] positionOfFirstLetterForOtherTiles = this.searchForFirstLetterOfWord(moveTilePositions.get(0), finalWordDirection);
             Word placedWordForOtherTiles = constructPlacedWord(positionOfFirstLetterForOtherTiles, finalWordDirection);
-            placedWords.add(placedWordForOtherTiles);
+            if (placedWordForOtherTiles.word().length() > 2) {
+                placedWords.add(placedWordForOtherTiles);
+            }
         });
         return placedWords;
     }
 
     private WordDirection getWordDirection(List<int[]> moveTilePositions) {
         if (moveTilePositions.size() == 1) {
-            int firstMoveTileCol = moveTilePositions.get(0)[0];
-            int firstMoveTileRow = moveTilePositions.get(0)[1];
+            int firstMoveTileRow = moveTilePositions.get(0)[0];
+            int firstMoveTileCol = moveTilePositions.get(0)[1];
 
-            if (hasOccupiedSquare(firstMoveTileCol, firstMoveTileRow - 1) || hasOccupiedSquare(firstMoveTileCol, firstMoveTileRow + 1)) {
+            if (hasOccupiedSquare(firstMoveTileRow - 1, firstMoveTileCol) || hasOccupiedSquare(firstMoveTileRow + 1, firstMoveTileCol)) {
                 return WordDirection.DOWN;
-            } else if (hasOccupiedSquare(firstMoveTileCol - 1, firstMoveTileRow) || hasOccupiedSquare(firstMoveTileCol + 1, firstMoveTileRow)) {
+            } else if (hasOccupiedSquare(firstMoveTileRow, firstMoveTileCol - 1) || hasOccupiedSquare(firstMoveTileRow, firstMoveTileCol + 1)) {
                 return WordDirection.RIGHT;
             }
         } else if (moveTilePositions.get(0)[0] == moveTilePositions.get(1)[0]) {
-            return WordDirection.DOWN;
+            // wenn die reihe vom ersten und zweiten Move teil in der liste gleich sind, dann liegt das wort waagrecht
+            return WordDirection.RIGHT;
         }
-
-        return WordDirection.RIGHT;
+        return WordDirection.DOWN;
     }
 
-    private boolean hasOccupiedSquare(int col, int row) {
+    private boolean hasOccupiedSquare(int row, int col) {
         return col >= 0 && col < 15 && row >= 0 && row < 15 &&
-                this.gameBoard[col][row].getSquareState().equals(SquareState.OCCUPIED);
+                this.gameBoard[row][col].getSquareState().equals(SquareState.OCCUPIED);
     }
 
 
@@ -77,41 +79,58 @@ public class ScrabbleBoard {
     }
 
     private int[] searchForFirstLetterOfWord(int[] positionOfFirstTile, WordDirection wordDirection) {
+        int positionOfFirstTileRow = positionOfFirstTile[0];
+        int positionOfFirstTileCol = positionOfFirstTile[1];
+
         if (wordDirection.equals(WordDirection.DOWN)) {
-            while (positionOfFirstTile[1] != 0 &&
-                    !this.gameBoard[positionOfFirstTile[0]][positionOfFirstTile[1] - 1].getSquareState().equals(SquareState.FREE)) {
-                positionOfFirstTile[1] = positionOfFirstTile[1] - 1;
+            while (positionOfFirstTileCol != 0 &&
+                    !this.gameBoard[positionOfFirstTileRow][positionOfFirstTileCol - 1].getSquareState().equals(SquareState.FREE)) {
+                positionOfFirstTileCol -= 1;
             }
         } else {
-            while (positionOfFirstTile[0] != 0 &&
-                    !this.gameBoard[positionOfFirstTile[1] - 1][positionOfFirstTile[1]].getSquareState().equals(SquareState.FREE)) {
-                positionOfFirstTile[0] = positionOfFirstTile[0] - 1;
+            while (positionOfFirstTileRow != 0 &&
+                    !this.gameBoard[positionOfFirstTileRow - 1][positionOfFirstTileCol].getSquareState().equals(SquareState.FREE)) {
+                positionOfFirstTileRow -= 1;
             }
         }
-        return positionOfFirstTile;
+        return new int[]{positionOfFirstTileRow, positionOfFirstTileCol};
     }
 
     private Word constructPlacedWord(int[] positionOfFirstTile, WordDirection wordDirection) {
         StringBuilder placedWord = new StringBuilder();
         int wordFactor = 1;
         int wordScore = 0;
+
+        int tileRow = positionOfFirstTile[0];
+        int tileCol = positionOfFirstTile[1];
+
         if (wordDirection.equals(WordDirection.DOWN)) {
-            while (positionOfFirstTile[1] != 14 &&
-                    !this.gameBoard[positionOfFirstTile[0]][positionOfFirstTile[1] + 1].getSquareState().equals(SquareState.FREE)) {
-                positionOfFirstTile[1] = positionOfFirstTile[1] + 1;
-                ScrabbleSquare scrabbleSquare = this.gameBoard[positionOfFirstTile[0]][positionOfFirstTile[1]];
+            while (tileRow != 15 &&
+                    !this.gameBoard[tileRow][tileCol].getSquareState().equals(SquareState.FREE)) {
+                ScrabbleSquare scrabbleSquare = this.gameBoard[tileRow][tileCol];
                 placedWord.append(scrabbleSquare.scrabbleTile.letter);
-                wordScore += scrabbleSquare.scrabbleTile.value * scrabbleSquare.letterFactor;
-                wordFactor *= scrabbleSquare.wordFactor;
+
+                if(scrabbleSquare.squareState.equals(SquareState.MOVE)) {
+                    wordScore += scrabbleSquare.scrabbleTile.value * scrabbleSquare.letterFactor;
+                    wordFactor *= scrabbleSquare.wordFactor;
+                } else {
+                    wordScore = scrabbleSquare.scrabbleTile.value;
+                }
+                tileRow += 1;
             }
         } else {
-            while (positionOfFirstTile[0] != 14 &&
-                    !this.gameBoard[positionOfFirstTile[0] + 1][positionOfFirstTile[1]].getSquareState().equals(SquareState.FREE)) {
-                positionOfFirstTile[0] = positionOfFirstTile[0] + 1;
-                ScrabbleSquare scrabbleSquare = this.gameBoard[positionOfFirstTile[0]][positionOfFirstTile[1]];
+            while (tileCol != 15 &&
+                    !this.gameBoard[tileRow][tileCol].getSquareState().equals(SquareState.FREE)) {
+                ScrabbleSquare scrabbleSquare = this.gameBoard[tileRow][tileCol];
                 placedWord.append(scrabbleSquare.scrabbleTile.letter);
-                wordScore += scrabbleSquare.scrabbleTile.value * scrabbleSquare.letterFactor;
-                wordFactor *= scrabbleSquare.wordFactor;
+
+                if(scrabbleSquare.squareState.equals(SquareState.MOVE)) {
+                    wordScore += scrabbleSquare.scrabbleTile.value * scrabbleSquare.letterFactor;
+                    wordFactor *= scrabbleSquare.wordFactor;
+                } else {
+                    wordScore = scrabbleSquare.scrabbleTile.value;
+                }
+                tileCol += 1;
             }
         }
         return new Word(placedWord.toString(), wordScore * wordFactor);
@@ -130,39 +149,48 @@ public class ScrabbleBoard {
         return moveTiles;
     }
 
-    boolean isSquareFree(int column, int row) {
-        return gameBoard[column][row].getSquareState() == SquareState.FREE;
+    boolean isSquareFree(int row, int column) {
+        return gameBoard[row][column].getSquareState() == SquareState.FREE;
     }
 
-    boolean hasNeighbour(int column, int row) {
-        return getNeighbourState(column, row).contains(SquareState.MOVE) ||
-                getNeighbourState(column, row).contains(SquareState.OCCUPIED);
+    boolean hasNeighbour(int row, int column) {
+        return getNeighbourState(row, column).contains(SquareState.MOVE) ||
+                getNeighbourState(row, column).contains(SquareState.OCCUPIED);
     }
 
-    void placeTile(int column, int row, ScrabbleTile scrabbleTile) {
-        this.gameBoard[column][row].placeScrabbleTile(scrabbleTile);
-        this.gameBoard[column][row].setSquareStateToMove();
+    void placeTile(int row, int column, ScrabbleTile scrabbleTile) {
+        this.gameBoard[row][column].placeScrabbleTile(scrabbleTile);
+        this.gameBoard[row][column].setSquareStateToMove();
     }
 
-    private List<SquareState> getNeighbourState(int column, int row) {
+    private List<SquareState> getNeighbourState(int row, int column) {
         ArrayList<SquareState> neighbourStates = new ArrayList<>();
 
         int[][] neighbours = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
         for (int[] neighbour : neighbours) {
-            int neighbourColumn = column + neighbour[0];
-            int neighbourRow = row + neighbour[1];
+            int neighbourRow = row + neighbour[0];
+            int neighbourColumn = column + neighbour[1];
 
-            if (neighbourPositionIsValid(neighbourColumn, neighbourRow)) {
-                neighbourStates.add(gameBoard[neighbourColumn][neighbourRow].getSquareState());
+            if (neighbourPositionIsValid(neighbourRow, neighbourColumn)) {
+                neighbourStates.add(gameBoard[neighbourRow][neighbourColumn].getSquareState());
             }
         }
-
         return neighbourStates;
     }
 
-    private boolean neighbourPositionIsValid(int column, int row) {
-        return column >= 0 && column < 15 && row >= 0 && row < 15;
+    private boolean neighbourPositionIsValid(int row, int column) {
+        return row >= 0 && row < 15 && column >= 0 && column < 15;
+    }
+
+    void setAllMoveTilesToOccupied() {
+        for (ScrabbleSquare[] row : this.gameBoard) {
+            for (ScrabbleSquare square : row) {
+                if (square.getSquareState().equals(SquareState.MOVE)) {
+                    square.setSquareStateToOccupied();
+                }
+            }
+        }
     }
 
 
@@ -189,6 +217,10 @@ public class ScrabbleBoard {
     }
 
     public void printGameBoardInThePrettiestWayPossiblePlease() {
-        System.out.println(Arrays.deepToString(gameBoard).replace("], ", "]\n").replace("null", "|_/_|").replace("[[" , "\n[").replace("]]","]\n"));
+        System.out.println(Arrays.deepToString(gameBoard)
+                .replace("], ", "]\n")
+                .replace("null", "|_/_|")
+                .replace("[[", "\n[")
+                .replace("]]", "]\n"));
     }
 }

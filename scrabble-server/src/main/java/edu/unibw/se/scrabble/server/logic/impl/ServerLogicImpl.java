@@ -292,12 +292,12 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
                 this.sendGameData(session);
                 return ReturnValues.ReturnEndTurn.SUCCESSFUL;
             case PLACE:
+                scrabbleGame.endTurnPlace();
                 session.getUserUsernames().stream()
                         .filter(player -> !player.equals(scrabbleGame.getCurrentPlayerUsername()))
                         .forEach(player ->
                                 serverConnectCallback.vote(player, scrabbleGame.getPlacedWords().toArray(String[]::new))
                         );
-                scrabbleGame.endTurnPlace();
                 return ReturnValues.ReturnEndTurn.SUCCESSFUL;
             case PASS:
                 if (scrabbleGame.getPassCounter() < session.getNumberOfUsers() * 2 - 1) {
@@ -359,7 +359,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         }
 
         scrabbleGame.endVotePlacedWordsOk();
-
+        this.sendGameData(session);
         return ReturnValues.ReturnSendPlayerVote.SUCCESSFUL;
     }
 
