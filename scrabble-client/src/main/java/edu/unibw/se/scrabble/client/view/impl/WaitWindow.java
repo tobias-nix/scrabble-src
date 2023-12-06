@@ -54,7 +54,6 @@ public class WaitWindow extends Stage {
     }
 
     public WaitWindow(FxView mainView) {
-
         gameId.setText("GameID: " + mainView.getGameId());
 
         //TODO: Callback, usersInSession
@@ -66,13 +65,13 @@ public class WaitWindow extends Stage {
         playerA.setText(usersAsArray[0]);
 
         Label playerB = new Label();
-        playerB.setText(usersAsArray[0]);
+        playerB.setText(usersAsArray[1]);
 
         Label playerC = new Label();
-        playerC.setText(usersAsArray[0]);
+        playerC.setText(usersAsArray[2]);
 
         Label playerD = new Label();
-        playerD.setText(usersAsArray[0]);
+        playerD.setText(usersAsArray[3]);
 
         vBox2.getChildren().addAll(playerA, playerB, playerC, playerD);
 
