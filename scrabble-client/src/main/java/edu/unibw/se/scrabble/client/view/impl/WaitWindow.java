@@ -18,7 +18,10 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class WaitWindow extends Stage {
     private final Label heading = new Label("Scrabble");
@@ -51,16 +54,26 @@ public class WaitWindow extends Stage {
     }
 
     public WaitWindow(FxView mainView) {
-
         gameId.setText("GameID: " + mainView.getGameId());
 
         //TODO: Callback, usersInSession
         System.out.println(Arrays.toString(ViewControl.getUsername()));
         String[] usersAsArray = ViewControl.getUsername();
-        Label playerA = new Label();
 
+        //List<Label> labelList = Arrays.stream(usersAsArray).map(user -> new Label().setText(user.toString())).collect(Collectors.toList());
+        Label playerA = new Label();
         playerA.setText(usersAsArray[0]);
-        vBox2.getChildren().addAll(playerA);
+
+        Label playerB = new Label();
+        playerB.setText(usersAsArray[1]);
+
+        Label playerC = new Label();
+        playerC.setText(usersAsArray[2]);
+
+        Label playerD = new Label();
+        playerD.setText(usersAsArray[3]);
+
+        vBox2.getChildren().addAll(playerA, playerB, playerC, playerD);
 
         setOnCloseRequest(event -> {
             close();
