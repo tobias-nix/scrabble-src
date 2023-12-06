@@ -53,8 +53,6 @@ public class WaitWindow extends Stage {
 
         gameId.setText("GameID: " + mainView.getGameId());
 
-
-
         //TODO: Callback, usersInSession
         Label playerA = new Label();
         playerA.setText(Arrays.toString(ViewControl.usernames));
