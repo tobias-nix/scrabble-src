@@ -11,10 +11,14 @@ import java.rmi.server.UnicastRemoteObject;
  * @author Seegerer
  */
 public class ToClientImpl extends UnicastRemoteObject implements ToClient {
-    private final ClientConnectCallback callback;
+    private ClientConnectCallback callback;
 
     protected ToClientImpl(ClientConnectCallback callback) throws RemoteException {
         this.callback = callback;
+    }
+
+    void setClientConnectCallback(ClientConnectCallback clientConnectCallback) {
+        this.callback = clientConnectCallback;
     }
 
     @Override

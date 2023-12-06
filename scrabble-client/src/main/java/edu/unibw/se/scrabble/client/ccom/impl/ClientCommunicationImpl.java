@@ -14,6 +14,8 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
     private ToServer toServer;
     private ClientConnectCallback clientConnectCallback = null;
 
+    ToClientImpl toClient = null;
+
     @Override
     public ClientConnect getClientConnect() {
         return this;
@@ -27,13 +29,17 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
     @Override
     public void setClientConnectCallback(ClientConnectCallback clientConnectCallback) {
         this.clientConnectCallback = clientConnectCallback;
+        if (this.toClient != null) {
+            toClient.setClientConnectCallback(this.clientConnectCallback);
+        }
     }
 
     @Override
     public ReturnValues.ReturnLoginUser loginUser(String username, String password) {
         NetworkConnect.ReturnLoginNetwork ret;
         try {
-            ret = networkConnect.loginUser(username, password, new ToClientImpl(this.clientConnectCallback));
+            this.toClient = new ToClientImpl(this.clientConnectCallback);
+            ret = networkConnect.loginUser(username, password, this.toClient);
         } catch (RemoteException e) {
             System.out.println("Remote Exception in ClientCommunication");
             e.printStackTrace(System.err);
