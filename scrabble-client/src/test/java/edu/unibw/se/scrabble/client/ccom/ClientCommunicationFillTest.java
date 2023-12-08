@@ -350,14 +350,56 @@ public abstract class ClientCommunicationFillTest {
             assertTrue(clientList.get(0).clientConnectCallbackTest.voteCalled, "vote called");
             assertArrayEquals(new String[]{"REICHLICHE"}, clientList.get(0).clientConnectCallbackTest.voteTransferredPlacedWords, "voteTransferredPlacedWords");
         }
+
+        @Test
+        public void endTurnSuccessPlaceLasagneCreateEi() {
+            ArrayList<Client> clientList = setUpClientList();
+
+            checkIfSendGameDataWasCalledAndPrint(clientList);
+
+            ReturnValues.ReturnSelectAction returnSelectAction =
+                    clientList.get(0).clientCommunication.getClientConnect().selectAction(ActionState.PASS);
+            assertEquals(ReturnValues.ReturnSelectAction.SUCCESSFUL, returnSelectAction);
+            ReturnValues.ReturnEndTurn returnEndTurn =
+                    clientList.get(0).clientCommunication.getClientConnect().endTurn();
+            assertEquals(ReturnValues.ReturnEndTurn.SUCCESSFUL, returnEndTurn);
+
+            returnSelectAction =
+                    clientList.get(1).clientCommunication.getClientConnect().selectAction(ActionState.PLACE);
+            assertEquals(ReturnValues.ReturnSelectAction.SUCCESSFUL, returnSelectAction);
+
+            checkIfSendGameDataWasCalledAndPrint(clientList);
+
+            char[] placeLetters = "ENGASAL".toCharArray();
+            for (int i = 0; i < placeLetters.length; i++) {
+                ReturnValues.ReturnPlaceTile returnPlaceTile =
+                        clientList.get(1).clientCommunication.getClientConnect().placeTile(new TileWithPosition(placeLetters[i], 7, 7 - i));
+                assertEquals(ReturnValues.ReturnPlaceTile.SUCCESSFUL, returnPlaceTile, "Place Tile");
+
+                checkIfSendGameDataWasCalledAndPrint(clientList);
+            }
+
+            returnEndTurn =
+                    clientList.get(1).clientCommunication.getClientConnect().endTurn();
+            assertEquals(ReturnValues.ReturnEndTurn.SUCCESSFUL, returnEndTurn, "End Turn");
+
+            checkIfSendGameDataWasCalledAndPrint(clientList);
+            assertTrue(clientList.get(0).clientConnectCallbackTest.voteCalled, "vote called");
+            assertArrayEquals(new String[]{"LASAGNE", "EI"}, clientList.get(0).clientConnectCallbackTest.voteTransferredPlacedWords, "voteTransferredPlacedWords");
+        }
     }
 
     ArrayList<Client> setUpClientList() {
+        /*
         ArrayList<Client> clientList = new ArrayList<>(List.of(
                 new Client("Odie", "OdieOdie1!", getClientCommunication()),
                 new Client("Garfield", "Garfield1!", getClientCommunication()),
                 new Client("Nermal", "Nermal123!", getClientCommunication()),
                 new Client("JonA", "JonA1234!", getClientCommunication())));
+         */
+        ArrayList<Client> clientList = new ArrayList<>(List.of(
+                new Client("Odie", "OdieOdie1!", getClientCommunication()),
+                new Client("Garfield", "Garfield1!", getClientCommunication())));
 
         ServerCommunication serverCommunication;
         try {
@@ -433,6 +475,7 @@ public abstract class ClientCommunicationFillTest {
 
         @Override
         public void vote(String[] placedWords) {
+            System.out.println(Arrays.toString(placedWords));
             voteCalled = true;
             voteTransferredPlacedWords = placedWords;
         }

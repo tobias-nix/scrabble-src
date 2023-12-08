@@ -20,6 +20,9 @@ public class ServerConnectCallbackImpl implements ServerConnectCallback {
         }
         Arrays.stream(usernames).forEach(user -> {
             ToClient toClient = this.serverCommunicationImpl.getToClientFromUsername(user);
+            if (toClient == null) {
+                return;
+            }
             (new Thread(() -> {
                 try {
                     toClient.usersInSession(usernames);
@@ -36,6 +39,9 @@ public class ServerConnectCallbackImpl implements ServerConnectCallback {
             return;
         }
         ToClient toClient = this.serverCommunicationImpl.getToClientFromUsername(username);
+        if (toClient == null) {
+            return;
+        }
         (new Thread(() -> {
             try {
                 toClient.sendGameData(rackTiles, swapTiles, gameData);
@@ -51,6 +57,9 @@ public class ServerConnectCallbackImpl implements ServerConnectCallback {
             return;
         }
         ToClient toClient = this.serverCommunicationImpl.getToClientFromUsername(username);
+        if (toClient == null) {
+            return;
+        }
         (new Thread(() -> {
             try {
                 toClient.vote(placedWords);

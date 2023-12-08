@@ -683,6 +683,7 @@ public abstract class ClientCommunicationTHEREALTHINGTest {
         public void usersInSession(String[] usernames) {
             usersInSessionCalled = true;
             usersInSessionCalledTransferredUsernames = usernames;
+            System.out.println(Arrays.toString(usernames));
         }
 
         public boolean sendGameStateCalled = false;

@@ -44,6 +44,9 @@ public class ServerCommunicationImpl extends UnicastRemoteObject implements Serv
         mapNameToSession.remove(username);
     }
     synchronized ToClient getToClientFromUsername(String username) {
+        if (!this.mapNameToSession.containsKey(username)) {
+            return null;
+        }
         return this.mapNameToSession.get(username).toClient;
     }
 
