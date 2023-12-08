@@ -24,7 +24,7 @@ public final class GameData implements Serializable {
                             PlayerState.NOT_VOTED, PlayerState.NOT_VOTED)),
                     new ArrayList<>(List.of(7, 7, 7, 7)),
                     new ArrayList<>(List.of(0, 0, 0, 0)),
-                    new ArrayList<>(List.of(new TileWithPosition('a', 8, 8))),
+                    new ArrayList<>(List.of(new TileWithPosition('A', 8, 8))),
                     50,
                     GameState.PLAY);
 

@@ -23,7 +23,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         this.allDictionaries = createDictionaries();
     }
 
-    private HashMap<LanguageSetting, HashSet<String>> createDictionaries() {
+    synchronized private HashMap<LanguageSetting, HashSet<String>> createDictionaries() {
         HashMap<LanguageSetting, HashSet<String>> allDictionaries = new HashMap<>();
         for(LanguageSetting language : LanguageSetting.values()) {
             HashSet<String> newHashSetDict = new HashSet<>();
@@ -50,17 +50,17 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
     }
 
     @Override
-    public ServerConnect getServerConnect() {
+    synchronized public ServerConnect getServerConnect() {
         return this;
     }
 
     @Override
-    public void setScrabbleData(ScrabbleData scrabbleData) {
+    synchronized public void setScrabbleData(ScrabbleData scrabbleData) {
         this.scrabbleData = scrabbleData;
     }
 
     @Override
-    public void setServerConnectCallback(ServerConnectCallback serverConnectCallback) {
+    synchronized public void setServerConnectCallback(ServerConnectCallback serverConnectCallback) {
         this.serverConnectCallback = serverConnectCallback;
     }
 
@@ -69,7 +69,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
 
 
     @Override
-    public ReturnValues.ReturnStatistics getUserStatistics(String username) {
+    synchronized public ReturnValues.ReturnStatistics getUserStatistics(String username) {
         if (username == null || this.scrabbleData == null) {
             return new ReturnValues.ReturnStatistics(ReturnValues.ReturnStatisticsState.FAILURE, null);
         }
@@ -78,7 +78,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
     }
 
     @Override
-    public ReturnValues.ReturnCreateSession createSession(LanguageSetting languageSetting, String username) {
+    synchronized public ReturnValues.ReturnCreateSession createSession(LanguageSetting languageSetting, String username) {
         if (username == null) {
             return new ReturnValues.ReturnCreateSession(ReturnValues.ReturnCreateSessionState.FAILURE, -1);
         }
@@ -100,7 +100,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         return new ReturnValues.ReturnCreateSession(ReturnValues.ReturnCreateSessionState.SUCCESSFUL, generatedGameId);
     }
 
-    private int generateGameId() {
+    synchronized private int generateGameId() {
         Random r = new Random();
         int newGameId;
         do {
@@ -111,7 +111,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
     }
 
     @Override
-    public ReturnValues.ReturnJoinSession joinSession(int gameId, String username) {
+    synchronized public ReturnValues.ReturnJoinSession joinSession(int gameId, String username) {
         if (username == null) {
             return ReturnValues.ReturnJoinSession.FAILURE;
         }
@@ -134,12 +134,12 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         return ReturnValues.ReturnJoinSession.SUCCESSFUL;
     }
 
-    private Session getSessionWithUsername(String username) {
+    synchronized private Session getSessionWithUsername(String username) {
         return this.mapGameIdToSession.get(this.mapUsernameToGameId.get(username));
     }
 
     @Override
-    public ReturnValues.ReturnStartGame startGame(String username) {
+    synchronized public ReturnValues.ReturnStartGame startGame(String username) {
         if (username == null || !this.mapUsernameToGameId.containsKey(username)) {
             return ReturnValues.ReturnStartGame.FAILURE;
         }
@@ -157,7 +157,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         return ReturnValues.ReturnStartGame.SUCCESSFUL;
     }
 
-    private void sendGameData(Session session) {
+    synchronized private void sendGameData(Session session) {
         session.getUserUsernames().forEach(player ->
                 serverConnectCallback.sendGameData(
                         player,
@@ -169,7 +169,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
     }
 
     @Override
-    public ReturnValues.ReturnSelectAction selectAction(ActionState actionState, String username) {
+    synchronized public ReturnValues.ReturnSelectAction selectAction(ActionState actionState, String username) {
         if (username == null || actionState == null || !this.mapUsernameToGameId.containsKey(username)) {
             return ReturnValues.ReturnSelectAction.FAILURE;
         }
@@ -200,7 +200,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
     }
 
     @Override
-    public ReturnValues.ReturnPlaceTile placeTile(TileWithPosition tileWithPosition, String username) {
+    synchronized public ReturnValues.ReturnPlaceTile placeTile(TileWithPosition tileWithPosition, String username) {
         if (username == null || tileWithPosition == null || !this.mapUsernameToGameId.containsKey(username)) {
             return ReturnValues.ReturnPlaceTile.FAILURE;
         }
@@ -216,17 +216,25 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
             return ReturnValues.ReturnPlaceTile.FAILURE;
         }
 
-        if (scrabbleGame.isSquareFree(new TileWithPosition(' ', 8, 8)) &&
-                (tileWithPosition.row() != 8 && tileWithPosition.column() != 8)) {
-            return ReturnValues.ReturnPlaceTile.POSITION_NOT_ALLOWED;
-        }
-
         if (!scrabbleGame.playerHasRackTileWithThisLetter(tileWithPosition.letter())) {
             return ReturnValues.ReturnPlaceTile.TILE_NOT_ON_RACK;
         }
 
         if (!scrabbleGame.isSquareFree(tileWithPosition)) {
             return ReturnValues.ReturnPlaceTile.SQUARE_OCCUPIED;
+        }
+
+        // check if it's the first move
+        if (scrabbleGame.isSquareFree(new TileWithPosition(' ', 8, 8)) &&
+                (tileWithPosition.row() != 8 && tileWithPosition.column() != 8)) {
+            return ReturnValues.ReturnPlaceTile.POSITION_NOT_ALLOWED;
+        }
+        // Sonderfall - Erster Zug muss nicht auf Nachbarn prüfen
+        if (scrabbleGame.isSquareFree(new TileWithPosition(' ', 8, 8)) &&
+                (tileWithPosition.row() == 8 && tileWithPosition.column() == 8)) {
+            scrabbleGame.placeTile(tileWithPosition);
+            this.sendGameData(session);
+            return ReturnValues.ReturnPlaceTile.SUCCESSFUL;
         }
 
         if (!scrabbleGame.hasNeighbour(tileWithPosition)) {
@@ -240,7 +248,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
     }
 
     @Override
-    public ReturnValues.ReturnSwapTile swapTile(char letter, String username) {
+    synchronized public ReturnValues.ReturnSwapTile swapTile(char letter, String username) {
         if (!Character.isLetter(letter) || username == null) {
             return ReturnValues.ReturnSwapTile.FAILURE;
         }
@@ -268,7 +276,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
     }
 
     @Override
-    public ReturnValues.ReturnEndTurn endTurn(String username) {
+    synchronized public ReturnValues.ReturnEndTurn endTurn(String username) {
         if (username == null) {
             return ReturnValues.ReturnEndTurn.FAILURE;
         }
@@ -286,6 +294,11 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
             return ReturnValues.ReturnEndTurn.FAILURE;
         }
 
+        if (scrabbleGame.getPlayerRackTiles(username).length == 7) {
+            scrabbleGame.setGameState(ActionState.PASS);
+        }
+
+
         switch (scrabbleGame.getGameState()) {
             case SWAP:
                 scrabbleGame.endTurnSwap();
@@ -293,33 +306,20 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
                 return ReturnValues.ReturnEndTurn.SUCCESSFUL;
             case PLACE:
                 scrabbleGame.endTurnPlace();
+
                 session.getUserUsernames().stream()
                         .filter(player -> !player.equals(scrabbleGame.getCurrentPlayerUsername()))
                         .forEach(player ->
                                 serverConnectCallback.vote(player, scrabbleGame.getPlacedWords().toArray(String[]::new))
                         );
+                scrabbleGame.setPlayerStateWithPlayerVote(PlayerVote.CONFIRMED, username);
                 return ReturnValues.ReturnEndTurn.SUCCESSFUL;
             case PASS:
                 if (scrabbleGame.getPassCounter() < session.getNumberOfUsers() * 2 - 1) {
                     scrabbleGame.endTurnPass();
                     this.sendGameData(session);
                 } else {
-                    scrabbleGame.endTurnGameOver();
-                    this.sendGameData(session);
-
-                    List<Integer> score = session.getGameData().score;
-                    List<String> usernames = session.getUserUsernames();
-
-                    for (int i = 0; i < session.getNumberOfUsers(); i++) {
-                        String player = usernames.get(i);
-                        Statistics statistics = scrabbleData.getUserStatistics(player);
-                        int newGamesPlayed = statistics.gamesPlayed() + 1;
-                        int newGamesWon = Collections.max(score).equals(score.get(i)) ? statistics.gamesWon() + 1 : statistics.gamesWon();
-                        int newHighestScore = Math.max(statistics.highestScore(), score.get(i));
-                        int newTotalScore = statistics.totalScore() + score.get(i);
-
-                        scrabbleData.saveUserStatistics(player, new Statistics(newGamesPlayed, newGamesWon, newHighestScore, newTotalScore));
-                    }
+                    this.endGame(session, scrabbleGame);
                 }
                 return ReturnValues.ReturnEndTurn.SUCCESSFUL;
         }
@@ -327,7 +327,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
     }
 
     @Override
-    public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote, String username) {
+    synchronized public ReturnValues.ReturnSendPlayerVote sendPlayerVote(PlayerVote playerVote, String username) {
         if (playerVote == null) {
             return ReturnValues.ReturnSendPlayerVote.FAILURE;
         }
@@ -339,19 +339,20 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
             return ReturnValues.ReturnSendPlayerVote.FAILURE;
         }
 
-        scrabbleGame.setPlayerState(playerVote, username);
+        scrabbleGame.setPlayerStateWithPlayerVote(playerVote, username);
 
 
         if (scrabbleGame.getPlayerStates().contains(PlayerState.REJECTED)) {
             if(this.checkPlacedWords(session)) {
+                System.out.println("Check over - word confirmed");
                 scrabbleGame.endVotePlacedWordsOk();
             } else {
+                System.out.println("Check over - word rejected");
                 scrabbleGame.endVotePlacedWordsNotOk();
             }
             this.sendGameData(session);
             return ReturnValues.ReturnSendPlayerVote.SUCCESSFUL;
         }
-
 
         if (!scrabbleGame.getPlayerStates().contains(PlayerState.NOT_VOTED)) {
             this.sendGameData(session);
@@ -359,20 +360,43 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         }
 
         scrabbleGame.endVotePlacedWordsOk();
+        System.out.println("No one challenged the word");
+        if (scrabbleGame.getBagSize() == 0 && scrabbleGame.playerHasNoRackTilesLeft()) {
+            this.endGame(session, scrabbleGame);
+        }
         this.sendGameData(session);
         return ReturnValues.ReturnSendPlayerVote.SUCCESSFUL;
     }
 
-    boolean checkPlacedWords(Session session) {
+    synchronized void endGame(Session session, ScrabbleGame scrabbleGame) {
+        scrabbleGame.endTurnGameOver();
+        this.sendGameData(session);
+
+        List<Integer> score = session.getGameData().score;
+        List<String> usernames = session.getUserUsernames();
+
+        for (int i = 0; i < session.getNumberOfUsers(); i++) {
+            String player = usernames.get(i);
+            Statistics statistics = scrabbleData.getUserStatistics(player);
+            int newGamesPlayed = statistics.gamesPlayed() + 1;
+            int newGamesWon = Collections.max(score).equals(score.get(i)) ? statistics.gamesWon() + 1 : statistics.gamesWon();
+            int newHighestScore = Math.max(statistics.highestScore(), score.get(i));
+            int newTotalScore = statistics.totalScore() + score.get(i);
+
+            scrabbleData.saveUserStatistics(player, new Statistics(newGamesPlayed, newGamesWon, newHighestScore, newTotalScore));
+        }
+    }
+
+    synchronized boolean checkPlacedWords(Session session) {
         return this.allDictionaries.get(session.languageSetting).containsAll(session.getScrabbleGame().getPlacedWords());
     }
 
     @Override
-    public void informAboutUserLogin(String username) {
+    synchronized public void informAboutUserLogin(String username) {
         if (mapUsernameToGameId.containsKey(username)) {
             Session session = getSessionWithUsername(username);
             if (session.hasGameStarted()) {
-                sendGameData(getSessionWithUsername(username));
+                this.sendGameData(getSessionWithUsername(username));
             } else {
                 serverConnectCallback.usersInSession(session.getUserUsernames().toArray(new String[0]));
             }
@@ -380,7 +404,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
     }
 
     @Override
-    public void setServerState() {
+    synchronized public void setServerState() {
         Path sessionPath;
         Path gamePath;
         try {
@@ -436,7 +460,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
                 Session session = this.mapGameIdToSession.get(gameId);
                 session.scrabbleGame = new ScrabbleGame(session.users, session.languageSetting, gameState, bag, fixedTiles, movedTiles, scores, rackTiles, swapTiles);
 
-                sendGameData(session);
+                this.sendGameData(session);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -62,6 +62,7 @@ public class ScrabbleGame {
             ScrabbleTile fixedTile = allTiles.stream().filter(tile -> tile.letter == letter).findFirst().orElse(null);
             scrabbleBoard.gameBoard[row][col].scrabbleTile = fixedTile;
             scrabbleBoard.gameBoard[row][col].setSquareStateToOccupied();
+            this.placedTilesForSendGameData.add(new TileWithPosition(fixedTile.letter, row + 1, col + 1));
         }
 
         for (String tilePosition : movedTiles) {
@@ -73,6 +74,7 @@ public class ScrabbleGame {
             ScrabbleTile movedTile = allTiles.stream().filter(tile -> tile.letter == letter).findFirst().orElse(null);
             scrabbleBoard.gameBoard[row][col].scrabbleTile = movedTile;
             scrabbleBoard.gameBoard[row][col].setSquareStateToOccupied();
+            this.placedTilesForSendGameData.add(new TileWithPosition(movedTile.letter, row + 1, col + 1));
         }
 
         for (int i = 0; i < scores.size(); i++) {
@@ -233,10 +235,15 @@ public class ScrabbleGame {
         return this.bag.size();
     }
 
+    boolean playerHasNoRackTilesLeft() {
+        return players.stream().anyMatch(player -> player.rackTiles.isEmpty());
+
+    }
+
     void returnPlacedAndSwapTilesToRack() {
         if (this.gameState.equals(GameState.SWAP)) {
             this.currentPlayer.rackTiles.addAll(currentPlayer.swapTiles);
-        } else if (this.gameState.equals(GameState.PLACE)) {
+        } else if (this.gameState.equals(GameState.PLACE) || this.gameState.equals(GameState.VOTE)) {
             List<ScrabbleTile> returnedMoveTiles = this.scrabbleBoard.returnMoveTiles();
             this.currentPlayer.rackTiles.addAll(returnedMoveTiles);
 
@@ -334,7 +341,7 @@ public class ScrabbleGame {
     }
 
 
-    void setPlayerState(PlayerVote playerVote, String username) {
+    void setPlayerStateWithPlayerVote(PlayerVote playerVote, String username) {
         switch (playerVote) {
             case REJECTED -> this.getPlayerByUsername(username).playerState = PlayerState.REJECTED;
             case CONFIRMED -> this.getPlayerByUsername(username).playerState = PlayerState.CONFIRMED;
@@ -346,14 +353,22 @@ public class ScrabbleGame {
     }
 
     void endVotePlacedWordsOk() {
-        // TODO Punkte zählen und abziehen wenn jemand rejected hat,
-        //  Prämienfelder zählen nur bei erstbelegung,
-        //  wenn alle 7 steine gelegt, dann 50 extra Punkte, nicht multiplizieren
+        int wordSum = this.placedWordsInThisTurn.stream().mapToInt(Word::score).sum();
+        if (this.currentPlayer.rackTiles.isEmpty()) {
+            wordSum += 50;
+        }
+        this.currentPlayer.score += wordSum;
+
+        this.players.stream()
+                .filter(player -> player.playerState.equals(PlayerState.REJECTED))
+                .forEach(player -> player.score -= 5);
 
         this.scrabbleBoard.setAllMoveTilesToOccupied();
 
         this.gameState = GameState.PLAY;
         this.placedWordsInThisTurn.clear();
+        players.forEach(player -> player.playerState = PlayerState.NOT_VOTED);
+        this.drawFromBag(this.currentPlayer);
         this.switchCurrentPlayerToNext();
     }
 
@@ -362,6 +377,7 @@ public class ScrabbleGame {
 
         this.gameState = GameState.PLAY;
         this.placedWordsInThisTurn.clear();
+        players.forEach(player -> player.playerState = PlayerState.NOT_VOTED);
         this.switchCurrentPlayerToNext();
     }
 

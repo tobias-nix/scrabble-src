@@ -27,8 +27,6 @@ public class ScrabbleServerApp {
         ServerLogic serverLogic = new ServerLogicImpl();
         Authentication authentication = new AuthenticationImpl();
         SpringScrabbleData springDatabase = new SpringScrabbleData();
-        springDatabase.clear();
-        springDatabase.fill();
 
         serverCommunication.setServerConnect(serverLogic.getServerConnect());
         serverCommunication.setCredentials(authentication.getCredentials());
@@ -37,6 +35,9 @@ public class ScrabbleServerApp {
 
         serverLogic.setScrabbleData(springDatabase.getScrabbleData());
 
+        springDatabase.clear();
+        springDatabase.fill();
+        serverLogic.setServerState();
         //springDatabase.clear();
 
 

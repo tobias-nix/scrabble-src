@@ -42,9 +42,9 @@ public class ScrabbleBoard {
 
         WordDirection finalWordDirection = wordDirection;
         moveTilePositions.forEach(position -> {
-            int[] positionOfFirstLetterForOtherTiles = this.searchForFirstLetterOfWord(moveTilePositions.get(0), finalWordDirection);
+            int[] positionOfFirstLetterForOtherTiles = this.searchForFirstLetterOfWord(position, finalWordDirection);
             Word placedWordForOtherTiles = constructPlacedWord(positionOfFirstLetterForOtherTiles, finalWordDirection);
-            if (placedWordForOtherTiles.word().length() > 2) {
+            if (placedWordForOtherTiles.word().length() > 1) {
                 placedWords.add(placedWordForOtherTiles);
             }
         });
@@ -83,14 +83,14 @@ public class ScrabbleBoard {
         int positionOfFirstTileCol = positionOfFirstTile[1];
 
         if (wordDirection.equals(WordDirection.DOWN)) {
-            while (positionOfFirstTileCol != 0 &&
-                    !this.gameBoard[positionOfFirstTileRow][positionOfFirstTileCol - 1].getSquareState().equals(SquareState.FREE)) {
-                positionOfFirstTileCol -= 1;
-            }
-        } else {
             while (positionOfFirstTileRow != 0 &&
                     !this.gameBoard[positionOfFirstTileRow - 1][positionOfFirstTileCol].getSquareState().equals(SquareState.FREE)) {
                 positionOfFirstTileRow -= 1;
+            }
+        } else {
+            while (positionOfFirstTileCol != 0 &&
+                    !this.gameBoard[positionOfFirstTileRow][positionOfFirstTileCol - 1].getSquareState().equals(SquareState.FREE)) {
+                positionOfFirstTileCol -= 1;
             }
         }
         return new int[]{positionOfFirstTileRow, positionOfFirstTileCol};
@@ -114,7 +114,7 @@ public class ScrabbleBoard {
                     wordScore += scrabbleSquare.scrabbleTile.value * scrabbleSquare.letterFactor;
                     wordFactor *= scrabbleSquare.wordFactor;
                 } else {
-                    wordScore = scrabbleSquare.scrabbleTile.value;
+                    wordScore += scrabbleSquare.scrabbleTile.value;
                 }
                 tileRow += 1;
             }
