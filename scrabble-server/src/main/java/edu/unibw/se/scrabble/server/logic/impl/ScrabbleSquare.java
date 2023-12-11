@@ -2,6 +2,9 @@ package edu.unibw.se.scrabble.server.logic.impl;
 
 import edu.unibw.se.scrabble.common.base.SquareState;
 
+/**
+ * @author Bößendörfer, Kompalka, Seegerer
+ */
 class ScrabbleSquare {
     SquareState squareState;
     final int wordFactor;
@@ -14,12 +17,14 @@ class ScrabbleSquare {
         this.squareState = SquareState.FREE;
         this.scrabbleTile = null;
     }
+
     ScrabbleTile removeScrabbleTile() {
         ScrabbleTile tmp = this.scrabbleTile;
         this.scrabbleTile = null;
         return tmp;
     }
 
+    //Getter and Setter methods aren't really necessary but improve readability of code.
     SquareState getSquareState() {
         return this.squareState;
     }
@@ -36,15 +41,8 @@ class ScrabbleSquare {
         this.squareState = SquareState.MOVE;
     }
 
-    void placeScrabbleTile(ScrabbleTile scrabbleTile) {
-        this.scrabbleTile = scrabbleTile;
-    }
-
     @Override
     public String toString() {
         return wordFactor + "#" + letterFactor + "#" + scrabbleTile;
-    }
-    char getLetter() {
-        return this.scrabbleTile.letter;
     }
 }

@@ -7,8 +7,12 @@ import edu.unibw.se.scrabble.server.logic.ServerConnectCallback;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 
+/**
+ * @author Seegerer
+ */
 public class ServerConnectCallbackImpl implements ServerConnectCallback {
     private final ServerCommunicationImpl serverCommunicationImpl;
+
     public ServerConnectCallbackImpl(ServerCommunicationImpl serverCommunicationImpl) {
         this.serverCommunicationImpl = serverCommunicationImpl;
     }

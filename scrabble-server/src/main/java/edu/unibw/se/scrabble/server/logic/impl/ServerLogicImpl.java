@@ -14,40 +14,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+/**
+ * @author Bößendörfer, Kompalka, Seegerer
+ */
 public class ServerLogicImpl implements ServerLogic, ServerConnect {
     private ScrabbleData scrabbleData = null;
     private ServerConnectCallback serverConnectCallback = null;
-    HashMap<LanguageSetting, HashSet<String>> allDictionaries;
-
-    public ServerLogicImpl() {
-        this.allDictionaries = createDictionaries();
-    }
-
-    synchronized private HashMap<LanguageSetting, HashSet<String>> createDictionaries() {
-        HashMap<LanguageSetting, HashSet<String>> allDictionaries = new HashMap<>();
-        for(LanguageSetting language : LanguageSetting.values()) {
-            HashSet<String> newHashSetDict = new HashSet<>();
-            Path dictPath;
-            try {
-                dictPath = Paths.get(Objects.requireNonNull(Sandbox.class.getResource("/" + language.toString().toLowerCase() +"_dict.txt")).toURI()).toAbsolutePath();
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
-            }
-
-            try (BufferedReader reader = Files.newBufferedReader(dictPath)) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    // Convert each line to uppercase and add to the HashSet
-                    newHashSetDict.add(line.trim().toUpperCase());
-                }
-            } catch (IOException e) {
-                e.printStackTrace(System.err);
-                throw new RuntimeException();
-            }
-            allDictionaries.put(language, newHashSetDict);
-        }
-        return allDictionaries;
-    }
+    private final HashMap<LanguageSetting, HashSet<String>> allDictionaries = createDictionaries();
+    private final HashMap<Integer, Session> mapGameIdToSession = new HashMap<>();
+    private final HashMap<String, Integer> mapUsernameToGameId = new HashMap<>();
+    private final static int GAME_ID_LIMIT = 99999;
 
     @Override
     synchronized public ServerConnect getServerConnect() {
@@ -64,8 +40,30 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         this.serverConnectCallback = serverConnectCallback;
     }
 
-    private final HashMap<Integer, Session> mapGameIdToSession = new HashMap<>();
-    private final HashMap<String, Integer> mapUsernameToGameId = new HashMap<>();
+    synchronized private HashMap<LanguageSetting, HashSet<String>> createDictionaries() {
+        HashMap<LanguageSetting, HashSet<String>> allDictionaries = new HashMap<>();
+        for (LanguageSetting language : LanguageSetting.values()) {
+            HashSet<String> newHashSetDict = new HashSet<>();
+            Path dictPath;
+            try {
+                dictPath = Paths.get(Objects.requireNonNull(ServerLogicImpl.class.getResource("/" + language.toString().toLowerCase() + "_dict.txt")).toURI()).toAbsolutePath();
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+
+            try (BufferedReader reader = Files.newBufferedReader(dictPath)) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    newHashSetDict.add(line.trim().toUpperCase());
+                }
+            } catch (IOException e) {
+                e.printStackTrace(System.err);
+                throw new RuntimeException();
+            }
+            allDictionaries.put(language, newHashSetDict);
+        }
+        return allDictionaries;
+    }
 
 
     @Override
@@ -104,7 +102,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         Random r = new Random();
         int newGameId;
         do {
-            newGameId = r.nextInt(100000 - 1) + 1;
+            newGameId = r.nextInt(GAME_ID_LIMIT) + 1;
         } while (this.mapGameIdToSession.containsKey(newGameId));
 
         return newGameId;
@@ -115,7 +113,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         if (username == null) {
             return ReturnValues.ReturnJoinSession.FAILURE;
         }
-        if (gameId < 0 || gameId > 99999 || !this.mapGameIdToSession.containsKey(gameId)) {
+        if (gameId < 0 || gameId > GAME_ID_LIMIT || !this.mapGameIdToSession.containsKey(gameId)) {
             return ReturnValues.ReturnJoinSession.GAME_ID_INVALID;
         }
         if (this.mapUsernameToGameId.containsKey(username)) {
@@ -165,7 +163,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
                         session.getSwapTilesWithUsername(player),
                         session.getGameData())
         );
-        session.scrabbleGame.printGameBoard();
+        // session.scrabbleGame.printGameBoard();
     }
 
     @Override
@@ -193,7 +191,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
 
         scrabbleGame.returnPlacedAndSwapTilesToRack();
 
-        scrabbleGame.setGameState(actionState);
+        scrabbleGame.setGameStateByActionState(actionState);
 
         sendGameData(session);
         return ReturnValues.ReturnSelectAction.SUCCESSFUL;
@@ -224,12 +222,12 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
             return ReturnValues.ReturnPlaceTile.SQUARE_OCCUPIED;
         }
 
-        // check if it's the first move
+        // Special case: First tile has to be placed on middle square
         if (scrabbleGame.isSquareFree(new TileWithPosition(' ', 8, 8)) &&
                 (tileWithPosition.row() != 8 && tileWithPosition.column() != 8)) {
             return ReturnValues.ReturnPlaceTile.POSITION_NOT_ALLOWED;
         }
-        // Sonderfall - Erster Zug muss nicht auf Nachbarn prüfen
+        // Special case: During first turn, game must not check if tile as neighbours
         if (scrabbleGame.isSquareFree(new TileWithPosition(' ', 8, 8)) &&
                 (tileWithPosition.row() == 8 && tileWithPosition.column() == 8)) {
             scrabbleGame.placeTile(tileWithPosition);
@@ -295,7 +293,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         }
 
         if (scrabbleGame.getPlayerRackTiles(username).length == 7) {
-            scrabbleGame.setGameState(ActionState.PASS);
+            scrabbleGame.setGameStateByActionState(ActionState.PASS);
         }
 
 
@@ -343,11 +341,11 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
 
 
         if (scrabbleGame.getPlayerStates().contains(PlayerState.REJECTED)) {
-            if(this.checkPlacedWords(session)) {
-                System.out.println("Check over - word confirmed");
+            if (this.checkPlacedWords(session)) {
+                // Word got rejected, Word is in Dictionary
                 scrabbleGame.endVotePlacedWordsOk();
             } else {
-                System.out.println("Check over - word rejected");
+                // Word got rejected, Word is NOT in Dictionary
                 scrabbleGame.endVotePlacedWordsNotOk();
             }
             this.sendGameData(session);
@@ -359,8 +357,8 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
             return ReturnValues.ReturnSendPlayerVote.SUCCESSFUL;
         }
 
+        // No one challenged the word
         scrabbleGame.endVotePlacedWordsOk();
-        System.out.println("No one challenged the word");
         if (scrabbleGame.getBagSize() == 0 && scrabbleGame.playerHasNoRackTilesLeft()) {
             this.endGame(session, scrabbleGame);
         }
@@ -408,8 +406,8 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         Path sessionPath;
         Path gamePath;
         try {
-            sessionPath = Paths.get(Objects.requireNonNull(Sandbox.class.getResource("/session.csv")).toURI()).toAbsolutePath();
-            gamePath = Paths.get(Objects.requireNonNull(Sandbox.class.getResource("/scrabble.csv")).toURI()).toAbsolutePath();
+            sessionPath = Paths.get(Objects.requireNonNull(ServerLogicImpl.class.getResource("/session.csv")).toURI()).toAbsolutePath();
+            gamePath = Paths.get(Objects.requireNonNull(ServerLogicImpl.class.getResource("/scrabble.csv")).toURI()).toAbsolutePath();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

@@ -19,6 +19,8 @@ import java.util.regex.Pattern;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
+ * Nested Test Classes nicht gleichzeitig testen, sonst kommt es eventuell zu Überschneidungen beim Zugriff auf Data.
+ *
  * @author Seegerer
  */
 @DisplayName("Server Communication Test")
@@ -28,7 +30,6 @@ public abstract class ServerCommunicationTest {
     private static Authentication authenticationReal;
     private static SpringScrabbleData springDatabaseReal;
     private static ServerConnectTest serverConnectTest;
-    private static ServerConnect serverConnectReal;
     private static NetworkConnect networkConnect;
     private static ServerCommunication serverCommunication;
 
@@ -220,7 +221,7 @@ public abstract class ServerCommunicationTest {
             authenticationReal = new AuthenticationImpl();
             springDatabaseReal = new SpringScrabbleData();
             //springDatabaseReal.fill();
-            //springDatabaseReal.clear();
+            springDatabaseReal.clear();
 
             authenticationReal.setAuthData(springDatabaseReal.getAuthData());
             serverCommunication.setCredentials(authenticationReal.getCredentials());
@@ -359,8 +360,8 @@ public abstract class ServerCommunicationTest {
 
             authenticationReal = new AuthenticationImpl();
             springDatabaseReal = new SpringScrabbleData();
-            //springDatabaseReal.fill();
             springDatabaseReal.clear();
+            //springDatabaseReal.fill();
 
             authenticationReal.setAuthData(springDatabaseReal.getAuthData());
             serverCommunication.setCredentials(authenticationReal.getCredentials());

@@ -11,14 +11,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * @author Bößendörfer, Kompalka, Seegerer
+ */
 public class ScrabbleBoard {
     final ScrabbleSquare[][] gameBoard = createScrabbleGameBoard();
 
-    public ScrabbleBoard() {
-        //gameBoard[1][0].placeScrabbleTile(new ScrabbleTile('A', 2));
-
-    }
-
+    /**
+     * Finds all words a user created by placing his/her tiles on the board
+     *
+     * @return arraylist of all created words
+     */
     ArrayList<Word> getPlacedWords() {
         ArrayList<Word> placedWords = new ArrayList<>();
         WordDirection wordDirection;
@@ -34,7 +37,7 @@ public class ScrabbleBoard {
         }
         wordDirection = this.getWordDirection(moveTilePositions);
 
-        int[] positionOfFirstLetter = this.searchForFirstLetterOfWord(moveTilePositions.get(0), wordDirection);
+        int[] positionOfFirstLetter = this.searchForFirstLetterOfWord(moveTilePositions.getFirst(), wordDirection);
         Word placedWord = constructPlacedWord(positionOfFirstLetter, wordDirection);
         placedWords.add(placedWord);
 
@@ -51,18 +54,27 @@ public class ScrabbleBoard {
         return placedWords;
     }
 
+    /**
+     * Finds direction, in which the "main"-word is read. If user only placed one tile and both directions are possible,
+     * returns DOWN.
+     *
+     * @param moveTilePositions list of all positions the player has placed a tile on in this turn
+     * @return enum WordDirection
+     */
     private WordDirection getWordDirection(List<int[]> moveTilePositions) {
         if (moveTilePositions.size() == 1) {
-            int firstMoveTileRow = moveTilePositions.get(0)[0];
-            int firstMoveTileCol = moveTilePositions.get(0)[1];
+            int firstMoveTileRow = moveTilePositions.getFirst()[0];
+            int firstMoveTileCol = moveTilePositions.getFirst()[1];
 
-            if (hasOccupiedSquare(firstMoveTileRow - 1, firstMoveTileCol) || hasOccupiedSquare(firstMoveTileRow + 1, firstMoveTileCol)) {
+            if (hasOccupiedSquare(firstMoveTileRow - 1, firstMoveTileCol) ||
+                    hasOccupiedSquare(firstMoveTileRow + 1, firstMoveTileCol)) {
                 return WordDirection.DOWN;
-            } else if (hasOccupiedSquare(firstMoveTileRow, firstMoveTileCol - 1) || hasOccupiedSquare(firstMoveTileRow, firstMoveTileCol + 1)) {
+            } else if (hasOccupiedSquare(firstMoveTileRow, firstMoveTileCol - 1) ||
+                    hasOccupiedSquare(firstMoveTileRow, firstMoveTileCol + 1)) {
                 return WordDirection.RIGHT;
             }
         } else if (moveTilePositions.get(0)[0] == moveTilePositions.get(1)[0]) {
-            // wenn die reihe vom ersten und zweiten Move teil in der liste gleich sind, dann liegt das wort waagrecht
+            // wenn die reihe vom ersten und zweiten Move tile in der liste gleich sind, dann liegt das wort waagrecht
             return WordDirection.RIGHT;
         }
         return WordDirection.DOWN;
@@ -78,6 +90,13 @@ public class ScrabbleBoard {
         DOWN, RIGHT
     }
 
+    /**
+     * Searches for position of the first letter of a word. Is needed if player added a new "last" letter to a word.
+     *
+     * @param positionOfFirstTile as int[]
+     * @param wordDirection       enum
+     * @return position of first letter of the word
+     */
     private int[] searchForFirstLetterOfWord(int[] positionOfFirstTile, WordDirection wordDirection) {
         int positionOfFirstTileRow = positionOfFirstTile[0];
         int positionOfFirstTileCol = positionOfFirstTile[1];
@@ -96,6 +115,14 @@ public class ScrabbleBoard {
         return new int[]{positionOfFirstTileRow, positionOfFirstTileCol};
     }
 
+    /**
+     * Gets position of first tile(move or occupied) and returns the placed word. Rules for points: Factors like "double
+     * word" are only active, if the player placed a tile IN THIS ROUND on the square.
+     *
+     * @param positionOfFirstTile as int[]
+     * @param wordDirection       enum
+     * @return word, consisting of String and points
+     */
     private Word constructPlacedWord(int[] positionOfFirstTile, WordDirection wordDirection) {
         StringBuilder placedWord = new StringBuilder();
         int wordFactor = 1;
@@ -105,12 +132,11 @@ public class ScrabbleBoard {
         int tileCol = positionOfFirstTile[1];
 
         if (wordDirection.equals(WordDirection.DOWN)) {
-            while (tileRow != 15 &&
-                    !this.gameBoard[tileRow][tileCol].getSquareState().equals(SquareState.FREE)) {
+            while (tileRow != 15 && !this.gameBoard[tileRow][tileCol].getSquareState().equals(SquareState.FREE)) {
                 ScrabbleSquare scrabbleSquare = this.gameBoard[tileRow][tileCol];
                 placedWord.append(scrabbleSquare.scrabbleTile.letter);
 
-                if(scrabbleSquare.squareState.equals(SquareState.MOVE)) {
+                if (scrabbleSquare.squareState.equals(SquareState.MOVE)) {
                     wordScore += scrabbleSquare.scrabbleTile.value * scrabbleSquare.letterFactor;
                     wordFactor *= scrabbleSquare.wordFactor;
                 } else {
@@ -119,12 +145,11 @@ public class ScrabbleBoard {
                 tileRow += 1;
             }
         } else {
-            while (tileCol != 15 &&
-                    !this.gameBoard[tileRow][tileCol].getSquareState().equals(SquareState.FREE)) {
+            while (tileCol != 15 && !this.gameBoard[tileRow][tileCol].getSquareState().equals(SquareState.FREE)) {
                 ScrabbleSquare scrabbleSquare = this.gameBoard[tileRow][tileCol];
                 placedWord.append(scrabbleSquare.scrabbleTile.letter);
 
-                if(scrabbleSquare.squareState.equals(SquareState.MOVE)) {
+                if (scrabbleSquare.squareState.equals(SquareState.MOVE)) {
                     wordScore += scrabbleSquare.scrabbleTile.value * scrabbleSquare.letterFactor;
                     wordFactor *= scrabbleSquare.wordFactor;
                 } else {
@@ -136,6 +161,12 @@ public class ScrabbleBoard {
         return new Word(placedWord.toString(), wordScore * wordFactor);
     }
 
+    /**
+     * Returns all tiles a player placed during his turn. Useful if he changes the player-action (place, swap, pass)
+     * after placing his first tile or if the word-check has failed and the placed word was not in the dictionary.
+     *
+     * @return list of all move tiles
+     */
     List<ScrabbleTile> returnMoveTiles() {
         List<ScrabbleTile> moveTiles = new ArrayList<>();
         for (ScrabbleSquare[] scrabbleSquares : gameBoard) {
@@ -159,7 +190,7 @@ public class ScrabbleBoard {
     }
 
     void placeTile(int row, int column, ScrabbleTile scrabbleTile) {
-        this.gameBoard[row][column].placeScrabbleTile(scrabbleTile);
+        this.gameBoard[row][column].scrabbleTile = scrabbleTile;
         this.gameBoard[row][column].setSquareStateToMove();
     }
 

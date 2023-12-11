@@ -15,6 +15,16 @@ import java.util.*;
 
 import static edu.unibw.se.scrabble.common.base.Colors.*;
 
+/**
+ * Pretty ugly quick implementation of a ScrabbleApp for console.
+ * Works as a state machine, but needs urgent fixes, e.g. removing all the infinite for-loops while waiting for the
+ * callback functions.
+ * Fix either with completable futures or a newly structured callback system that implements a state-machine in better way.
+ * <p>
+ * Was built as a way to test Use-Cases more easily.
+ *
+ * @author Bößendörfer, Seegerer
+ */
 public class ScrabbleClientAppForConsole {
     private static final int PORT = 1099;
     private static final Scanner in = new Scanner(System.in);
@@ -114,7 +124,6 @@ public class ScrabbleClientAppForConsole {
             case FAILURE:
                 mainMenu();
         }
-
     }
 
     private static void joinSession() {

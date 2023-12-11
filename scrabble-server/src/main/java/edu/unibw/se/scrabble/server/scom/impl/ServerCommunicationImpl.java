@@ -21,7 +21,8 @@ public class ServerCommunicationImpl extends UnicastRemoteObject implements Serv
     private ServerConnect serverConnect;
     private final ServerConnectCallback serverConnectCallback;
     private final HashMap<String, ToServerImpl> mapNameToSession = new HashMap<>();
-    public ServerCommunicationImpl () throws RemoteException{
+
+    public ServerCommunicationImpl() throws RemoteException {
         this.serverConnectCallback = new ServerConnectCallbackImpl(this);
     }
 
@@ -43,6 +44,7 @@ public class ServerCommunicationImpl extends UnicastRemoteObject implements Serv
     synchronized void removeSession(String username) {
         mapNameToSession.remove(username);
     }
+
     synchronized ToClient getToClientFromUsername(String username) {
         if (!this.mapNameToSession.containsKey(username)) {
             return null;
@@ -65,6 +67,7 @@ public class ServerCommunicationImpl extends UnicastRemoteObject implements Serv
 
         ReturnValues.ReturnLoginUser credentialsReturnLoginUser = credentials.loginUser(username, password);
 
+        // Necessary because this loginUser returns ReturnLoginNetwork, which is a class that carries the toServer obj
         switch (credentialsReturnLoginUser) {
             case INVALID_PASSWORD:
                 return ReturnLoginNetwork.INVALID_PASSWORD;

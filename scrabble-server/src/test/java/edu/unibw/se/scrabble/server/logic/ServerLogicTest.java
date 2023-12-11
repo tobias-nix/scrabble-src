@@ -9,8 +9,13 @@ import java.util.Objects;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test-Class to test interface ServerConnect
+ * DEPRECATED DEPRECATED DEPRECATED
+ * <p>
+ * Server Logic got tested directly from ClientCommunicationTest
+ *
  * @author Kompalka
+ * <p>
+ * * DEPRECATED DEPRECATED DEPRECATED
  */
 
 @DisplayName("Server Communication Test")
@@ -127,7 +132,7 @@ public abstract class ServerLogicTest {
     public void placeSwapSuccessful() {
         serverLogic.setServerState(); // TODO
         ReturnValues.ReturnSwapTile returnSwapTile = serverConnect.swapTile(
-               'E', "karl"
+                'E', "karl"
         );
         assertEquals(returnSwapTile, ReturnValues.ReturnSwapTile.SUCCESSFUL);
         assertTrue(serverConnectCallbackTest.sendGameDataCalled);
@@ -151,6 +156,7 @@ public abstract class ServerLogicTest {
 
         @Override
         public boolean saveUserStatistics(String username, Statistics statistics) {
+            saveUserStatisticsCalled = true;
             return false;
         }
     }
@@ -158,18 +164,21 @@ public abstract class ServerLogicTest {
     static class ServerConnectCallbackTest implements ServerConnectCallback {
 
         public boolean usersInSessionCalled = false;
+
         @Override
         public void usersInSession(String[] usernames) {
             usersInSessionCalled = true;
         }
 
         public boolean sendGameDataCalled = false;
+
         @Override
         public void sendGameData(String username, char[] rackTiles, char[] swapTiles, GameData gameData) {
             sendGameDataCalled = true;
         }
 
         public boolean voteCalled = false;
+
         @Override
         public void vote(String username, String[] placedWords) {
             voteCalled = true;

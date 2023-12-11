@@ -3,7 +3,6 @@ package edu.unibw.se.scrabble.server.app;
 import edu.unibw.se.scrabble.server.auth.Authentication;
 import edu.unibw.se.scrabble.server.auth.impl.AuthenticationImpl;
 import edu.unibw.se.scrabble.server.data.impl.spring.SpringScrabbleData;
-import edu.unibw.se.scrabble.server.logic.ServerConnect;
 import edu.unibw.se.scrabble.server.logic.ServerLogic;
 import edu.unibw.se.scrabble.server.logic.impl.ServerLogicImpl;
 import edu.unibw.se.scrabble.server.scom.ServerCommunication;
@@ -14,8 +13,12 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+/**
+ * @author Seegerer
+ */
 public class ScrabbleServerApp {
     static final int PORT = 1099;
+
     public static void main(String[] args) {
         ServerCommunication serverCommunication;
         try {

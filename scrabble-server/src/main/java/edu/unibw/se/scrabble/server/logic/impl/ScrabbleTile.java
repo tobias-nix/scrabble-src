@@ -1,5 +1,8 @@
 package edu.unibw.se.scrabble.server.logic.impl;
 
+/**
+ * @author Bößendörfer, Kompalka, Seegerer
+ */
 class ScrabbleTile {
     char letter;
     int value;
@@ -14,5 +17,3 @@ class ScrabbleTile {
         return "|" + letter + "/" + value + "|";
     }
 }
-
-

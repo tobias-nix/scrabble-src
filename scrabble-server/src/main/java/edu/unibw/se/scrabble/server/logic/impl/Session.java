@@ -5,6 +5,9 @@ import edu.unibw.se.scrabble.common.base.LanguageSetting;
 
 import java.util.ArrayList;
 
+/**
+ * @author Bößendörfer, Kompalka, Seegerer
+ */
 public class Session {
     final int gameId;
     final ArrayList<String> users = new ArrayList<>();
@@ -17,7 +20,10 @@ public class Session {
         this.languageSetting = languageSetting;
     }
 
-    boolean hasGameStarted() { return scrabbleGame != null; }
+    //Getter and Setter methods aren't really necessary but improve readability of code.
+    boolean hasGameStarted() {
+        return scrabbleGame != null;
+    }
 
     int getNumberOfUsers() {
         return users.size();

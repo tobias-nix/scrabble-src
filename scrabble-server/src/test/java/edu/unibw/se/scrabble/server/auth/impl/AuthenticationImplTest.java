@@ -20,6 +20,7 @@ public class AuthenticationImplTest extends AuthenticationTest {
 
     @Override
     protected AuthData getAuthData() {
+        data.clear();
         data.fill();
         return ((Data)data).getAuthData();
     }

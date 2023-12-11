@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * @author Bößendörfer, Kompalka, Seegerer
+ */
 public class ScrabbleGame {
     private final ArrayList<Player> players;
     private Player currentPlayer;
@@ -40,6 +43,10 @@ public class ScrabbleGame {
         players.forEach(this::drawFromBag);
     }
 
+
+    /**
+     * This is used for setServerState
+     */
     ScrabbleGame(ArrayList<String> usernames, LanguageSetting languageSetting, GameState gameState, List<String> bag,
                  List<String> fixedTiles, List<String> movedTiles, List<Integer> scores, List<String> rackTiles, List<String> swapTiles) {
         this.players = new ArrayList<>(usernames.size());
@@ -62,7 +69,9 @@ public class ScrabbleGame {
             ScrabbleTile fixedTile = allTiles.stream().filter(tile -> tile.letter == letter).findFirst().orElse(null);
             scrabbleBoard.gameBoard[row][col].scrabbleTile = fixedTile;
             scrabbleBoard.gameBoard[row][col].setSquareStateToOccupied();
-            this.placedTilesForSendGameData.add(new TileWithPosition(fixedTile.letter, row + 1, col + 1));
+            if (fixedTile != null) {
+                this.placedTilesForSendGameData.add(new TileWithPosition(fixedTile.letter, row + 1, col + 1));
+            }
         }
 
         for (String tilePosition : movedTiles) {
@@ -74,7 +83,9 @@ public class ScrabbleGame {
             ScrabbleTile movedTile = allTiles.stream().filter(tile -> tile.letter == letter).findFirst().orElse(null);
             scrabbleBoard.gameBoard[row][col].scrabbleTile = movedTile;
             scrabbleBoard.gameBoard[row][col].setSquareStateToOccupied();
-            this.placedTilesForSendGameData.add(new TileWithPosition(movedTile.letter, row + 1, col + 1));
+            if (movedTile != null) {
+                this.placedTilesForSendGameData.add(new TileWithPosition(movedTile.letter, row + 1, col + 1));
+            }
         }
 
         for (int i = 0; i < scores.size(); i++) {
@@ -110,6 +121,9 @@ public class ScrabbleGame {
                 .orElse(null); // Player not found
     }
 
+    /**
+     * Creates bag by reading letterSet and creating ScrabbleTiles
+     */
     private ArrayList<ScrabbleTile> createBagFromLanguageSetting(LanguageSetting languageSetting) {
         String filePath = switch (languageSetting) {
             case LanguageSetting.ENGLISH ->
@@ -152,7 +166,7 @@ public class ScrabbleGame {
         return this.currentPlayer.username;
     }
 
-    void setGameState(ActionState actionState) {
+    void setGameStateByActionState(ActionState actionState) {
         switch (actionState) {
             case PLACE -> this.gameState = GameState.PLACE;
             case PASS -> this.gameState = GameState.PASS;
@@ -293,25 +307,18 @@ public class ScrabbleGame {
     }
 
     void endTurnSwap() {
-        //System.out.println("Bag Size before draw: " + this.bag.size());
         this.drawFromBag(this.currentPlayer);
-        //System.out.println("Bag Size before addAll: " + this.bag.size());
         this.bag.addAll(this.currentPlayer.swapTiles);
         this.currentPlayer.swapTiles.clear();
         Collections.shuffle(this.bag);
-        //System.out.println("Bag Size after addAll: " + this.bag.size());
         this.gameState = GameState.PLAY;
         this.switchCurrentPlayerToNext();
-        //System.out.println("Passcounter before reset: " + this.passCounter);
         this.passCounter = 0;
     }
 
     void endTurnPlace() {
         this.gameState = GameState.VOTE;
         this.placedWordsInThisTurn = this.scrabbleBoard.getPlacedWords();
-        placedWordsInThisTurn.forEach(word -> {
-            System.out.println("\nPlaced Words in this turn: " + word);
-        });
     }
 
     void endTurnPass() {
@@ -322,34 +329,6 @@ public class ScrabbleGame {
 
     void endTurnGameOver() {
         this.gameState = GameState.GAME_OVER;
-    }
-
-
-    void switchCurrentPlayerToNext() {
-        int index = this.players.indexOf(currentPlayer);
-        this.currentPlayer = players.get((index + 1) % players.size());
-    }
-
-    int getPassCounter() {
-        return this.passCounter;
-    }
-
-    ArrayList<PlayerState> getPlayerStates() {
-        return this.players.stream()
-                .map(player -> player.playerState)
-                .collect(Collectors.toCollection(ArrayList::new));
-    }
-
-
-    void setPlayerStateWithPlayerVote(PlayerVote playerVote, String username) {
-        switch (playerVote) {
-            case REJECTED -> this.getPlayerByUsername(username).playerState = PlayerState.REJECTED;
-            case CONFIRMED -> this.getPlayerByUsername(username).playerState = PlayerState.CONFIRMED;
-        }
-    }
-
-    public ArrayList<String> getPlacedWords() {
-        return new ArrayList<>(this.placedWordsInThisTurn.stream().map(Word::word).toList());
     }
 
     void endVotePlacedWordsOk() {
@@ -379,6 +358,34 @@ public class ScrabbleGame {
         this.placedWordsInThisTurn.clear();
         players.forEach(player -> player.playerState = PlayerState.NOT_VOTED);
         this.switchCurrentPlayerToNext();
+    }
+
+
+    void switchCurrentPlayerToNext() {
+        int index = this.players.indexOf(currentPlayer);
+        this.currentPlayer = players.get((index + 1) % players.size());
+    }
+
+    int getPassCounter() {
+        return this.passCounter;
+    }
+
+    ArrayList<PlayerState> getPlayerStates() {
+        return this.players.stream()
+                .map(player -> player.playerState)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+
+    void setPlayerStateWithPlayerVote(PlayerVote playerVote, String username) {
+        switch (playerVote) {
+            case REJECTED -> this.getPlayerByUsername(username).playerState = PlayerState.REJECTED;
+            case CONFIRMED -> this.getPlayerByUsername(username).playerState = PlayerState.CONFIRMED;
+        }
+    }
+
+    public ArrayList<String> getPlacedWords() {
+        return new ArrayList<>(this.placedWordsInThisTurn.stream().map(Word::word).toList());
     }
 
     public void printGameBoard() {
