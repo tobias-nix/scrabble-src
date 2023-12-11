@@ -15,6 +15,10 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+/**
+ @author Nix
+ */
+
 public class LoginWindow extends Stage {
     private final Label heading = new Label("Scrabble");
     private final Label nameLabel = new Label("Username");
@@ -61,13 +65,6 @@ public class LoginWindow extends Stage {
     }
 
     public LoginWindow(FxView mainView) {
-
-        setOnCloseRequest(event -> { //weg
-            close();
-            Platform.exit();
-            event.consume();
-            System.exit(0);
-        });
 
         registerButton.setOnAction((event) -> {
             mainView.setWindowState(WindowState.REGISTER);

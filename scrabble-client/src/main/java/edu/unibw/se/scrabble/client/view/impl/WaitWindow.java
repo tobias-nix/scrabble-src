@@ -1,27 +1,20 @@
 package edu.unibw.se.scrabble.client.view.impl;
 
 import edu.unibw.se.scrabble.common.base.ReturnValues;
-import javafx.application.Platform;
-import javafx.beans.property.StringProperty;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+/**
+ @author Nix
+ */
 
 public class WaitWindow extends Stage {
     private final Label heading = new Label("Scrabble");
@@ -40,6 +33,15 @@ public class WaitWindow extends Stage {
 
         vBox2.setAlignment(Pos.CENTER);
         vBox2.setSpacing(30);
+        Label playerA = new Label(ViewControl.usernameLabel[0].get());
+        playerA.textProperty().bindBidirectional(ViewControl.usernameLabel[0]);
+        Label playerB = new Label(ViewControl.usernameLabel[1].get());
+        playerB.textProperty().bindBidirectional(ViewControl.usernameLabel[1]);
+        Label playerC = new Label(ViewControl.usernameLabel[2].get());
+        playerC.textProperty().bindBidirectional(ViewControl.usernameLabel[2]);
+        Label playerD = new Label(ViewControl.usernameLabel[3].get());
+        playerD.textProperty().bindBidirectional(ViewControl.usernameLabel[3]);
+        vBox2.getChildren().addAll(playerA, playerB, playerC, playerD);
 
         vBox3.setAlignment(Pos.CENTER);
         vBox3.setSpacing(5);
@@ -55,32 +57,6 @@ public class WaitWindow extends Stage {
 
     public WaitWindow(FxView mainView) {
         gameId.setText("GameID: " + mainView.getGameId());
-
-        //TODO: Callback, usersInSession
-        System.out.println(Arrays.toString(ViewControl.getUsername()));
-        String[] usersAsArray = ViewControl.getUsername();
-
-        //List<Label> labelList = Arrays.stream(usersAsArray).map(user -> new Label().setText(user.toString())).collect(Collectors.toList());
-        Label playerA = new Label();
-        playerA.setText(usersAsArray[0]);
-
-        Label playerB = new Label();
-        playerB.setText(usersAsArray[1]);
-
-        Label playerC = new Label();
-        playerC.setText(usersAsArray[2]);
-
-        Label playerD = new Label();
-        playerD.setText(usersAsArray[3]);
-
-        vBox2.getChildren().addAll(playerA, playerB, playerC, playerD);
-
-        setOnCloseRequest(event -> {
-            close();
-            Platform.exit();
-            event.consume();
-            System.exit(0);
-        });
 
         startButton.setOnAction((event) -> {
             String message;
