@@ -33,7 +33,7 @@ public abstract class ClientCommunicationFillTest {
             this.username = username;
             this.password = password;
             this.clientCommunication = clientCommunication;
-            this.clientConnectCallbackTest = new ClientConnectCallbackTest();
+            this.clientConnectCallbackTest = new ClientConnectCallbackTest(username);
             this.clientCommunication.getClientConnect().setClientConnectCallback(clientConnectCallbackTest);
         }
 
@@ -234,13 +234,13 @@ public abstract class ClientCommunicationFillTest {
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
             ReturnValues.ReturnSelectAction returnSelectAction =
-                    clientList.get(0).clientCommunication.getClientConnect().selectAction(ActionState.PASS);
+                    clientList.getFirst().clientCommunication.getClientConnect().selectAction(ActionState.PASS);
             assertEquals(ReturnValues.ReturnSelectAction.SUCCESSFUL, returnSelectAction);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
             ReturnValues.ReturnEndTurn returnEndTurn =
-                    clientList.get(0).clientCommunication.getClientConnect().endTurn();
+                    clientList.getFirst().clientCommunication.getClientConnect().endTurn();
             assertEquals(ReturnValues.ReturnEndTurn.SUCCESSFUL, returnEndTurn);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
@@ -302,8 +302,8 @@ public abstract class ClientCommunicationFillTest {
             assertEquals(ReturnValues.ReturnEndTurn.SUCCESSFUL, returnEndTurn, "End Turn");
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
-            assertTrue(clientList.get(0).clientConnectCallbackTest.voteCalled, "vote called");
-            assertArrayEquals(new String[]{"REICH"}, clientList.get(0).clientConnectCallbackTest.voteTransferredPlacedWords, "voteTransferredPlacedWords");
+            assertTrue(clientList.getFirst().clientConnectCallbackTest.voteCalled, "vote called");
+            assertArrayEquals(new String[]{"REICH"}, clientList.getFirst().clientConnectCallbackTest.voteTransferredPlacedWords, "voteTransferredPlacedWords");
         }
 
         @Test
@@ -350,8 +350,8 @@ public abstract class ClientCommunicationFillTest {
             assertEquals(ReturnValues.ReturnEndTurn.SUCCESSFUL, returnEndTurn, "End Turn");
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
-            assertTrue(clientList.get(0).clientConnectCallbackTest.voteCalled, "vote called");
-            assertArrayEquals(new String[]{"REICHLICHE"}, clientList.get(0).clientConnectCallbackTest.voteTransferredPlacedWords, "voteTransferredPlacedWords");
+            assertTrue(clientList.getFirst().clientConnectCallbackTest.voteCalled, "vote called");
+            assertArrayEquals(new String[]{"REICHLICHE"}, clientList.getFirst().clientConnectCallbackTest.voteTransferredPlacedWords, "voteTransferredPlacedWords");
         }
 
         @Test
@@ -361,7 +361,7 @@ public abstract class ClientCommunicationFillTest {
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
             ReturnValues.ReturnSelectAction returnSelectAction =
-                    clientList.get(0).clientCommunication.getClientConnect().selectAction(ActionState.PASS);
+                    clientList.getFirst().clientCommunication.getClientConnect().selectAction(ActionState.PASS);
             assertEquals(ReturnValues.ReturnSelectAction.SUCCESSFUL, returnSelectAction);
             ReturnValues.ReturnEndTurn returnEndTurn =
                     clientList.get(0).clientCommunication.getClientConnect().endTurn();
@@ -387,47 +387,49 @@ public abstract class ClientCommunicationFillTest {
             assertEquals(ReturnValues.ReturnEndTurn.SUCCESSFUL, returnEndTurn, "End Turn");
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
-            assertTrue(clientList.get(0).clientConnectCallbackTest.voteCalled, "vote called");
-            assertArrayEquals(new String[]{"LASAGNE", "EI"}, clientList.get(0).clientConnectCallbackTest.voteTransferredPlacedWords, "voteTransferredPlacedWords");
+            assertTrue(clientList.getFirst().clientConnectCallbackTest.voteCalled, "vote called");
+            assertArrayEquals(new String[]{"LASAGNE", "EI"}, clientList.getFirst().clientConnectCallbackTest.voteTransferredPlacedWords, "voteTransferredPlacedWords");
         }
     }
 
-    synchronized ArrayList<Client> setUpClientList(int sessionId) {
-        ArrayList<Client> clientList = getClientArrayList(sessionId);
+    ArrayList<Client> setUpClientList(int sessionId) {
+        synchronized (ClientCommunicationFillTest.class) {
+            ArrayList<Client> clientList = getClientArrayList(sessionId);
 
-        ServerCommunication serverCommunication;
-        try {
-            serverCommunication = new ServerCommunicationImpl();
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
+            ServerCommunication serverCommunication;
+            try {
+                serverCommunication = new ServerCommunicationImpl();
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+            ServerLogic serverLogic = new ServerLogicImpl();
+            ServerConnect serverConnect = serverLogic.getServerConnect();
+            serverCommunication.setServerConnect(serverConnect);
+
+            Authentication authentication = new AuthenticationImpl();
+            SpringScrabbleData springDatabase = new SpringScrabbleData();
+            springDatabase.clear();
+            springDatabase.fill();
+
+            authentication.setAuthData(springDatabase.getAuthData());
+            serverLogic.setScrabbleData(springDatabase.getScrabbleData());
+            serverCommunication.setCredentials(authentication.getCredentials());
+
+            clientList.forEach(client -> {
+                client.clientCommunication.setNetworkConnect(serverCommunication.getNetworkConnect());
+            });
+
+            serverLogic.setServerState();
+
+            clientList.forEach(client -> {
+                ReturnValues.ReturnLoginUser returnLoginUser =
+                        client.clientCommunication.getClientConnect().loginUser(client.username, client.password);
+                assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, returnLoginUser,
+                        "Login User");
+            });
+
+            return clientList;
         }
-        ServerLogic serverLogic = new ServerLogicImpl();
-        ServerConnect serverConnect = serverLogic.getServerConnect();
-        serverCommunication.setServerConnect(serverConnect);
-
-        Authentication authentication = new AuthenticationImpl();
-        SpringScrabbleData springDatabase = new SpringScrabbleData();
-        springDatabase.clear();
-        springDatabase.fill();
-
-        authentication.setAuthData(springDatabase.getAuthData());
-        serverLogic.setScrabbleData(springDatabase.getScrabbleData());
-        serverCommunication.setCredentials(authentication.getCredentials());
-
-        clientList.forEach(client -> {
-            client.clientCommunication.setNetworkConnect(serverCommunication.getNetworkConnect());
-        });
-
-        serverLogic.setServerState();
-
-        clientList.forEach(client -> {
-            ReturnValues.ReturnLoginUser returnLoginUser =
-                    client.clientCommunication.getClientConnect().loginUser(client.username, client.password);
-            assertEquals(ReturnValues.ReturnLoginUser.SUCCESSFUL, returnLoginUser,
-                    "Login User");
-        });
-
-        return clientList;
     }
 
     private ArrayList<Client> getClientArrayList(int sessionId) {
@@ -445,6 +447,7 @@ public abstract class ClientCommunicationFillTest {
     }
 
     void checkIfSendGameDataWasCalledAndPrint(ArrayList<Client> clientList) {
+        ClientConnectCallbackTest.waitForAllCallbacks(clientList);
         System.out.println("Sent GameData:");
         clientList.forEach(client -> {
             assertTrue(client.clientConnectCallbackTest.sendGameStateCalled, client.username + " sendGameStateCalled");
@@ -452,17 +455,66 @@ public abstract class ClientCommunicationFillTest {
             System.out.println(client.username + " SwapTiles:" + Arrays.toString(client.clientConnectCallbackTest.sendGameStateTransferredSwapTiles));
             System.out.println(client.username + " GameData: " + client.clientConnectCallbackTest.sendGameStateTransferredGameData);
         });
+        ClientConnectCallbackTest.resetAllCallbackReceived(clientList);
     }
 
     static class ClientConnectCallbackTest implements ClientConnectCallback {
+        volatile boolean someCallbackReceived = false;
+
+        long maxTimeWaitingForEachCallbacks = 100; // milliseconds
+        long timeToForceLateCallback = 0; // milliseconds
+
+        synchronized void waitForCallback() {
+            System.out.println(username + " wait for Callback!");
+            try {
+                if (!someCallbackReceived) {
+                    wait(maxTimeWaitingForEachCallbacks); // maximal waiting time
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            System.out.println(username + " stopped waiting for Callback!");
+        }
+
+        synchronized void setCallbackReceived() {
+            someCallbackReceived = true;
+            notifyAll();
+        }
+
+        synchronized static void resetAllCallbackReceived(List<Client> list) {
+            list.forEach(c -> {
+                c.clientConnectCallbackTest.someCallbackReceived = false;
+                c.clientConnectCallbackTest.usersInSessionCalled = false;
+                c.clientConnectCallbackTest.sendGameStateCalled = false;
+                c.clientConnectCallbackTest.voteCalled = false;
+            });
+        }
+
+        synchronized static void waitForAllCallbacks(List<Client> list) {
+            list.forEach(c -> c.clientConnectCallbackTest.waitForCallback());
+        }
+
+        private final String username;
+
+        private ClientConnectCallbackTest(String username) {
+            this.username = username;
+        }
+
 
         public boolean usersInSessionCalled = false;
         public String[] usersInSessionCalledTransferredUsernames = {};
 
+
         @Override
         public void usersInSession(String[] usernames) {
+            try {
+                Thread.sleep(timeToForceLateCallback);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             usersInSessionCalled = true;
             usersInSessionCalledTransferredUsernames = usernames;
+            setCallbackReceived();
         }
 
         public boolean sendGameStateCalled = false;
@@ -472,10 +524,16 @@ public abstract class ClientCommunicationFillTest {
 
         @Override
         public void sendGameData(char[] rackTiles, char[] swapTiles, GameData gameData) {
+            try {
+                Thread.sleep(timeToForceLateCallback);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             sendGameStateCalled = true;
             sendGameStateTransferredRackTiles = rackTiles;
             sendGameStateTransferredSwapTiles = swapTiles;
             sendGameStateTransferredGameData = gameData;
+            setCallbackReceived();
         }
 
         public boolean voteCalled = false;
@@ -483,9 +541,15 @@ public abstract class ClientCommunicationFillTest {
 
         @Override
         public void vote(String[] placedWords) {
+            try {
+                Thread.sleep(timeToForceLateCallback);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             System.out.println(Arrays.toString(placedWords));
             voteCalled = true;
             voteTransferredPlacedWords = placedWords;
+            setCallbackReceived();
         }
     }
 }
