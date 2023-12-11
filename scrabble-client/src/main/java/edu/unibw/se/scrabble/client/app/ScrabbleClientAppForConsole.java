@@ -320,8 +320,41 @@ public class ScrabbleClientAppForConsole {
         }
     }
 
-    private static void gameOver() {
-        System.out.println("Game Over");
+    private static void gameOver(GameData gameData) {
+        System.out.println("\n\n\n\n");
+        System.out.println("___________________________GAME_OVER___________________________");
+        System.out.println("_____________________________SCORES____________________________");
+
+        int maxScore = Collections.max(gameData.score);
+        String winnerPostfix = "";
+
+        for (int i = 0; i < gameData.usernames.size(); i++) {
+            boolean isWinner = maxScore == gameData.score.get(i);
+            boolean isUser = gameData.usernames.get(i).equals(username);
+
+            String winnerPrefix = isWinner ? "  WINNER!!  " : "            ";
+            if (isUser && isWinner) {
+                winnerPostfix = " (+1)";
+            }
+
+            System.out.println(winnerPrefix + gameData.usernames.get(i) + ": " + gameData.score.get(i) + " Points");
+        }
+
+        int userScore = gameData.score.get(gameData.usernames.indexOf(username));
+        ReturnValues.ReturnStatistics ret = clientConnect.getUserStatistics();
+
+        if (ret != null) {
+            Statistics userStats = ret.userStatistics();
+            System.out.println("________________________YOUR_STATISTICS________________________");
+            System.out.println("           Games played : " + userStats.gamesPlayed() + " (+1)");
+            System.out.println("           Games won    : " + userStats.gamesWon() + winnerPostfix);
+            System.out.println("           Highest score: " + userStats.highestScore());
+            System.out.println("           Total score  : " + userStats.totalScore() + " (+" + userScore + ")");
+        } else {
+            System.out.println("Failure retrieving user statistics");
+        }
+
+        System.out.println("_______________________________________________________________");
     }
 
     private static DisplaySquare[][] createGameBoard() {
@@ -427,7 +460,7 @@ public class ScrabbleClientAppForConsole {
         public void sendGameData(char[] rackTiles, char[] swapTiles, GameData gameData) {
             System.out.println("\n\n" + gameData);
             showGameBoard(rackTiles, swapTiles, gameData);
-            if (!gameData.currentPlayer.equals(username)) {
+            if (!gameData.currentPlayer.equals(username) && !gameData.state.equals(GameState.GAME_OVER)) {
                 System.out.println("\nWaiting for next move of " + gameData.currentPlayer);
                 callbackFuture.complete(null);
                 return;
@@ -447,7 +480,7 @@ public class ScrabbleClientAppForConsole {
                     pass(rackTiles, swapTiles, gameData);
                     break;
                 case GAME_OVER:
-                    gameOver();
+                    gameOver(gameData);
                     break;
                 default:
                     System.out.println("Failure in sendGameData.");
