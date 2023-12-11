@@ -1,9 +1,9 @@
 package edu.unibw.se.scrabble.client.ccom.impl;
 
 import edu.unibw.se.scrabble.client.ccom.ClientCommunication;
-import edu.unibw.se.scrabble.client.ccom.ClientCommunicationTHEREALTHINGTest;
+import edu.unibw.se.scrabble.client.ccom.ClientCommunicationRealAuthRealDataTest;
 
-public class ClientCommunicationImplTHEREALTHINGTest extends ClientCommunicationTHEREALTHINGTest {
+public class ClientCommunicationImplRealAuthRealDataTest extends ClientCommunicationRealAuthRealDataTest {
 
     private static final ClientCommunicationImpl clientCommunication = new ClientCommunicationImpl();
 

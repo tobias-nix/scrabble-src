@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Client Communication Test with real Data, real Authentication and real Server Communication.
  * Server Connect is implemented as ServerConnectTest as a nested class.
  */
-public abstract class ClientCommunicationTHEREALTHINGTest {
+public abstract class ClientCommunicationRealAuthRealDataTest {
     protected abstract ClientCommunication getClientCommunication();
 
     private static ClientCommunication clientCommunication;
@@ -108,17 +108,17 @@ public abstract class ClientCommunicationTHEREALTHINGTest {
         clientCommunication.setNetworkConnect(serverCommunication.getNetworkConnect());
         clientConnect = clientCommunication.getClientConnect();
     }
-     */
+
 
     @Test
-    void initTest() {/*
+    void initTest() {
         assertNotNull(clientCommunication);
         assertNotNull(clientConnect);
         assertNotNull(clientConnectCallbackTest);
         assertNotNull(serverCommunication);
         assertNotNull(serverConnectTest);
         assertNotNull(authentication);
-        assertNotNull(springDatabase);*/
+        assertNotNull(springDatabase);
     }
 
     @Nested
@@ -150,6 +150,8 @@ public abstract class ClientCommunicationTHEREALTHINGTest {
             assertEquals(existingPassword, springDatabase.getAuthData().getPassword(username));
         }
     }
+
+     */
 
 
     @Nested

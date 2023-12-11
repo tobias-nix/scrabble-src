@@ -414,7 +414,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
 
         try (BufferedReader reader = Files.newBufferedReader(sessionPath)) {
             String line = reader.readLine();
-            if (line != null) {
+            while (line != null) {
                 String[] parts = line.split(",");
                 int gameId = Integer.parseInt(parts[0].trim());
                 LanguageSetting languageSetting = LanguageSetting.valueOf(parts[1].trim().toUpperCase());
@@ -431,6 +431,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
                     this.joinSession(gameId, user);
                     mapUsernameToGameId.put(user, gameId);
                 });
+                line = reader.readLine();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -439,7 +440,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
         try (BufferedReader reader = Files.newBufferedReader(gamePath)) {
             reader.readLine();
             String line = reader.readLine();
-            if (line != null) {
+            while (line != null) {
                 String[] parts = line.split(",", -1);
                 int gameId = Integer.parseInt(parts[0].trim());
                 GameState gameState = GameState.valueOf(parts[1].trim().toUpperCase());
@@ -459,6 +460,7 @@ public class ServerLogicImpl implements ServerLogic, ServerConnect {
                 session.scrabbleGame = new ScrabbleGame(session.users, session.languageSetting, gameState, bag, fixedTiles, movedTiles, scores, rackTiles, swapTiles);
 
                 this.sendGameData(session);
+                line = reader.readLine();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

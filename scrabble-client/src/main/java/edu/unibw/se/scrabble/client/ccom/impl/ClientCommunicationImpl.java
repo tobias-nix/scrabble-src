@@ -147,7 +147,8 @@ public class ClientCommunicationImpl implements ClientCommunication, ClientConne
             System.out.println("Remote Exception in ClientCommunication");
             e.printStackTrace(System.err);
             return ReturnValues.ReturnPlaceTile.NETWORK_FAILURE;
-        }    }
+        }
+    }
 
     @Override
     public ReturnValues.ReturnSwapTile swapTile(char letter) {

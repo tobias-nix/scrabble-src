@@ -9,8 +9,7 @@ import edu.unibw.se.scrabble.server.logic.ServerLogic;
 import edu.unibw.se.scrabble.server.logic.impl.ServerLogicImpl;
 import edu.unibw.se.scrabble.server.scom.ServerCommunication;
 import edu.unibw.se.scrabble.server.scom.impl.ServerCommunicationImpl;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -19,6 +18,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public abstract class ClientCommunicationFillTest {
     protected abstract ClientCommunication getClientCommunication();
 
@@ -42,11 +43,12 @@ public abstract class ClientCommunicationFillTest {
         }
     }
 
+
     @Nested
     class StartGameTests {
         @Test
         public void startGameSuccess() {
-            ArrayList<Client> clientList = setUpClientList();
+            ArrayList<Client> clientList = setUpClientList(87654);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
         }
@@ -56,7 +58,7 @@ public abstract class ClientCommunicationFillTest {
     class SelectActionTests {
         @Test
         public void selectActionSuccessTileIsPlacedBack() {
-            ArrayList<Client> clientList = setUpClientList();
+            ArrayList<Client> clientList = setUpClientList(87654);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
@@ -75,11 +77,12 @@ public abstract class ClientCommunicationFillTest {
         }
     }
 
+
     @Nested
     class PlaceTileTests {
         @Test
         public void placeTileSuccess() {
-            ArrayList<Client> clientList = setUpClientList();
+            ArrayList<Client> clientList = setUpClientList(87654);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
@@ -92,7 +95,7 @@ public abstract class ClientCommunicationFillTest {
 
         @Test
         public void placeTileFailurePositionNotAllowed() {
-            ArrayList<Client> clientList = setUpClientList();
+            ArrayList<Client> clientList = setUpClientList(87654);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
@@ -105,7 +108,7 @@ public abstract class ClientCommunicationFillTest {
 
         @Test
         public void placeTileFailureSquareOccupied() {
-            ArrayList<Client> clientList = setUpClientList();
+            ArrayList<Client> clientList = setUpClientList(87654);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
@@ -118,7 +121,7 @@ public abstract class ClientCommunicationFillTest {
 
         @Test
         public void placeTileFailureTileNotOnRack() {
-            ArrayList<Client> clientList = setUpClientList();
+            ArrayList<Client> clientList = setUpClientList(87654);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
@@ -134,7 +137,7 @@ public abstract class ClientCommunicationFillTest {
     class SwapTileTests {
         @Test
         public void swapTileSuccess() {
-            ArrayList<Client> clientList = setUpClientList();
+            ArrayList<Client> clientList = setUpClientList(87654);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
@@ -153,7 +156,7 @@ public abstract class ClientCommunicationFillTest {
 
         @Test
         public void swapTileFailureTileNotOnRack() {
-            ArrayList<Client> clientList = setUpClientList();
+            ArrayList<Client> clientList = setUpClientList(87654);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
@@ -175,7 +178,7 @@ public abstract class ClientCommunicationFillTest {
     class EndTurnTests {
         @Test
         public void endTurnSuccessPass() {
-            ArrayList<Client> clientList = setUpClientList();
+            ArrayList<Client> clientList = setUpClientList(87654);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
@@ -194,7 +197,7 @@ public abstract class ClientCommunicationFillTest {
 
         @Test
         public void endTurnSuccessPassGameOver() {
-            ArrayList<Client> clientList = setUpClientList();
+            ArrayList<Client> clientList = setUpClientList(87654);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
@@ -226,7 +229,7 @@ public abstract class ClientCommunicationFillTest {
 
         @Test
         public void endTurnSuccessSwapPassCounterReset() {
-            ArrayList<Client> clientList = setUpClientList();
+            ArrayList<Client> clientList = setUpClientList(87654);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
@@ -267,7 +270,7 @@ public abstract class ClientCommunicationFillTest {
 
         @Test
         public void endTurnSuccessPlaceReich() {
-            ArrayList<Client> clientList = setUpClientList();
+            ArrayList<Client> clientList = setUpClientList(87654);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
@@ -304,8 +307,8 @@ public abstract class ClientCommunicationFillTest {
         }
 
         @Test
-        public void endTurnSuccessPlaceReichliche() {
-            ArrayList<Client> clientList = setUpClientList();
+        public void TestEndTurnSuccessPlaceReichliche() {
+            ArrayList<Client> clientList = setUpClientList(87654);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
@@ -353,7 +356,7 @@ public abstract class ClientCommunicationFillTest {
 
         @Test
         public void endTurnSuccessPlaceLasagneCreateEi() {
-            ArrayList<Client> clientList = setUpClientList();
+            ArrayList<Client> clientList = setUpClientList(40005);
 
             checkIfSendGameDataWasCalledAndPrint(clientList);
 
@@ -389,17 +392,8 @@ public abstract class ClientCommunicationFillTest {
         }
     }
 
-    ArrayList<Client> setUpClientList() {
-        /*
-        ArrayList<Client> clientList = new ArrayList<>(List.of(
-                new Client("Odie", "OdieOdie1!", getClientCommunication()),
-                new Client("Garfield", "Garfield1!", getClientCommunication()),
-                new Client("Nermal", "Nermal123!", getClientCommunication()),
-                new Client("JonA", "JonA1234!", getClientCommunication())));
-         */
-        ArrayList<Client> clientList = new ArrayList<>(List.of(
-                new Client("Odie", "OdieOdie1!", getClientCommunication()),
-                new Client("Garfield", "Garfield1!", getClientCommunication())));
+    synchronized ArrayList<Client> setUpClientList(int sessionId) {
+        ArrayList<Client> clientList = getClientArrayList(sessionId);
 
         ServerCommunication serverCommunication;
         try {
@@ -424,6 +418,8 @@ public abstract class ClientCommunicationFillTest {
             client.clientCommunication.setNetworkConnect(serverCommunication.getNetworkConnect());
         });
 
+        serverLogic.setServerState();
+
         clientList.forEach(client -> {
             ReturnValues.ReturnLoginUser returnLoginUser =
                     client.clientCommunication.getClientConnect().loginUser(client.username, client.password);
@@ -431,9 +427,21 @@ public abstract class ClientCommunicationFillTest {
                     "Login User");
         });
 
-        serverLogic.setServerState();
-
         return clientList;
+    }
+
+    private ArrayList<Client> getClientArrayList(int sessionId) {
+        return switch (sessionId) {
+            case 87654 -> new ArrayList<>(List.of(
+                    new Client("Donald", "Donald123!", getClientCommunication()),
+                    new Client("Tick", "TickTick1!", getClientCommunication()),
+                    new Client("Trick", "TrickTrick1!", getClientCommunication()),
+                    new Client("Track", "TrackTrack1!", getClientCommunication())));
+            case 40005 -> new ArrayList<>(List.of(
+                    new Client("Odie", "OdieOdie1!", getClientCommunication()),
+                    new Client("Garfield", "Garfield1!", getClientCommunication())));
+            default -> throw new IllegalStateException("Unexpected value: " + sessionId);
+        };
     }
 
     void checkIfSendGameDataWasCalledAndPrint(ArrayList<Client> clientList) {
