@@ -9,6 +9,10 @@ import edu.unibw.se.scrabble.common.scom.ToServer;
 
 import java.rmi.RemoteException;
 
+/**
+ @author Nix
+ */
+
 public class ClientCommunicationImpl implements ClientCommunication, ClientConnect {
     private NetworkConnect networkConnect = null;
     private ToServer toServer;

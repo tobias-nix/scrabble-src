@@ -17,6 +17,10 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+/**
+ @author Nix
+ */
+
 public class MainWindow extends Stage {
     private final Label heading = new Label("Hello");
     private final Label pointsLabel = new Label("Points:");
@@ -88,13 +92,6 @@ public class MainWindow extends Stage {
             updateUserStatisticsLabels(resultStatistics.userStatistics());
         }
 
-        setOnCloseRequest(event -> {
-            close();
-            Platform.exit();
-            event.consume();
-            System.exit(0);
-        });
-
         createButton.setOnAction((event) -> {
             String messageCreate;
             RadioButton selectedRadioButton = (RadioButton) group.getSelectedToggle();
@@ -129,6 +126,7 @@ public class MainWindow extends Stage {
                     messageJoin = getJoinErrorMessageFromServer(result);
                     showAlert(messageJoin);
                 } else {
+                    mainView.setGameId(gameId);
                     mainView.setWindowState(WindowState.WAIT);
                     close();
                 }
