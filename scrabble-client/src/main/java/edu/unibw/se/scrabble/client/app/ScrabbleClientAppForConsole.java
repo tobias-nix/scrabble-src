@@ -12,16 +12,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.rmi.Naming;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 import static edu.unibw.se.scrabble.common.base.Colors.*;
 
 /**
  * Pretty ugly quick implementation of a ScrabbleApp for console.
- * Works as a state machine, but needs urgent fixes, e.g. removing all the infinite for-loops while waiting for the
- * callback functions.
- * Fix either with completable futures or a newly structured callback system that implements a state-machine in better way.
+ * Works as a state machine.
  * <p>
- * Was built as a way to test Use-Cases more easily.
+ * Was built as a way to test Use-Cases more easily while JavaFX game board is still work in progress.
  *
  * @author Bößendörfer, Seegerer
  */
@@ -31,6 +30,8 @@ public class ScrabbleClientAppForConsole {
     private static ClientConnect clientConnect = null;
     private static String username = null;
     private static final HashMap<Character, Integer> mapLetterToValue = getLetterSetHashMap();
+    private static final CompletableFuture<Void> callbackFuture = new CompletableFuture<>();
+
 
     public static void main(String[] args) {
 
@@ -48,8 +49,6 @@ public class ScrabbleClientAppForConsole {
         clientCommunication.setNetworkConnect(networkConnect);
 
         playScrabble();
-
-        showGameBoard(new char[]{}, new char[]{}, GameData.TEST_GAMEDATA);
     }
 
     private static void playScrabble() {
@@ -61,23 +60,25 @@ public class ScrabbleClientAppForConsole {
                 playScrabble();
             }
             username = "Garfield";
-            for (; ; ) {
-            }
+            ClientConnectCallbackForConsole.waitForCallback();
+            return;
         } else if (userIn.equals("odie")) {
             if (!clientConnect.loginUser("Odie", "OdieOdie1!").equals(ReturnValues.ReturnLoginUser.SUCCESSFUL)) {
                 System.out.println("Failure");
                 playScrabble();
             }
             username = "Odie";
-            for (; ; ) {
-            } // wait for callback
+            ClientConnectCallbackForConsole.waitForCallback();
+            return;
         }
         switch (userIn) {
             case "login":
                 login();
+                break;
             case "register":
                 System.out.println("Register not implemented in this terminal version");
                 login();
+                break;
             default:
                 System.out.println("Wrong input'");
                 playScrabble();
@@ -94,9 +95,11 @@ public class ScrabbleClientAppForConsole {
                 System.out.println("Login Successful");
                 username = userIn;
                 mainMenu();
+                break;
             case WRONG_PASSWORD:
                 System.out.println("Wrong Password");
                 login();
+                break;
             default:
                 System.out.println("Failure");
                 login();
@@ -108,8 +111,10 @@ public class ScrabbleClientAppForConsole {
         switch (in.nextLine().toLowerCase()) {
             case "create":
                 createSession();
+                break;
             case "join":
                 joinSession();
+                break;
         }
     }
 
@@ -119,10 +124,11 @@ public class ScrabbleClientAppForConsole {
         switch (ret.state()) {
             case SUCCESSFUL:
                 System.out.println("Created Game " + ret.gameID());
-                for (; ; ) {
-                } // wait for callback
+                ClientConnectCallbackForConsole.waitForCallback();
+                break;
             case FAILURE:
                 mainMenu();
+                break;
         }
     }
 
@@ -132,10 +138,11 @@ public class ScrabbleClientAppForConsole {
         switch (clientConnect.joinSession(gameId)) {
             case SUCCESSFUL:
                 System.out.printf("Joined Game " + gameId);
-                for (; ; ) {
-                } // wait for callback
+                ClientConnectCallbackForConsole.waitForCallback();
+                break;
             case FAILURE:
                 mainMenu();
+                break;
         }
     }
 
@@ -145,20 +152,22 @@ public class ScrabbleClientAppForConsole {
             System.out.println("Write 'START' to start game.");
         } else {
             System.out.println("Waiting for host to start game.");
-            for (; ; ) {
-            } // wait for callback
+            ClientConnectCallbackForConsole.waitForCallback();
+            return;
         }
         String userIn = in.nextLine();
         if (userIn.equalsIgnoreCase("start")) {
             switch (clientConnect.startGame()) {
                 case SUCCESSFUL:
-                    for (; ; ) {
-                    } // wait for callback
+                    ClientConnectCallbackForConsole.waitForCallback();
+                    break;
                 case USER_ALONE_IN_SESSION:
                     System.out.println("Minimum of 2 players required.");
+                    break;
                 default:
                     System.out.println("Failure");
                     lobby(usernames);
+                    break;
             }
         }
     }
@@ -168,10 +177,13 @@ public class ScrabbleClientAppForConsole {
         switch (in.nextLine().toLowerCase()) {
             case "place":
                 selectAction(ActionState.PLACE, rackTiles, swapTiles, gameData);
+                break;
             case "swap":
                 selectAction(ActionState.SWAP, rackTiles, swapTiles, gameData);
+                break;
             case "pass":
                 selectAction(ActionState.PASS, rackTiles, swapTiles, gameData);
+                break;
             default:
                 play(rackTiles, swapTiles, gameData);
         }
@@ -180,11 +192,12 @@ public class ScrabbleClientAppForConsole {
     private static void selectAction(ActionState actionState, char[] rackTiles, char[] swapTiles, GameData gameData) {
         switch (clientConnect.selectAction(actionState)) {
             case SUCCESSFUL:
-                for (; ; ) {
-                } // wait for callback
+                ClientConnectCallbackForConsole.waitForCallback();
+                break;
             case LESS_THAN_SEVEN_TILES_IN_BAG:
                 System.out.println("No swap possible, less than 7 tiles in the bag!");
                 play(rackTiles, swapTiles, gameData);
+                break;
             default:
                 System.out.println("Failure");
                 play(rackTiles, swapTiles, gameData);
@@ -196,6 +209,7 @@ public class ScrabbleClientAppForConsole {
         System.out.println("Do you want to end your turn? ('YES'/'NO')");
         if (in.nextLine().equalsIgnoreCase("yes")) {
             endTurn(rackTiles, swapTiles, gameData);
+            return;
         }
 
         System.out.println("Place a tile: [LETTER, ROW, COLUMN]");
@@ -204,6 +218,7 @@ public class ScrabbleClientAppForConsole {
         if (inArray.length != 3) {
             System.out.println("Wrong Input");
             play(rackTiles, swapTiles, gameData);
+            return;
         }
 
         switch (clientConnect.placeTile(new TileWithPosition(inArray[0].toUpperCase().charAt(0),
@@ -211,20 +226,24 @@ public class ScrabbleClientAppForConsole {
                 Integer.parseInt(inArray[2].trim()))
         )) {
             case SUCCESSFUL:
-                for (; ; ) {
-                }  // wait for callback
+                ClientConnectCallbackForConsole.waitForCallback();
+                break;
             case POSITION_NOT_ALLOWED:
                 System.out.println("Position not allowed");
                 place(rackTiles, swapTiles, gameData);
+                break;
             case TILE_NOT_ON_RACK:
                 System.out.println("Tile not on rack");
                 place(rackTiles, swapTiles, gameData);
+                break;
             case SQUARE_OCCUPIED:
                 System.out.println("Square occupied");
                 place(rackTiles, swapTiles, gameData);
+                break;
             default:
                 System.out.println("Failure");
                 place(rackTiles, swapTiles, gameData);
+                break;
         }
     }
 
@@ -233,16 +252,18 @@ public class ScrabbleClientAppForConsole {
         System.out.println("Do you want to end your turn? ('YES'/'NO')");
         if (in.nextLine().equalsIgnoreCase("yes")) {
             endTurn(rackTiles, swapTiles, gameData);
+            return;
         }
         System.out.println("Select a tile to place on the swap bench:");
         String tileIn = in.nextLine();
         switch (clientConnect.swapTile(tileIn.charAt(0))) {
             case SUCCESSFUL:
-                for (; ; ) {
-                }  // wait for callback
+                ClientConnectCallbackForConsole.waitForCallback();
+                break;
             case TILE_NOT_ON_RACK:
                 System.out.println("Tile not on rack");
                 swap(rackTiles, swapTiles, gameData);
+                break;
             default:
                 System.out.println("Failure");
                 swap(rackTiles, swapTiles, gameData);
@@ -254,6 +275,7 @@ public class ScrabbleClientAppForConsole {
         System.out.println("Do you want to end your turn? ('YES'/'NO')");
         if (in.nextLine().equalsIgnoreCase("yes")) {
             endTurn(rackTiles, swapTiles, gameData);
+            return;
         }
         play(rackTiles, swapTiles, gameData);
     }
@@ -262,8 +284,11 @@ public class ScrabbleClientAppForConsole {
         System.out.println("Ending Turn");
         switch (clientConnect.endTurn()) {
             case SUCCESSFUL:
-                for (; ; ) {
-                }  // wait for callback
+                ClientConnectCallbackForConsole.waitForCallback();
+                break;
+            case NETWORK_FAILURE:
+                System.out.println("Network Failure");
+                break;
             default:
                 System.out.println("Failure");
                 play(rackTiles, swapTiles, gameData);
@@ -277,21 +302,20 @@ public class ScrabbleClientAppForConsole {
 
         if (!userIn.equals("C") && !userIn.equals("R")) {
             vote(placedWords);
+            return;
         }
-        ReturnValues.ReturnSendPlayerVote ret = null;
+        ReturnValues.ReturnSendPlayerVote ret;
         if (userIn.equals("C")) {
             ret = clientConnect.sendPlayerVote(PlayerVote.CONFIRMED);
-        } else if (userIn.equals("R")) {
+        } else {
             ret = clientConnect.sendPlayerVote(PlayerVote.REJECTED);
         }
 
         switch (ret) {
             case SUCCESSFUL:
-                for (; ; ) {
-                }  // wait for callback
-            case null:
-                System.out.println("Failure");
-            default:
+                ClientConnectCallbackForConsole.waitForCallback();
+                break;
+            case null, default:
                 System.out.println("Failure");
         }
     }
@@ -395,6 +419,7 @@ public class ScrabbleClientAppForConsole {
 
         @Override
         public void usersInSession(String[] usernames) {
+            callbackFuture.complete(null);
             lobby(usernames);
         }
 
@@ -404,20 +429,26 @@ public class ScrabbleClientAppForConsole {
             showGameBoard(rackTiles, swapTiles, gameData);
             if (!gameData.currentPlayer.equals(username)) {
                 System.out.println("\nWaiting for next move of " + gameData.currentPlayer);
-                for (; ; ) {
-                }  // wait for callback
+                callbackFuture.complete(null);
+                return;
             }
+            callbackFuture.complete(null);
             switch (gameData.state) {
                 case PLAY:
                     play(rackTiles, swapTiles, gameData);
+                    break;
                 case PLACE:
                     place(rackTiles, swapTiles, gameData);
+                    break;
                 case SWAP:
                     swap(rackTiles, swapTiles, gameData);
+                    break;
                 case PASS:
                     pass(rackTiles, swapTiles, gameData);
+                    break;
                 case GAME_OVER:
                     gameOver();
+                    break;
                 default:
                     System.out.println("Failure in sendGameData.");
             }
@@ -425,7 +456,12 @@ public class ScrabbleClientAppForConsole {
 
         @Override
         public void vote(String[] placedWords) {
+            callbackFuture.complete(null);
             ScrabbleClientAppForConsole.vote(placedWords);
+        }
+
+        private static void waitForCallback() {
+            callbackFuture.join();
         }
     }
 
