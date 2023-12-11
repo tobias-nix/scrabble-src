@@ -8,6 +8,10 @@ import edu.unibw.se.scrabble.common.scom.NetworkConnect;
 
 import java.rmi.Naming;
 
+/**
+ @author Nix
+ */
+
 public class ScrabbleClientApp {
 
     private static final int PORT = 1099;
