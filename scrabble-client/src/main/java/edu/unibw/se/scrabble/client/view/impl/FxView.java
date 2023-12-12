@@ -1,7 +1,6 @@
 package edu.unibw.se.scrabble.client.view.impl;
 
 import edu.unibw.se.scrabble.common.base.GameData;
-import edu.unibw.se.scrabble.common.base.GameState;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -19,6 +18,7 @@ public class FxView extends Application {
     private char[] rackTiles;
     private char[] swapTiles;
     private GameData gameData;
+    private String[] placedWords;
 
     @Override
     public void start(Stage stage) {
@@ -83,5 +83,12 @@ public class FxView extends Application {
     }
     public void setGameId(int gameId) {
         this.gameId = gameId;
+    }
+    public void setPlacedWords(String[] placedWords){
+        this.placedWords = placedWords;
+    }
+
+    public String[] getPlacedWords(){
+        return this.placedWords;
     }
 }

@@ -1,9 +1,7 @@
 package edu.unibw.se.scrabble.client.view.impl;
 
-import edu.unibw.se.scrabble.common.base.ActionState;
-import edu.unibw.se.scrabble.common.base.GameState;
-import edu.unibw.se.scrabble.common.base.ReturnValues;
-import edu.unibw.se.scrabble.common.base.TileWithPosition;
+import edu.unibw.se.scrabble.common.base.*;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -27,6 +25,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Nix
@@ -114,7 +113,7 @@ public class GameWindow extends Stage {
     }
 
     public GameWindow(FxView mainView) {
-        gameId.setText("GameID: " + mainView.getGameData().gameID);
+        gameId.setText("GameID: " + mainView.getGameData().gameID + "/" + mainView.getUsername());
         bagSize.setText("Bag: " + mainView.getGameData().bagSize);
 
 
@@ -174,7 +173,9 @@ public class GameWindow extends Stage {
 
         char[] rackTiles = mainView.getRackTiles();
 
-        for (int i = 0; i < 7; i++) {
+        int length = rackTiles.length;
+
+        for (int i = 0; i < length; i++) {
             char letter = rackTiles[i];
             String imgPath;
             if (letter == '_') {
@@ -191,6 +192,7 @@ public class GameWindow extends Stage {
                 ClipboardContent content = new ClipboardContent();
                 content.putString(String.valueOf(letter));
                 db.setContent(content);
+                db.setDragView(imageView.snapshot(null, null));
                 event.consume();
             });
 
@@ -204,7 +206,7 @@ public class GameWindow extends Stage {
                 Rectangle boardRectangle = new Rectangle(36, 36);
                 boardRectangle.setFill(Color.TRANSPARENT);
                 boardRectangle.setStroke(Color.BLACK);
-                boardRectangle.setStrokeWidth(0.1);
+                boardRectangle.setStrokeWidth(0.01);
 
 
                     boardRectangle.setOnDragOver(e -> {
@@ -308,12 +310,39 @@ public class GameWindow extends Stage {
             }
 
             hBox8.getChildren().add(stack);
-
         }
 
+        if (mainView.getGameData().state == GameState.VOTE) {
+            Platform.runLater(() -> {
+            String[] voteWords = mainView.getPlacedWords();
+            StringBuilder content = new StringBuilder("Words Voted: ");
+            for (String word : voteWords) {
+                content.append(word).append(", ");
+            }
+            content = new StringBuilder(content.substring(0, content.length() - 2));
+
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Vote");
+                alert.setHeaderText(null);
+                alert.setContentText(content.toString());
+                alert.initStyle(StageStyle.UTILITY);
+
+                ButtonType blameButton = new ButtonType("BLAME");
+                ButtonType okButton = new ButtonType("OKAY");
+
+                alert.getButtonTypes().setAll(blameButton, okButton);
+
+                Optional<ButtonType> result = alert.showAndWait();
+
+                if (result.isPresent() && result.get() == blameButton) {
+                    ViewControl.clientConnect.sendPlayerVote(PlayerVote.REJECTED);
+                } else if (result.isPresent() && result.get() == okButton) {
+                    ViewControl.clientConnect.sendPlayerVote(PlayerVote.CONFIRMED);
+                }
+            });
+        }
 
         pass.setOnAction((event) -> {
-
             ReturnValues.ReturnSelectAction result = ViewControl.clientConnect.selectAction(ActionState.PASS);
             if (result != ReturnValues.ReturnSelectAction.SUCCESSFUL) {
                 showAlert(getSelectErrorMessageFromServer(result));
@@ -338,6 +367,35 @@ public class GameWindow extends Stage {
             ReturnValues.ReturnEndTurn result = ViewControl.clientConnect.endTurn();
             if (result != ReturnValues.ReturnEndTurn.SUCCESSFUL) {
                 showAlert(getEndTurnErrorMessageFromServer(result));
+            } else {
+                ViewControl.clientConnect.sendPlayerVote(PlayerVote.REJECTED);
+                /*Platform.runLater(() -> {
+                    String[] voteWords = mainView.getPlacedWords();
+                    StringBuilder content = new StringBuilder("Words Voted: ");
+                    for (String word : voteWords) {
+                        content.append(word).append(", ");
+                    }
+                    content = new StringBuilder(content.substring(0, content.length() - 2));
+
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Vote");
+                    alert.setHeaderText(null);
+                    alert.setContentText(content.toString());
+                    alert.initStyle(StageStyle.UTILITY);
+
+                    ButtonType blameButton = new ButtonType("BLAME");
+                    ButtonType okButton = new ButtonType("OKAY");
+
+                    alert.getButtonTypes().setAll(blameButton, okButton);
+
+                    Optional<ButtonType> answer = alert.showAndWait();
+
+                    if (answer.isPresent() && answer.get() == blameButton) {
+                        ViewControl.clientConnect.sendPlayerVote(PlayerVote.REJECTED);
+                    } else if (answer.isPresent() && answer.get() == okButton) {
+                        ViewControl.clientConnect.sendPlayerVote(PlayerVote.CONFIRMED);
+                    }
+                });*/
             }
         });
     }
@@ -410,7 +468,7 @@ public class GameWindow extends Stage {
     }
 
     private boolean isValidMove(String letter, int row, int column) {
-        ReturnValues.ReturnPlaceTile result = ViewControl.clientConnect.placeTile(new TileWithPosition(letter.toLowerCase().charAt(0), row, column));
+        ReturnValues.ReturnPlaceTile result = ViewControl.clientConnect.placeTile(new TileWithPosition(letter.charAt(0), row, column));
         if (result != ReturnValues.ReturnPlaceTile.SUCCESSFUL) {
             showAlert(getPlaceErrorMessageFromServer(result));
         } else {
